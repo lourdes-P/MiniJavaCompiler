@@ -1,0 +1,3 @@
+///[SinErrores]
+
++"String\n"+"concatenado."
