@@ -1,6 +1,7 @@
 package lexicalAnalyzer;
 
 import ioManager.SourceManager;
+import lexicalAnalyzer.exceptions.*;
 import lexicalAnalyzer.reservedWordManager.ReservedWordMap;
 
 import java.io.IOException;
@@ -156,7 +157,7 @@ public class LexicalAnalyzer {
             return eEOF();
         } else {
             updateLexeme();
-            throw new LexicalException(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
+            throw new LexicalExceptionInvalidSymbol(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
         }
     }
 
@@ -170,9 +171,9 @@ public class LexicalAnalyzer {
             return eAndOp();
         } else if (!Character.isWhitespace(currentChar) && !reachedEOF()){
             updateLexeme();
-            throw new LexicalException(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
+            throw new LexicalExceptionLogicOperators(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
         } else {
-            throw new LexicalException(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
+            throw new LexicalExceptionLogicOperators(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
         }
     }
 
@@ -184,9 +185,9 @@ public class LexicalAnalyzer {
         }
         else if (!Character.isWhitespace(currentChar) && !reachedEOF()) {
             updateLexeme();
-            throw new LexicalException(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
+            throw new LexicalExceptionLogicOperators(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
         } else {
-            throw new LexicalException(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
+            throw new LexicalExceptionLogicOperators(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
         }
     }
 
@@ -204,7 +205,7 @@ public class LexicalAnalyzer {
             updateCurrentChar();
             return eStringOpen();
         } else {
-            throw new LexicalException(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
+            throw new LexicalExceptionStringMalformed(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
         }
     }
 
@@ -215,9 +216,9 @@ public class LexicalAnalyzer {
             return eStringOpen();
         } else if (!isEnter(currentChar) && !reachedEOF()){
             updateLexeme();
-            throw new LexicalException(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
+            throw new LexicalExceptionStringMalformed(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
         } else {
-            throw new LexicalException(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
+            throw new LexicalExceptionStringMalformed(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
         }
     }
 
@@ -237,7 +238,7 @@ public class LexicalAnalyzer {
             updateCurrentChar();
             return eOpenComment2();
         } else if (reachedEOF()) {
-            throw new LexicalException(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
+            throw new LexicalExceptionCommentMalformed(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
         } else if(isEnter(currentChar)) {
             eraseLexeme();
             updateCurrentChar();
@@ -259,7 +260,7 @@ public class LexicalAnalyzer {
             updateCurrentChar();
             return eOpenComment2();
         } else if (reachedEOF()) {
-            throw new LexicalException(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
+            throw new LexicalExceptionCommentMalformed(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
         } else if (isEnter(currentChar)) {
             eraseLexeme();
             updateCurrentChar();
@@ -277,29 +278,26 @@ public class LexicalAnalyzer {
             return eCharacterSlash();
         } else if (currentChar == '\'') {
             updateLexeme();
-            throw new LexicalException(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
+            throw new LexicalExceptionCharacterMalformed(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
         }else if (!isEnter(currentChar) && !reachedEOF()) {
             updateLexeme();
             updateCurrentChar();
             return eCharacter2();
         } else {
-            throw new LexicalException(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
+            throw new LexicalExceptionCharacterMalformed(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
         }
     }
 
     private Token eCharacterSlash() throws LexicalException {
-        if (currentChar == '\'') {
-            updateLexeme();
-            throw new LexicalException(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
-        } else if (!Character.isWhitespace(currentChar) && !reachedEOF()) {
+        if ((!Character.isWhitespace(currentChar) || currentChar==' ') && !reachedEOF()) {
             updateLexeme();
             updateCurrentChar();
             return eCharacter2();
         } else if(!isEnter(currentChar) && !reachedEOF()){
             updateLexeme();
-            throw new LexicalException(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
+            throw new LexicalExceptionCharacterMalformed(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
         } else {
-            throw new LexicalException(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
+            throw new LexicalExceptionCharacterMalformed(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
         }
     }
 
@@ -310,9 +308,9 @@ public class LexicalAnalyzer {
             return eCharacterLiteral();
         } else if (!isEnter(currentChar) && !reachedEOF()){
             updateLexeme();
-            throw new LexicalException(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
+            throw new LexicalExceptionCharacterMalformed(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
         } else {
-            throw new LexicalException(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
+            throw new LexicalExceptionCharacterMalformed(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
         }
     }
 
@@ -328,11 +326,11 @@ public class LexicalAnalyzer {
     }
 
     private Token eOpenParenthesisPunct() throws LexicalException {
-        return new Token ("ParéntesisAbre", lexeme, sourceManager.getLineNumber());
+        return new Token ("ParentesisAbre", lexeme, sourceManager.getLineNumber());
     }
 
     private Token eCloseParenthesisPunct() throws LexicalException {
-        return new Token ("ParéntesisCierra", lexeme, sourceManager.getLineNumber());
+        return new Token ("ParentesisCierra", lexeme, sourceManager.getLineNumber());
     }
 
     private Token ePeriodPunct() throws LexicalException {
@@ -375,7 +373,7 @@ public class LexicalAnalyzer {
 
     private Token ePlusOp() throws LexicalException {
         if (currentChar != '=') {
-            return new Token("Más", lexeme, sourceManager.getLineNumber());
+            return new Token("Mas", lexeme, sourceManager.getLineNumber());
         } else {
             updateLexeme();
             updateCurrentChar();
@@ -445,7 +443,7 @@ public class LexicalAnalyzer {
 
     private Token eAssign() throws LexicalException {
         if (currentChar != '=') {
-            return new Token("Asignación", lexeme, sourceManager.getLineNumber());
+            return new Token("Asignacion", lexeme, sourceManager.getLineNumber());
         } else {
             updateLexeme();
             updateCurrentChar();
@@ -458,11 +456,11 @@ public class LexicalAnalyzer {
     }
 
     private Token eAssignPlus() throws LexicalException {
-        return new Token ("AsignaciónSuma", lexeme, sourceManager.getLineNumber());
+        return new Token ("AsignacionSuma", lexeme, sourceManager.getLineNumber());
     }
 
     private Token eAssignMinus() throws LexicalException {
-        return new Token("AsignaciónResta", lexeme, sourceManager.getLineNumber());
+        return new Token("AsignacionResta", lexeme, sourceManager.getLineNumber());
     }
 
     private Token eIdClass() throws LexicalException {
@@ -603,7 +601,7 @@ public class LexicalAnalyzer {
     private Token eInt9() throws LexicalException {
         if (Character.isDigit(currentChar)) {
             updateLexeme();
-            throw new LexicalException(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
+            throw new LexicalExceptionInvalidInteger(lexeme, sourceManager.getLineNumber(), sourceManager.getLineIndexNumber(), sourceManager.getCurrentLine());
         } else {
             return new Token ("intLiteral", lexeme, sourceManager.getLineNumber());
         }
@@ -614,7 +612,7 @@ public class LexicalAnalyzer {
     }
 
     private Token eEOF() throws LexicalException {
-        return new Token ("EOF", lexeme, sourceManager.getLineNumber());
+        return new Token ("EOF", "", sourceManager.getLineNumber());
     }
 
 

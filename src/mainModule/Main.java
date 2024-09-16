@@ -3,7 +3,7 @@ package mainModule;
 import ioManager.SourceManager;
 import ioManager.SourceManagerImpl;
 import lexicalAnalyzer.LexicalAnalyzer;
-import lexicalAnalyzer.LexicalException;
+import lexicalAnalyzer.exceptions.LexicalException;
 import lexicalAnalyzer.Token;
 import lexicalAnalyzer.reservedWordManager.ReservedWordMap;
 import utils.Formatter;
@@ -20,7 +20,7 @@ public class Main {
             sourceFile = args[0];
         }
         ReservedWordMap reservedWordMap = new ReservedWordMap();
-        //TODO descomentar si se quiere ver el mapeo de palabras reservadas:: reservedWordMap.showMap();
+        reservedWordMap.showMap();
         SourceManager sourceManager = new SourceManagerImpl();
         try {
             sourceManager.open(sourceFile);

@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ReservedWordMap {
-    Map<String,String> reservedWordMap;
-    CSVFileManager CSVFileManager;
+    private Map<String,String> reservedWordMap;
+    private CSVFileManager CSVFileManager;
 
     public ReservedWordMap() {
         CSVFileManager = new CSVFileManager("reservedwords.csv");
@@ -17,7 +17,6 @@ public class ReservedWordMap {
     }
 
     private void initializeMap() {
-        String reservedWord, reservedWordID;
         String[] reservedWordAndReservedWordID;
         while ((reservedWordAndReservedWordID = CSVFileManager.getNextCSVToken()) != null) {
             reservedWordMap.put(reservedWordAndReservedWordID[0], reservedWordAndReservedWordID[1]);
@@ -34,8 +33,8 @@ public class ReservedWordMap {
 
     public void showMap() {
         Object[] array = reservedWordMap.entrySet().stream().toArray();
-        for (int i=0; i<array.length ; i++) {
-            System.out.println(array[i]);
+        for (Object o : array) {
+            System.out.println(o);
         }
     }
 }

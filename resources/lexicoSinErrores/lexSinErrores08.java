@@ -4,4 +4,6 @@ class Class extends
 true false
 '\n'
 ' '
+'\ '
+'\''
 

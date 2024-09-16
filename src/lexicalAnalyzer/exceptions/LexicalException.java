@@ -1,12 +1,12 @@
-package lexicalAnalyzer;
+package lexicalAnalyzer.exceptions;
 
 import utils.Formatter;
 
 public class LexicalException extends Exception{
     private String lexeme, line;
     private int lineNumber, column;
-    public LexicalException(String lexeme, int lineNumber, int column, String line) {
-        super("Lexical error in line " + lineNumber + ", column " + column + ": " + lexeme + ".\nDetail: "+ line + "\n" + Formatter.blankGenerator((column+8)-1) + "^\n[Error:"+ lexeme +"|"+ lineNumber + "]");
+    public LexicalException(String errorMessage, String lexeme, int lineNumber, int column, String line) {
+        super(errorMessage + "\nDetail: "+ line + "\n" + Formatter.blankGenerator((column+8)-1) + "^\n[Error:"+ lexeme +"|"+ lineNumber + "]");
         this.lexeme = lexeme;
         this.lineNumber = lineNumber;
         this.column = column;

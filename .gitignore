@@ -1,2 +1,4 @@
 /out
 /resources/META-INF
+/.idea
+*.iml

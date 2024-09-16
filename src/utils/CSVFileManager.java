@@ -1,5 +1,7 @@
 package utils;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Scanner;
 
@@ -13,8 +15,16 @@ public class CSVFileManager {
     }
 
     private void initializeScanner() {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName);
-        scanner = new Scanner(inputStream);
+        InputStream inputStream = null;
+        try {
+            inputStream = new FileInputStream( "./resources/" + fileName);
+        } catch (FileNotFoundException e) {
+            System.out.println("Error al leer .csv de palabras reservadas.");
+        }
+        if (inputStream != null)
+            scanner = new Scanner(inputStream);
+        else
+            System.out.println("Error al leer .csv de palabras reservadas.");
     }
 
     public String[] getNextCSVToken() {
