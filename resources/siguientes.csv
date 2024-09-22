@@ -4,6 +4,10 @@ OptionalInheritance,LlaveAbre
 MemberList,LlaveCierra
 Member,MemberList
 AttributeMethod,Member
+Attribute,AttributeMethod
+OptionalAttributeInitialization,ContinueAttributeDeclaration
+OptionalAttributeInitialization,Coma
+ContinueAttributeDeclaration,PuntoYComa
 OptionalStatic,pr_void
 OptionalStatic,idClase
 OptionalStatic,pr_boolean
@@ -29,6 +33,8 @@ LocalVar,PuntoYComa
 LocalVarVar,LocalVar
 LocalVarClassic,LocalVar
 OptionalClassicVarInitialization,Coma
+OptionalClassicVarInitialization,LocalVarClassic
+ContinueLocalVarDeclaration,LocalVarClassic
 Return,PuntoYComa
 Break,PuntoYComa
 If,Sentence

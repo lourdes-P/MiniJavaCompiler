@@ -1,19 +1,11 @@
-///[SinErrores]
-// Prueba un bloque con una asignacion, un atributo y un constructor
+// Prueba un bloque con una asignacion
 
 class Prueba1{
 
-    int x;
-
-    static  void prueba1(int a, char b)
+    static  int prueba1(int a) 
     {
         this.b().a = 5; 
-        A.b().c = 1;
-        var tuki = new A();
-    }
-
-    public Prueba1(int y){
-
+    
     }
     
 }

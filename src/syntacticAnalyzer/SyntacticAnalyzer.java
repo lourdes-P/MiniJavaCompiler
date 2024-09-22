@@ -208,11 +208,8 @@ public class SyntacticAnalyzer {
 
     private void attributeMethod() throws AbstractSyntacticException, LexicalException {
         if (firstsMap.containsEntry("AttributeMethod", currentToken.getTokenName())) {
-            if (currentToken.getTokenName().equals("PuntoYComa")) {
-                match("PuntoYComa");
-            } else if(currentToken.getTokenName().equals("Asignacion")) {
-                match("Asignacion");
-                expression();
+            if (firstsMap.containsEntry("Attribute", currentToken.getTokenName())) {
+                attribute();
                 match("PuntoYComa");
             } else {
                 formalArguments();
@@ -222,6 +219,34 @@ public class SyntacticAnalyzer {
             throw new SyntacticException(currentToken,firstsMap.getValue("AttributeMethod"));
         }
     }
+
+    private void attribute() throws AbstractSyntacticException, LexicalException {
+        optionalAttributeInitialization();
+        continueAttributeDeclaration();
+    }
+
+    private void optionalAttributeInitialization() throws AbstractSyntacticException, LexicalException {
+        if (firstsMap.containsEntry("OptionalAttributeInitialization", currentToken.getTokenName())) {
+            match("Asignacion");
+            composedExpression();
+        } else if (nextsMap.containsEntry("OptionalAttributeInitialization", currentToken.getTokenName())) {
+            //empty. Token is in next list.
+        } else {
+            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("OptionalAttributeInitialization"));
+        }
+     }
+
+     private void continueAttributeDeclaration() throws AbstractSyntacticException, LexicalException {
+         if (firstsMap.containsEntry("ContinueAttributeDeclaration", currentToken.getTokenName())) {
+             match("Coma");
+             match("idMetVar");
+             attribute();
+         } else if (nextsMap.containsEntry("ContinueAttributeDeclaration", currentToken.getTokenName())) {
+             //empty. Token is in next list.
+         } else {
+             throw new SyntacticException(currentToken,concatenateFirstListAndNextList("ContinueAttributeDeclaration"));
+         }
+     }
 
     private void block() throws AbstractSyntacticException, LexicalException {
         match("LlaveAbre");
@@ -488,11 +513,14 @@ public class SyntacticAnalyzer {
     }
 
     private void localVar() throws AbstractSyntacticException, LexicalException {
-        if (firstsMap.containsEntry("localVar", currentToken.getTokenName())) {
+        if (firstsMap.containsEntry("LocalVar", currentToken.getTokenName())) {
             if (currentToken.getTokenName().equals("pr_var")) {
                 localVarVar();
+                match("PuntoYComa");
             } else if (firstsMap.containsEntry("Type", currentToken.getTokenName())) {
+                type();
                 localVarClassic();
+                match("PuntoYComa");
             }
         }
     }
@@ -505,7 +533,6 @@ public class SyntacticAnalyzer {
     }
 
     private void localVarClassic() throws AbstractSyntacticException, LexicalException {
-        type();
         match("idMetVar");
         optionalClassicVarInitialization();
         continueLocalVarDeclaration();

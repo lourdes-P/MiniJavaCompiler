@@ -1,5 +1,5 @@
 class Clase extends ExtiendeA {
-    int entero1;
+    int entero1, entero2;
     String nombre;
 
     static void metodo1(int num, char caracter){}

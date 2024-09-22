@@ -8,9 +8,15 @@ MemberList,Member
 Member,OptionalStatic
 Member,Constructor
 Member,MemberType
-AttributeMethod,PuntoYComa
-AttributeMethod,Asignacion
+AttributeMethod,Attribute
 AttributeMethod,FormalArguments
+Attribute,PuntoYComa
+Attribute,OptionalAttributeInitialization
+Attribute,ContinueAttributeDeclaration
+OptionalAttributeInitialization,Asignacion
+OptionalAttributeInitialization,empty
+ContinueAttributeDeclaration,Coma
+ContinueAttributeDeclaration,empty
 Constructor,pr_public
 OptionalStatic,pr_static
 OptionalStatic,empty
