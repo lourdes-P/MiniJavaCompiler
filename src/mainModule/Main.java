@@ -6,12 +6,19 @@ import lexicalAnalyzer.LexicalAnalyzer;
 import lexicalAnalyzer.exceptions.LexicalException;
 import lexicalAnalyzer.Token;
 import lexicalAnalyzer.reservedWordManager.ReservedWordMap;
+import syntacticAnalyzer.SyntacticAnalyzer;
+import syntacticAnalyzer.exceptions.AbstractSyntacticException;
+import utils.FirstsManager;
 import utils.Formatter;
+import utils.MapManager;
+import utils.NextsManager;
 
 import java.io.FileNotFoundException;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
+
         String sourceFile = "";
         if (args.length == 0) {
             sourceFile = "./resources/dummySourceFile.txt";
@@ -20,7 +27,7 @@ public class Main {
             sourceFile = args[0];
         }
         ReservedWordMap reservedWordMap = new ReservedWordMap();
-        reservedWordMap.showMap();
+        //reservedWordMap.showMap();
         SourceManager sourceManager = new SourceManagerImpl();
         try {
             sourceManager.open(sourceFile);
@@ -29,23 +36,25 @@ public class Main {
         }
 
         LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(sourceManager, reservedWordMap);
-        Token token, dummyToken = new Token("", "", 0);
+        SyntacticAnalyzer syntacticAnalyzer = new SyntacticAnalyzer(lexicalAnalyzer);
 
-        do {
-            try {
-                token = lexicalAnalyzer.nextToken();
-            } catch (LexicalException lexicalException) {
-                System.out.println(lexicalException.getMessage());
-                lexicalAnalyzer.registerLexicalError();
-                token = dummyToken;
-            }
+        try {
+            syntacticAnalyzer.start();
+        } catch (LexicalException lexicalException) {
+            System.out.println(lexicalException.getMessage());
+            lexicalAnalyzer.registerLexicalError();
+        } catch (AbstractSyntacticException syntacticException) {
+            System.out.println(syntacticException.getMessage());
+            syntacticAnalyzer.registerSyntacticError();
+        }
 
-            if (!token.getTokenName().equals(""))
-                System.out.println(Formatter.formatToken(token));
-        } while (!token.getTokenName().equals("EOF"));
-
-        if (lexicalAnalyzer.getSinErrores()) {
+        if (lexicalAnalyzer.getSinErrores() && syntacticAnalyzer.getSinErrores()) {
             System.out.println("[SinErrores]");
         }
+
+
     }
+
+
+
 }

@@ -1,12 +1,13 @@
 package utils;
 
-import java.util.Map;
+import java.util.List;
 
 public class FirstsManager extends MapManager {
-    // TODO hacer algo para calcular los primeros de cada no terminal
 
     public FirstsManager() {
         super("primeros.csv");
     }
+
+
 
 }

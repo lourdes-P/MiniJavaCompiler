@@ -2,9 +2,11 @@ package syntacticAnalyzer.exceptions;
 
 import lexicalAnalyzer.Token;
 
-public class SyntacticException extends Exception {
+import java.util.List;
 
-    public SyntacticException(Token currentToken, String expectedTokenName) {
+public class SyntacticException extends AbstractSyntacticException {
 
+    public SyntacticException(Token currentToken, List<String> expectedTokenNameList) {
+        super("Syntactic error in line "+ currentToken.getLineNumber() + ". Expected: " + expectedTokenNameList.toString() + ", encountered: " + currentToken.getLexeme() + "\n[Error:"+ currentToken.getLexeme() + "|" + currentToken.getLineNumber() + "]");
     }
 }
