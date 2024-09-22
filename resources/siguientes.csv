@@ -1,5 +1,8 @@
 ClassList,EOF
 Class,ClassList
+AbstractMemberList,LlaveCierra
+AbstractMethod,AbstractMemberList
+Member,AbstractMemberList
 OptionalInheritance,LlaveAbre
 MemberList,LlaveCierra
 Member,MemberList

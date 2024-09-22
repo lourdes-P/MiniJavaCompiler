@@ -20,3 +20,4 @@ null,pr_null
 true,pr_true
 false,pr_false
 default,pr_default
+abstract,pr_abstract

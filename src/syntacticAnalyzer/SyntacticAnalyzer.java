@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SyntacticAnalyzer {
-    private boolean sinErrores, recoverFromError;
+    private boolean sinErrores;
     private LexicalAnalyzer lexicalAnalyzer;
     private Token currentToken;
     private MapManager firstsMap, nextsMap;
@@ -32,20 +32,6 @@ public class SyntacticAnalyzer {
             currentToken = lexicalAnalyzer.nextToken();
         } else
             throw new NoMatchSyntacticException(currentToken, expectedTokenName);
-
-        // TODO el main antes: } while (!token.getTokenName().equals("EOF"));
-    }
-
-    private void updateTokenAfterError() {
-        // TODO
-        // Si el error se produjo en una sentencia, debería continuar con la siguiente
-        //sentencia o finalizar el bloque (en caso de la errónea ser la última)
-        // Si el error se produjo en una expresión se salte el resto de la expresión y
-        //se continúe con la sentencia que la contiene
-        // Si el error se produce en la encabezado de declaración de un
-        //método/constructor se debe continuar con su bloque
-        // Si el error se produce en una declaración de atributo se continua con la
-        //siguiente declaración.
     }
 
     public void start() throws AbstractSyntacticException, LexicalException {
@@ -71,12 +57,44 @@ public class SyntacticAnalyzer {
     }
 
     private void class_() throws AbstractSyntacticException, LexicalException {
-        match("pr_class");
-        match("idClase");
-        optionalInheritance();
-        match("LlaveAbre");
-        memberList();
-        match("LlaveCierra");
+        if (firstsMap.containsEntry("Class", currentToken.getTokenName())) {
+            if (currentToken.getTokenName().equals("pr_class")) {
+                match("pr_class");
+                match("idClase");
+                optionalInheritance();
+                match("LlaveAbre");
+                memberList();
+                match("LlaveCierra");
+            } else if (currentToken.getTokenName().equals("pr_abstract")) {
+                match("pr_abstract");
+                match("pr_class");
+                match("idClase");
+                optionalInheritance();
+                match("LlaveAbre");
+                abstractMemberList();
+                match("LlaveCierra");
+            }
+        } else {
+            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("ClassList"));
+        }
+    }
+
+    private void abstractMemberList() throws AbstractSyntacticException, LexicalException {
+        if (firstsMap.containsEntry("AbstractMethod", currentToken.getTokenName())) {
+            abstractMethod();
+            abstractMemberList();
+        } else if (firstsMap.containsEntry("Member", currentToken.getTokenName())) {
+            member();
+            abstractMemberList();
+        }
+    }
+
+    private void abstractMethod() throws AbstractSyntacticException, LexicalException {
+        match("pr_abstract");
+        memberType();
+        match("idMetVar");
+        formalArguments();
+        match("PuntoYComa");
     }
 
     private void optionalInheritance() throws AbstractSyntacticException, LexicalException {

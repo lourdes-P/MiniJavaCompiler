@@ -2,6 +2,10 @@ Start,ClassList
 ClassList,empty
 ClassList,Class
 Class,pr_class
+Class,pr_abstract
+AbstractMemberList,AbstractMethod
+AbstractMemberList,Member
+AbstractMethod,pr_abstract
 OptionalInheritance,pr_extends
 OptionalInheritance,empty
 MemberList,Member
