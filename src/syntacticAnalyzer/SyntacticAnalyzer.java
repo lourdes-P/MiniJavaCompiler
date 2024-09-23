@@ -61,6 +61,7 @@ public class SyntacticAnalyzer {
             if (currentToken.getTokenName().equals("pr_class")) {
                 match("pr_class");
                 match("idClase");
+                optionalGenericClassDeclaration();
                 optionalInheritance();
                 match("LlaveAbre");
                 memberList();
@@ -69,6 +70,7 @@ public class SyntacticAnalyzer {
                 match("pr_abstract");
                 match("pr_class");
                 match("idClase");
+                optionalGenericClassDeclaration();
                 optionalInheritance();
                 match("LlaveAbre");
                 abstractMemberList();
@@ -76,6 +78,44 @@ public class SyntacticAnalyzer {
             }
         } else {
             throw new SyntacticException(currentToken,concatenateFirstListAndNextList("ClassList"));
+        }
+    }
+
+    private void optionalGenericClassDeclaration() throws AbstractSyntacticException, LexicalException {
+        if (firstsMap.containsEntry("OptionalGenericClassDeclaration", currentToken.getTokenName())) {
+            match("Menor");
+            match("idClase");
+            optionalGenericClassDeclaration();
+            continueOptionalGenericClassDeclaration();
+            match("Mayor");
+        } else if (nextsMap.containsEntry("OptionalGenericClassDeclaration", currentToken.getTokenName())) {
+            // empty.
+        } else {
+            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("OptionalGenericClassDeclaration"));
+        }
+    }
+
+    private void continueOptionalGenericClassDeclaration() throws AbstractSyntacticException, LexicalException {
+        if (firstsMap.containsEntry("ContinueOptionalGenericClassDeclaration", currentToken.getTokenName())) {
+            match("Coma");
+            continueGenericClassDeclaration();
+        } else if (nextsMap.containsEntry("ContinueOptionalGenericClassDeclaration", currentToken.getTokenName())) {
+            // empty.
+        } else {
+            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("ContinueOptionalGenericClassDeclaration"));
+        }
+    }
+
+    private void continueGenericClassDeclaration() throws AbstractSyntacticException, LexicalException {
+        if (firstsMap.containsEntry("ContinueGenericClassDeclaration", currentToken.getTokenName())) {
+            match("idClase");
+            if(currentToken.getTokenName().equals("Coma")) {
+                continueOptionalGenericClassDeclaration();
+            } else {
+                optionalGenericClassDeclaration();
+            }
+        } else {
+            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("ContinueGenericClassDeclaration"));
         }
     }
 
@@ -194,11 +234,50 @@ public class SyntacticAnalyzer {
         if(firstsMap.containsEntry("Type", currentToken.getTokenName())) {
             if (currentToken.getTokenName().equals("idClase")) {
                 match("idClase");
+                optionalGenericDeclaration();
             } else {
                 primitiveType();
             }
         } else {
             throw new SyntacticException(currentToken,firstsMap.getValue("Type"));
+        }
+    }
+
+    private void optionalGenericDeclaration() throws AbstractSyntacticException, LexicalException {
+        if (firstsMap.containsEntry("OptionalGenericDeclaration", currentToken.getTokenName())) {
+            match("Menor");
+            match("idClase");
+            optionalGenericDeclaration();
+            continueOptionalGenericDeclaration();
+            match("Mayor");
+        } else if (nextsMap.containsEntry("OptionalGenericDeclaration", currentToken.getTokenName())) {
+            // empty.
+        } else {
+            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("OptionalGenericDeclaration"));
+        }
+    }
+
+    private void continueOptionalGenericDeclaration() throws AbstractSyntacticException, LexicalException {
+        if (firstsMap.containsEntry("ContinueOptionalGenericDeclaration", currentToken.getTokenName())) {
+            match("Coma");
+            continueGenericDeclaration();
+        } else if (nextsMap.containsEntry("ContinueOptionalGenericDeclaration", currentToken.getTokenName())) {
+            // empty.
+        } else {
+            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("ContinueOptionalGenericDeclaration"));
+        }
+    }
+
+    private void continueGenericDeclaration() throws AbstractSyntacticException, LexicalException {
+        if (firstsMap.containsEntry("ContinueGenericDeclaration", currentToken.getTokenName())) {
+            match("idClase");
+            if(currentToken.getTokenName().equals("Coma")) {
+                continueOptionalGenericDeclaration();
+            } else {
+                optionalGenericDeclaration();
+            }
+        } else {
+            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("ContinueGenericDeclaration"));
         }
     }
 
@@ -461,7 +540,58 @@ public class SyntacticAnalyzer {
     private void constructorAccess() throws AbstractSyntacticException, LexicalException {
         match("pr_new");
         match("idClase");
+        optionalGenericConstructorInvocation();
         actualArguments();
+    }
+
+    private void optionalGenericConstructorInvocation() throws AbstractSyntacticException, LexicalException {
+        if (firstsMap.containsEntry("OptionalGenericConstructorInvocation", currentToken.getTokenName())) {
+            match("Menor");
+            optionalDiamondNotation();
+        } else if (nextsMap.containsEntry("OptionalGenericConstructorInvocation", currentToken.getTokenName())) {
+            // empty.
+        } else {
+            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("OptionalGenericConstructorInvocation"));
+        }
+    }
+
+    private void optionalDiamondNotation() throws AbstractSyntacticException, LexicalException {
+        if (firstsMap.containsEntry("OptionalDiamondNotation", currentToken.getTokenName())) {
+            if(currentToken.getTokenName().equals("Mayor")) {
+                match("Mayor");
+            } else {
+                match("idClase");
+                optionalGenericDeclaration();
+                continueOptionalGenericConstructorInvocation();
+                match("Mayor");
+            }
+        } else {
+            throw new SyntacticException(currentToken,firstsMap.getValue("OptionalDiamondNotation"));
+        }
+    }
+
+    private void continueOptionalGenericConstructorInvocation() throws AbstractSyntacticException, LexicalException {
+        if (firstsMap.containsEntry("ContinueOptionalGenericConstructorInvocation", currentToken.getTokenName())) {
+            match("Coma");
+            continueGenericConstructorInvocation();
+        } else if (nextsMap.containsEntry("ContinueOptionalGenericConstructorInvocation", currentToken.getTokenName())) {
+            // empty.
+        } else {
+            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("ContinueOptionalGenericConstructorInvocation"));
+        }
+    }
+
+    private void continueGenericConstructorInvocation() throws AbstractSyntacticException, LexicalException {
+        if (firstsMap.containsEntry("ContinueGenericConstructorInvocation", currentToken.getTokenName())) {
+            match("idClase");
+            if(currentToken.getTokenName().equals("Coma")) {
+                continueGenericConstructorInvocation();
+            } else {
+                optionalGenericDeclaration();
+            }
+        } else {
+            throw new SyntacticException(currentToken,firstsMap.getValue("ContinueGenericConstructorInvocation"));
+        }
     }
 
     private void staticMethodAccess() throws AbstractSyntacticException, LexicalException {

@@ -22,6 +22,7 @@ public class MapManager {
             }
             map.get(keyAndValue[0]).add(keyAndValue[1]);
         }
+        // TODO comentar flattenMap() si se quiere que el mapa se muestre anidado.
         flattenMap();
     }
 
@@ -64,6 +65,7 @@ public class MapManager {
     }
 
     public boolean containsEntry(String productionName, String tokenName) {
+        // TODO descomentar el siguiente código comentado y comentar la línea return containsSingleEntry(productionName, tokenName); para mostrar el mapa anidado
 /*
         List<String> valueList;
         boolean doesContain = false;
