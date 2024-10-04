@@ -3,12 +3,21 @@ package syntacticAnalyzer;
 import lexicalAnalyzer.LexicalAnalyzer;
 import lexicalAnalyzer.Token;
 import lexicalAnalyzer.exceptions.LexicalException;
+import semanticAnalyzer.exceptions.DuplicateClassException;
+import semanticAnalyzer.exceptions.SemanticException;
+import semanticAnalyzer.symbolTable.Method;
+import semanticAnalyzer.symbolTable.PredefinedClassCreator;
+import semanticAnalyzer.symbolTable.SymbolTable;
+import semanticAnalyzer.symbolTable.type.PrimitiveType;
+import semanticAnalyzer.symbolTable.type.ReferenceType;
+import semanticAnalyzer.symbolTable.type.Type;
 import syntacticAnalyzer.exceptions.AbstractSyntacticException;
 import syntacticAnalyzer.exceptions.NoMatchSyntacticException;
 import syntacticAnalyzer.exceptions.SyntacticException;
 import utils.FirstsManager;
 import utils.MapManager;
 import utils.NextsManager;
+import semanticAnalyzer.symbolTable.Class;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,12 +27,14 @@ public class SyntacticAnalyzer {
     private LexicalAnalyzer lexicalAnalyzer;
     private Token currentToken;
     private MapManager firstsMap, nextsMap;
+    private SymbolTable symbolTable;
 
-    public SyntacticAnalyzer(LexicalAnalyzer lexicalAnalyzer) {
+    public SyntacticAnalyzer(LexicalAnalyzer lexicalAnalyzer, SymbolTable symbolTable) {
         this.lexicalAnalyzer = lexicalAnalyzer;
         firstsMap = new FirstsManager();
         nextsMap = new NextsManager();
         sinErrores = true;
+        this.symbolTable = symbolTable;
     }
 
 
@@ -34,7 +45,7 @@ public class SyntacticAnalyzer {
             throw new NoMatchSyntacticException(currentToken, expectedTokenName);
     }
 
-    public void start() throws AbstractSyntacticException, LexicalException {
+    public void start() throws AbstractSyntacticException, LexicalException, SemanticException {
         currentToken = lexicalAnalyzer.nextToken();
         if (firstsMap.containsEntry("Start", currentToken.getTokenName())) {
             classList();
@@ -45,7 +56,7 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private void classList() throws AbstractSyntacticException, LexicalException {
+    private void classList() throws AbstractSyntacticException, LexicalException, SemanticException {
         if(firstsMap.containsEntry("ClassList", currentToken.getTokenName())) {
             class_();
             classList();
@@ -56,22 +67,29 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private void class_() throws AbstractSyntacticException, LexicalException {
+    private void class_() throws AbstractSyntacticException, LexicalException, SemanticException {
+        Token class_;
         if (firstsMap.containsEntry("Class", currentToken.getTokenName())) {
             if (currentToken.getTokenName().equals("pr_class")) {
                 match("pr_class");
+                class_ = currentToken;
                 match("idClase");
+                symbolTable.addClass(new Class(class_));
                 optionalGenericClassDeclaration();
-                optionalInheritance();
+                Token ancestorToken = optionalInheritance();
+                symbolTable.addInheritanceToCurrentClass(ancestorToken);
                 match("LlaveAbre");
                 memberList();
                 match("LlaveCierra");
             } else if (currentToken.getTokenName().equals("pr_abstract")) {
                 match("pr_abstract");
                 match("pr_class");
+                class_ = currentToken;
                 match("idClase");
+                symbolTable.addClass(new Class(class_));
                 optionalGenericClassDeclaration();
-                optionalInheritance();
+                Token ancestorToken = optionalInheritance();
+                symbolTable.addInheritanceToCurrentClass(ancestorToken);
                 match("LlaveAbre");
                 abstractMemberList();
                 match("LlaveCierra");
@@ -119,7 +137,7 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private void abstractMemberList() throws AbstractSyntacticException, LexicalException {
+    private void abstractMemberList() throws AbstractSyntacticException, LexicalException, SemanticException {
         if (firstsMap.containsEntry("AbstractMethod", currentToken.getTokenName())) {
             abstractMethod();
             abstractMemberList();
@@ -137,18 +155,21 @@ public class SyntacticAnalyzer {
         match("PuntoYComa");
     }
 
-    private void optionalInheritance() throws AbstractSyntacticException, LexicalException {
+    private Token optionalInheritance() throws AbstractSyntacticException, LexicalException, SemanticException {
         if (firstsMap.containsEntry("OptionalInheritance", currentToken.getTokenName())) {
             match("pr_extends");
+            Token inheritFrom = currentToken;
             match("idClase");
+            return currentToken;
         } else if (nextsMap.containsEntry("OptionalInheritance", currentToken.getTokenName())) {
             // empty. Token is in the next list.
+            return PredefinedClassCreator.getObjectClass().getToken();
         } else {
             throw new SyntacticException(currentToken,concatenateFirstListAndNextList("OptionalInheritance"));
         }
     }
 
-    private void memberList() throws AbstractSyntacticException, LexicalException {
+    private void memberList() throws AbstractSyntacticException, LexicalException, SemanticException {
         if (firstsMap.containsEntry("MemberList", currentToken.getTokenName())) {
             member();
             memberList();
@@ -159,13 +180,14 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private void member() throws AbstractSyntacticException, LexicalException {
+    private void member() throws AbstractSyntacticException, LexicalException, SemanticException {
         if (firstsMap.containsEntry("Member", currentToken.getTokenName())) {
             if (currentToken.getTokenName().equals("pr_public")) {
                 constructor();
             } else {
+                // TODO pasar los cosos al attributeMethod()
                 optionalStatic();
-                memberType();
+                Type type = memberType();
                 match("idMetVar");
                 attributeMethod();
             }
@@ -174,8 +196,11 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private void constructor() throws AbstractSyntacticException, LexicalException {
+    private void constructor() throws AbstractSyntacticException, LexicalException, SemanticException {
         match("pr_public");
+        Method constructor = new Method();
+        constructor.setToken(currentToken);
+        symbolTable.addMethodToCurrentClass(constructor);
         match("idClase");
         formalArguments();
         block();
@@ -218,29 +243,34 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private void memberType() throws AbstractSyntacticException, LexicalException {
+    private Type memberType() throws AbstractSyntacticException, LexicalException {
         if(firstsMap.containsEntry("MemberType", currentToken.getTokenName())) {
             if (currentToken.getTokenName().equals("pr_void")) {
+                Token voidToken = currentToken;
                 match("pr_void");
+                return new PrimitiveType(voidToken);
             } else {
-                type();
+                return type();
             }
         } else {
             throw new SyntacticException(currentToken,firstsMap.getValue("MemberType"));
         }
     }
 
-    private void type() throws AbstractSyntacticException, LexicalException {
+    private Type type() throws AbstractSyntacticException, LexicalException {
         if(firstsMap.containsEntry("Type", currentToken.getTokenName())) {
             if (currentToken.getTokenName().equals("idClase")) {
+                Type type = new ReferenceType(currentToken);
                 match("idClase");
                 optionalGenericDeclaration();
+                return type;
             } else {
-                primitiveType();
+                return primitiveType();
             }
         } else {
             throw new SyntacticException(currentToken,firstsMap.getValue("Type"));
         }
+
     }
 
     private void optionalGenericDeclaration() throws AbstractSyntacticException, LexicalException {
@@ -281,13 +311,17 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private void primitiveType() throws AbstractSyntacticException, LexicalException {
+    private PrimitiveType primitiveType() throws AbstractSyntacticException, LexicalException {
+        Token type = currentToken;
         if (currentToken.getTokenName().equals("pr_boolean")) {
             match("pr_boolean");
+            return new PrimitiveType(type);
         } else if (currentToken.getTokenName().equals("pr_char")) {
             match("pr_char");
+            return new PrimitiveType(type);
         } else if (currentToken.getTokenName().equals("pr_int")) {
             match("pr_int");
+            return new PrimitiveType(type);
         } else {
             throw new SyntacticException(currentToken,firstsMap.getValue("PrimitiveType"));
         }

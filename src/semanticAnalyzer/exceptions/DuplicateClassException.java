@@ -1,0 +1,10 @@
+package semanticAnalyzer.exceptions;
+
+import semanticAnalyzer.symbolTable.Class;
+
+public class DuplicateClassException extends SemanticException {
+
+    public DuplicateClassException(Class class_) {
+        super("Semantic error in line "+ class_.getLineNumber() + ": " + class_.getName() + "has already been declared"+ "\n[Error:"+ class_.getName() + "|" + class_.getLineNumber() + "]");
+    }
+}

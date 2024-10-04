@@ -6,6 +6,8 @@ import lexicalAnalyzer.LexicalAnalyzer;
 import lexicalAnalyzer.exceptions.LexicalException;
 import lexicalAnalyzer.Token;
 import lexicalAnalyzer.reservedWordManager.ReservedWordMap;
+import semanticAnalyzer.exceptions.SemanticException;
+import semanticAnalyzer.symbolTable.SymbolTable;
 import syntacticAnalyzer.SyntacticAnalyzer;
 import syntacticAnalyzer.exceptions.AbstractSyntacticException;
 import utils.FirstsManager;
@@ -36,15 +38,27 @@ public class Main {
         }
 
         LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(sourceManager, reservedWordMap);
-        SyntacticAnalyzer syntacticAnalyzer = new SyntacticAnalyzer(lexicalAnalyzer);
+        SymbolTable symbolTable = null;
+        try {
+            symbolTable = new SymbolTable();
+        } catch (SemanticException semanticException) {
+            System.out.println(semanticException.getMessage());
+        }
+        SyntacticAnalyzer syntacticAnalyzer = new SyntacticAnalyzer(lexicalAnalyzer, symbolTable);
 
         try {
             syntacticAnalyzer.start();
+            // TODO chequeo de declaraciones
+            // TODO consolidar
         } catch (LexicalException lexicalException) {
             System.out.println(lexicalException.getMessage());
             lexicalAnalyzer.registerLexicalError();
         } catch (AbstractSyntacticException syntacticException) {
             System.out.println(syntacticException.getMessage());
+            syntacticAnalyzer.registerSyntacticError();
+        } catch (SemanticException semanticException) {
+            System.out.println(semanticException.getMessage());
+            // TODO registrar error?
             syntacticAnalyzer.registerSyntacticError();
         }
 
