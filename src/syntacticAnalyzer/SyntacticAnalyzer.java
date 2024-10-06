@@ -5,9 +5,8 @@ import lexicalAnalyzer.Token;
 import lexicalAnalyzer.exceptions.LexicalException;
 import semanticAnalyzer.exceptions.DuplicateClassException;
 import semanticAnalyzer.exceptions.SemanticException;
-import semanticAnalyzer.symbolTable.Method;
-import semanticAnalyzer.symbolTable.PredefinedClassCreator;
-import semanticAnalyzer.symbolTable.SymbolTable;
+import semanticAnalyzer.symbolTable.*;
+import semanticAnalyzer.symbolTable.Class;
 import semanticAnalyzer.symbolTable.type.PrimitiveType;
 import semanticAnalyzer.symbolTable.type.ReferenceType;
 import semanticAnalyzer.symbolTable.type.Type;
@@ -17,7 +16,6 @@ import syntacticAnalyzer.exceptions.SyntacticException;
 import utils.FirstsManager;
 import utils.MapManager;
 import utils.NextsManager;
-import semanticAnalyzer.symbolTable.Class;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -147,7 +145,7 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private void abstractMethod() throws AbstractSyntacticException, LexicalException {
+    private void abstractMethod() throws AbstractSyntacticException, LexicalException, SemanticException {
         match("pr_abstract");
         memberType();
         match("idMetVar");
@@ -160,7 +158,7 @@ public class SyntacticAnalyzer {
             match("pr_extends");
             Token inheritFrom = currentToken;
             match("idClase");
-            return currentToken;
+            return inheritFrom;
         } else if (nextsMap.containsEntry("OptionalInheritance", currentToken.getTokenName())) {
             // empty. Token is in the next list.
             return PredefinedClassCreator.getObjectClass().getToken();
@@ -185,11 +183,11 @@ public class SyntacticAnalyzer {
             if (currentToken.getTokenName().equals("pr_public")) {
                 constructor();
             } else {
-                // TODO pasar los cosos al attributeMethod()
-                optionalStatic();
+                boolean isStatic = optionalStatic();
                 Type type = memberType();
+                Token name = currentToken;
                 match("idMetVar");
-                attributeMethod();
+                attributeMethod(isStatic, type, name);
             }
         } else {
             throw new SyntacticException(currentToken,firstsMap.getValue("Member"));
@@ -198,23 +196,24 @@ public class SyntacticAnalyzer {
 
     private void constructor() throws AbstractSyntacticException, LexicalException, SemanticException {
         match("pr_public");
-        Method constructor = new Method();
-        constructor.setToken(currentToken);
-        symbolTable.addMethodToCurrentClass(constructor);
+        Constructor constructor = new Constructor(currentToken, symbolTable.getCurrentClass());
+        symbolTable.addConstructorToCurrentClass(constructor);
         match("idClase");
         formalArguments();
         block();
     }
 
-    private void formalArguments() throws AbstractSyntacticException, LexicalException {
+    private void formalArguments() throws AbstractSyntacticException, LexicalException, SemanticException {
         match("ParentesisAbre");
         optionalFormalArgumentList();
         match("ParentesisCierra");
     }
 
-    private void optionalFormalArgumentList() throws AbstractSyntacticException, LexicalException {
+    private void optionalFormalArgumentList() throws AbstractSyntacticException, LexicalException, SemanticException {
         if (firstsMap.containsEntry("OptionalFormalArgumentList", currentToken.getTokenName())) {
-            formalArgumentList();
+            ArrayList<Parameter> parameterList = new ArrayList<>();
+            formalArgumentList(parameterList);
+            symbolTable.addParameterListToCurrentMethod(parameterList);
         } else if (nextsMap.containsEntry("OptionalFormalArgumentList", currentToken.getTokenName())) {
             // empty. Token is in next list.
         } else {
@@ -222,20 +221,24 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private void formalArgumentList() throws AbstractSyntacticException, LexicalException {
-        formalArgument();
-        stopOrContinueFAL();
+    private void formalArgumentList(ArrayList<Parameter> parameterList) throws AbstractSyntacticException, LexicalException {
+        Parameter parameter = formalArgument();
+        parameter.setPositionInMethodParameterList(parameterList.size()-1);
+        parameterList.add(parameter);
+        stopOrContinueFAL(parameterList);
     }
 
-    private void formalArgument() throws AbstractSyntacticException, LexicalException {
-        type();
+    private Parameter formalArgument() throws AbstractSyntacticException, LexicalException {
+        Type type = type();
+        Parameter parameter = new Parameter(currentToken, type, symbolTable.getCurrentMethod());
         match("idMetVar");
+        return parameter;
     }
 
-    private void stopOrContinueFAL() throws AbstractSyntacticException, LexicalException {
+    private void stopOrContinueFAL(ArrayList<Parameter> parameterList) throws AbstractSyntacticException, LexicalException {
         if (firstsMap.containsEntry("StopOrContinueFAL", currentToken.getTokenName())) {
             match("Coma");
-            formalArgumentList();
+            formalArgumentList(parameterList);
         } else if (nextsMap.containsEntry("StopOrContinueFAL", currentToken.getTokenName())) {
             // empty. Token is in next list.
         } else {
@@ -327,22 +330,28 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private void optionalStatic() throws AbstractSyntacticException, LexicalException {
+    private boolean optionalStatic() throws AbstractSyntacticException, LexicalException {
         if(firstsMap.containsEntry("OptionalStatic", currentToken.getTokenName())) {
             match("pr_static");
+            return true;
         } else if (nextsMap.containsEntry("OptionalStatic", currentToken.getTokenName())) {
             // empty. Token is in next list.
+            return false;
         } else {
             throw new SyntacticException(currentToken,concatenateFirstListAndNextList("OptionalStatic"));
         }
     }
 
-    private void attributeMethod() throws AbstractSyntacticException, LexicalException {
+    private void attributeMethod(boolean isStatic, Type type, Token attrOrMethodToken) throws AbstractSyntacticException, LexicalException, SemanticException {
         if (firstsMap.containsEntry("AttributeMethod", currentToken.getTokenName())) {
             if (firstsMap.containsEntry("Attribute", currentToken.getTokenName())) {
                 attribute();
+                Attribute attribute = new Attribute(attrOrMethodToken, type, symbolTable.getCurrentClass(), isStatic);
+                symbolTable.addAttributeToCurrentClass(attribute);
                 match("PuntoYComa");
             } else {
+                Method method = new Method(isStatic, attrOrMethodToken, symbolTable.getCurrentClass(), type);
+                symbolTable.addMethodToCurrentClass(method);
                 formalArguments();
                 block();
             }

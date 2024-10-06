@@ -8,18 +8,14 @@ import semanticAnalyzer.symbolTable.type.Type;
 public abstract class Variable {
     private Token token;
     private Type type;
-    private boolean typeIsPrimitive;
 
-    protected Variable(Token token, ReferenceType type) {
+    protected Variable (Token token, Type type) {
         this.token = token;
         this.type = type;
-        typeIsPrimitive = false;
     }
 
-    protected Variable(Token token, PrimitiveType type) {
-        this.token = token;
-        this.type = type;
-        typeIsPrimitive = true;
+    public void prueba( String s, int i) {
+
     }
 
     public String getName() {
@@ -28,6 +24,10 @@ public abstract class Variable {
 
     public Type getType() {
         return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
     }
 
     public int getLineNumber() {
@@ -39,6 +39,6 @@ public abstract class Variable {
     }
 
     public boolean isTypePrimitive() {
-        return typeIsPrimitive;
+        return type.getIsPrimitive();
     }
 }

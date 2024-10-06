@@ -1,10 +1,12 @@
 package semanticAnalyzer.symbolTable;
 
 import lexicalAnalyzer.Token;
+import semanticAnalyzer.exceptions.CircularInheritanceException;
 import semanticAnalyzer.exceptions.DuplicateClassException;
+import semanticAnalyzer.exceptions.InvalidMainDeclarationException;
 import semanticAnalyzer.exceptions.SemanticException;
 
-import java.util.HashMap;
+import java.util.*;
 
 public class SymbolTable {
     private HashMap<String, Class> classTable;
@@ -46,8 +48,63 @@ public class SymbolTable {
         currentClass.addParameterToCurrentMethod(parameter);
     }
 
+    public void addParameterListToCurrentMethod(List<Parameter> parameterList) throws SemanticException {
+        currentClass.addParameterListToCurrentMethod(parameterList);
+    }
+
     public void addInheritanceToCurrentClass(Token inheritFrom) throws SemanticException {
         currentClass.addInheritance(inheritFrom);
+    }
+
+    public void addConstructorToCurrentClass(Constructor constructor) throws SemanticException {
+        currentClass.addConstructor(constructor);
+    }
+
+    public void checkDeclarations() throws SemanticException {
+        for(Map.Entry<String, Class> classEntry : classTable.entrySet()) {
+            //TODO
+        }
+    }
+
+    private int checkClassMethods(Class class_, List<Method> methodList) throws SemanticException {
+        int thereIsMainMethod = 0;
+        for (Method method : methodList) {
+            // TODO chequear que las clases de los parametros de cada metodo existan.
+            if (method.getName().equals("main") && method.getType().getName().equals("void") && method.getIsStatic() && method.getParameterCollection().isEmpty())
+                thereIsMainMethod++;
+            else if (method.getName().equals("main"))
+                throw new InvalidMainDeclarationException(class_, method);
+
+
+        }
+
+        return thereIsMainMethod;
+    }
+
+    private void checkForConstructor(Class class_) {
+        // TODO si la clase actual no tiene constructor, agregarle uno por defecto
+    }
+
+    public void consolidate() {
+        // TODO
+    }
+
+    public List<Token> formInheritanceList(Class currentClass, Token classFromInheritanceList) throws CircularInheritanceException {
+        List<Token> iterationClassList = new ArrayList<>(List.of(classFromInheritanceList));
+        List<Token> inheritanceListFromFirstAncestor = new ArrayList<>();
+        if (!classTable.get(classFromInheritanceList.getLexeme()).getInheritsFrom().isEmpty()) {
+            Class classFromInheritanceList_ = classTable.get(classFromInheritanceList.getLexeme());
+            if (!classFromInheritanceList_.getInheritsFrom().contains(PredefinedClassCreator.getObjectClass().getToken()))
+                inheritanceListFromFirstAncestor = formInheritanceList(classFromInheritanceList_, classFromInheritanceList_.getInheritsFrom().getFirst());
+        }
+        iterationClassList.addAll(inheritanceListFromFirstAncestor);
+
+        if (!iterationClassList.contains(PredefinedClassCreator.getObjectClass().getToken()))
+            iterationClassList.add(PredefinedClassCreator.getObjectClass().getToken());
+
+        currentClass.addListedInheritance(iterationClassList);
+
+        return iterationClassList;
     }
 
     public Class getCurrentClass() {

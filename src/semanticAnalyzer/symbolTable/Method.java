@@ -4,7 +4,11 @@ import lexicalAnalyzer.Token;
 import semanticAnalyzer.exceptions.DuplicateParameterException;
 import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.symbolTable.type.Type;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 public class Method {
     private Token token;
@@ -63,7 +67,7 @@ public class Method {
     }
 
     public boolean equals(Method method) {
-        return method.getName().equals(this.getName());
+        return method.getName().equals(this.getName()) && equalParameterList(method.getParameterCollection()) && method.getType().equals(this.getType());
     }
 
     public void addParameter(Parameter parameter) throws SemanticException {
@@ -74,8 +78,40 @@ public class Method {
         }
     }
 
+    public void addParameterList(List<Parameter> parameterList) throws SemanticException {
+        for (Parameter parameter : parameterList) {
+            addParameter(parameter);
+        }
+    }
+
+    public Collection<Parameter> getParameterCollection() {
+        return parameterTable.values();
+    }
+
     private boolean parameterAlreadyExists(Parameter parameter) {
         return parameterTable.containsKey(parameter.getName());
     }
 
+    private boolean equalParameterList(Collection<Parameter> collection) {
+        List<Parameter> thisParameterList = orderByParameterPosition(parameterTable.values());
+        boolean equalList = true;
+        if(thisParameterList.size() == collection.size()) {
+            List<Parameter> parameterList = orderByParameterPosition(collection);
+            for (int i=0; i< parameterList.size(); i++) {
+                if (!thisParameterList.get(i).equals(parameterList.get(i)))
+                    equalList = false;
+            }
+        } else
+            equalList = false;
+
+        return equalList;
+    }
+
+    private List<Parameter> orderByParameterPosition(Collection<Parameter> values) {
+        List<Parameter> orderedList = new ArrayList<>();
+        for (Parameter parameter : values) {
+            orderedList.add(parameter.getPositionInMethodParameterList(), parameter);
+        }
+        return orderedList;
+    }
 }

@@ -1,15 +1,14 @@
 package semanticAnalyzer.symbolTable;
 
 import lexicalAnalyzer.Token;
-import semanticAnalyzer.exceptions.CircularInheritanceException;
-import semanticAnalyzer.exceptions.DuplicateAttributeException;
-import semanticAnalyzer.exceptions.DuplicateMethodException;
-import semanticAnalyzer.exceptions.SemanticException;
+import semanticAnalyzer.exceptions.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Class {
+    private HashMap<String,Constructor> constructorTable;
     private HashMap<String,Method> methodTable;
     private HashMap<String,Attribute> attributeTable;
     private Method currentMethod;
@@ -42,6 +41,16 @@ public class Class {
         currentMethod.addParameter(parameter);
     }
 
+    public void addParameterListToCurrentMethod(List<Parameter> parameterList) throws SemanticException {
+        currentMethod.addParameterList(parameterList);
+    }
+
+    public void addConstructor(Constructor constructor) throws SemanticException {
+        if (    constructorTable.isEmpty()) {
+            constructorTable.put(constructor.getName(), constructor);
+        } else
+            throw new DuplicateConstructorException(this, constructor);
+    }
 
     public void addDefaultConstructor() throws SemanticException {
         Method constructor = new Method();
@@ -73,18 +82,28 @@ public class Class {
             throw new CircularInheritanceException(this);
     }
 
-    public void addListedInheritance(ArrayList<Token> classInheritanceList) throws CircularInheritanceException {
+    public void addListedInheritance(List<Token> classInheritanceList) throws CircularInheritanceException {
         for (Token class_ : classInheritanceList) {
             addInheritance(class_);
         }
+    }
+
+    public boolean hasConstructor() {
+        return !constructorTable.isEmpty();
     }
 
     public ArrayList<Token> getInheritsFrom() {
         return inheritsFrom;
     }
 
-    public boolean overrides(Method superClassMethod) {
-        // TODO
-        return false;
+    public boolean overrides(Method superClassMethod) throws SemanticException {
+        if(methodTable.containsKey(superClassMethod.getName())) {
+            return true;
+            // TODO con los metodos que hay en method sobre equals
+
+        } else
+            return false;
     }
+
+
 }
