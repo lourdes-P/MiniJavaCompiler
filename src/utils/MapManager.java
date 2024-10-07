@@ -22,7 +22,6 @@ public class MapManager {
             }
             map.get(keyAndValue[0]).add(keyAndValue[1]);
         }
-        // TODO comentar flattenMap() si se quiere que el mapa se muestre anidado.
         flattenMap();
     }
 
@@ -65,26 +64,6 @@ public class MapManager {
     }
 
     public boolean containsEntry(String productionName, String tokenName) {
-        // TODO descomentar el siguiente código comentado y comentar la línea return containsSingleEntry(productionName, tokenName); para mostrar el mapa anidado
-/*
-        List<String> valueList;
-        boolean doesContain = false;
-        if(containsSingleEntry(productionName,tokenName)) {
-            doesContain = true;
-        } else if (map.containsKey(productionName)) {
-            valueList = getValue(productionName);
-            for (String value : valueList) {
-                if (map.containsKey(value)) {
-                    doesContain = containsEntry(value, tokenName);
-                    if (doesContain)
-                        break;
-                }
-            }
-        }
-        return doesContain;
-
-
- */
 
         return containsSingleEntry(productionName, tokenName);
     }

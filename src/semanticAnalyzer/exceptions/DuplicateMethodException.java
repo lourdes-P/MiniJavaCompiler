@@ -6,6 +6,6 @@ import semanticAnalyzer.symbolTable.Class;
 public class DuplicateMethodException extends SemanticException {
 
     public DuplicateMethodException(Class class_, Method method) {
-        super("Semantic error in line "+ method.getLineNumber() + ": " + class_.getName() + "has a duplicate method: "+ method.getName() + "\n[Error:"+ method.getName() + "|" + method.getLineNumber() + "]");
+        super("Semantic error in line "+ method.getLineNumber() + ": " + class_.getName() + " has a duplicate method: "+ method.getName() + "\n[Error:"+ method.getName() + "|" + method.getLineNumber() + "]");
     }
 }

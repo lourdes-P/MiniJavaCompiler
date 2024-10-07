@@ -49,6 +49,8 @@ Block,LlaveCierra
 SentenceList,LlaveCierra
 Sentence,SentenceList
 OptionalSentence,LlaveCierra
+OptionalSentence,pr_case
+OptionalSentence,pr_default
 AssigmentOrCall,PuntoYComa
 LocalVar,PuntoYComa
 LocalVarVar,LocalVar
@@ -64,6 +66,8 @@ While,Sentence
 Switch,Sentence
 SwitchSentenceList,LlaveCierra
 SwitchSentence,SwitchSentenceList
+SwitchSentence,pr_case
+SwitchSentence,pr_default
 OptionalExpression,PuntoYComa
 Expression,PuntoYComa
 Expression,ParentesisCierra

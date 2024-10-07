@@ -223,8 +223,8 @@ public class SyntacticAnalyzer {
 
     private void formalArgumentList(ArrayList<Parameter> parameterList) throws AbstractSyntacticException, LexicalException {
         Parameter parameter = formalArgument();
-        parameter.setPositionInMethodParameterList(parameterList.size()-1);
         parameterList.add(parameter);
+        parameter.setPositionInMethodParameterList(parameterList.size()-1);
         stopOrContinueFAL(parameterList);
     }
 
@@ -416,10 +416,13 @@ public class SyntacticAnalyzer {
                 match("PuntoYComa");
             } else if (firstsMap.containsEntry("LocalVar", currentToken.getTokenName())) {
                 localVar();
+                match("PuntoYComa");
             } else if (firstsMap.containsEntry("Return",currentToken.getTokenName())) {
                 return_();
+                match("PuntoYComa");
             } else if (firstsMap.containsEntry("Break", currentToken.getTokenName())) {
                 break_();
+                match("PuntoYComa");
             } else if (firstsMap.containsEntry("If", currentToken.getTokenName())) {
                 if_();
             } else if (firstsMap.containsEntry("While", currentToken.getTokenName())) {

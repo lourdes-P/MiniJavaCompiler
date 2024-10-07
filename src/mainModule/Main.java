@@ -48,8 +48,8 @@ public class Main {
 
         try {
             syntacticAnalyzer.start();
-            // TODO chequeo de declaraciones
-            // TODO consolidar
+            symbolTable.checkDeclarations();
+            symbolTable.consolidate();
         } catch (LexicalException lexicalException) {
             System.out.println(lexicalException.getMessage());
             lexicalAnalyzer.registerLexicalError();
@@ -58,7 +58,6 @@ public class Main {
             syntacticAnalyzer.registerSyntacticError();
         } catch (SemanticException semanticException) {
             System.out.println(semanticException.getMessage());
-            // TODO registrar error?
             syntacticAnalyzer.registerSyntacticError();
         }
 

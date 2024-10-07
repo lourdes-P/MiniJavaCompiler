@@ -52,7 +52,7 @@ public class PredefinedClassCreator {
         Method debugPrint = new Method(true, new Token("idMetVar", "debugPrint", 0), object, new PrimitiveType(new Token("pr_void", "void", 0)));
 
         Parameter i = new Parameter(new Token("idMetVar", "i", 0), new PrimitiveType(new Token("pr_int", "int", 0)), debugPrint, 1);
-
+        i.setPositionInMethodParameterList(0);
         debugPrint.addParameter(i);
 
         object.addMethod(debugPrint);
@@ -77,18 +77,22 @@ public class PredefinedClassCreator {
         system.addMethod(read);
 
         Parameter b = new Parameter(new Token("idMetVar", "b", 0), new PrimitiveType(new Token("pr_boolean", "boolean", 0)), 0);
+        b.setPositionInMethodParameterList(0);
         Method printB = createMethod("printB", system, new PrimitiveType(new Token("pr_void", "void", 0)), b);
         system.addMethod(printB);
 
         Parameter c = new Parameter(new Token("idMetVar", "c", 0), new PrimitiveType(new Token("pr_char", "char", 0)), 0);
+        c.setPositionInMethodParameterList(0);
         Method printC = createMethod("printC", system, new PrimitiveType(new Token("pr_void", "void", 0)), c);
         system.addMethod(printC);
 
         Parameter i = new Parameter(new Token("idMetVar", "i", 0), new PrimitiveType(new Token("pr_int", "int", 0)), 0);
+        i.setPositionInMethodParameterList(0);
         Method printI = createMethod("printI", system, new PrimitiveType(new Token("pr_void", "void", 0)), i);
         system.addMethod(printI);
 
         Parameter s = new Parameter(new Token("idMetVar", "s", 0), new ReferenceType(new Token("idClass", "String", 0)), 0);
+        s.setPositionInMethodParameterList(0);
         Method printS = createMethod("printS", system, new PrimitiveType(new Token("pr_void", "void", 0)), s);
         system.addMethod(printS);
 
@@ -96,18 +100,22 @@ public class PredefinedClassCreator {
         system.addMethod(println);
 
         Parameter bln = new Parameter(new Token("idMetVar", "b", 0), new PrimitiveType(new Token("pr_boolean", "boolean", 0)), 0);
+        bln.setPositionInMethodParameterList(0);
         Method printBln = createMethod("printBln", system, new PrimitiveType(new Token("pr_void", "void", 0)), bln);
         system.addMethod(printBln);
 
         Parameter cln = new Parameter(new Token("idMetVar", "c", 0), new PrimitiveType(new Token("pr_char", "char", 0)), 0);
+        cln.setPositionInMethodParameterList(0);
         Method printCln = createMethod("printCln", system, new PrimitiveType(new Token("pr_void", "void", 0)), cln);
         system.addMethod(printCln);
 
         Parameter iln = new Parameter(new Token("idMetVar", "i", 0), new PrimitiveType(new Token("pr_int", "int", 0)), 0);
+        iln.setPositionInMethodParameterList(0);
         Method printIln = createMethod("printIln", system, new PrimitiveType(new Token("pr_void", "void", 0)), iln);
         system.addMethod(printIln);
 
         Parameter sln = new Parameter(new Token("idMetVar", "s", 0), new ReferenceType(new Token("idClass", "String", 0)), 0);
+        sln.setPositionInMethodParameterList(0);
         Method printSln = createMethod("printSln", system, new PrimitiveType(new Token("pr_void", "void", 0)), sln);
         system.addMethod(printSln);
 

@@ -5,10 +5,7 @@ import semanticAnalyzer.exceptions.DuplicateParameterException;
 import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.symbolTable.type.Type;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class Method {
     private Token token;
@@ -67,7 +64,7 @@ public class Method {
     }
 
     public boolean equals(Method method) {
-        return method.getName().equals(this.getName()) && equalParameterList(method.getParameterCollection()) && method.getType().equals(this.getType());
+        return method.getName().equals(this.getName()) && equalParameterList(method.getParameterCollection()) && method.getType().equals(this.getType()) && method.getIsStatic() == this.getIsStatic();
     }
 
     public void addParameter(Parameter parameter) throws SemanticException {
@@ -108,10 +105,12 @@ public class Method {
     }
 
     private List<Parameter> orderByParameterPosition(Collection<Parameter> values) {
-        List<Parameter> orderedList = new ArrayList<>();
-        for (Parameter parameter : values) {
-            orderedList.add(parameter.getPositionInMethodParameterList(), parameter);
+        Parameter parameters[] = new Parameter[values.size()];
+        if (values.size() > 0) {
+            for (Parameter parameter : values) {
+                parameters[parameter.getPositionInMethodParameterList()] = parameter;
+            }
         }
-        return orderedList;
+        return Arrays.stream(parameters).toList();
     }
 }

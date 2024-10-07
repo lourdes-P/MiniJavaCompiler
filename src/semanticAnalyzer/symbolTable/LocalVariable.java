@@ -15,5 +15,4 @@ public class LocalVariable extends Variable {
         super(token, type);
     }
 
-    // TODO en etapa siguiente :: no se usa
 }

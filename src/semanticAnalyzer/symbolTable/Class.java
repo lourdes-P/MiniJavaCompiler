@@ -15,16 +15,16 @@ public class Class {
     private Method currentMethod;
     private Token token;
     private ArrayList<Token> inheritsFrom;
-    private boolean consolidatedAttributes, consolidatedMethods, isConsolidated;
+    private boolean consolidatedAttributes, consolidatedMethods;
 
     public Class(Token token) {
         this.token = token;
         inheritsFrom = new ArrayList<>();
         attributeTable = new HashMap<>();
         methodTable = new HashMap<>();
+        constructorTable = new HashMap<>();
         consolidatedAttributes = false;
         consolidatedMethods = false;
-        isConsolidated = false;
     }
 
     public void addMethod(Method method) throws SemanticException {
@@ -57,6 +57,7 @@ public class Class {
     public void addConstructor(Constructor constructor) throws SemanticException {
         if (constructorTable.isEmpty()) {
             constructorTable.put(constructor.getName(), constructor);
+            currentMethod = constructor;
         } else
             throw new DuplicateConstructorException(this, constructor);
     }
@@ -67,13 +68,14 @@ public class Class {
     }
 
     public void addInheritance(Token class_) throws CircularInheritanceException {
-        if (!class_.getTokenName().equals(this.getName()))
+        if (!class_.getLexeme().equals(this.getName()))
             inheritsFrom.add(class_);
         else
             throw new CircularInheritanceException(this);
     }
 
     public void addListedInheritance(List<Token> classInheritanceList) throws CircularInheritanceException {
+        inheritsFrom.clear();
         for (Token class_ : classInheritanceList) {
             addInheritance(class_);
         }
@@ -138,20 +140,12 @@ public class Class {
         this.consolidatedMethods = consolidatedMethods;
     }
 
-    public void setConsolidated(boolean consolidated) {
-        isConsolidated = consolidated;
-    }
-
     public boolean isConsolidatedAttributes() {
         return consolidatedAttributes;
     }
 
     public boolean isConsolidatedMethods() {
         return consolidatedMethods;
-    }
-
-    public boolean isConsolidated() {
-        return isConsolidated;
     }
 
     public boolean hasMethod(String methodName) {

@@ -64,6 +64,7 @@ Sentence,Return
 Sentence,If
 Sentence,While
 Sentence,Switch
+Sentence,Break
 Sentence,Block
 OptionalSentence,Sentence
 OptionalSentence,empty

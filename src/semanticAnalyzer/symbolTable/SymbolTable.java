@@ -55,6 +55,7 @@ public class SymbolTable {
 
     public void addConstructorToCurrentClass(Constructor constructor) throws SemanticException {
         currentClass.addConstructor(constructor);
+        currentMethod = constructor;
     }
 
     public void checkDeclarations() throws SemanticException {
@@ -63,14 +64,13 @@ public class SymbolTable {
             mainCount += checkClassMethods(mainCount, class_, class_.getMethodCollection());
             checkForConstructor(class_);
             if (!class_.getInheritsFrom().isEmpty())
-                formInheritanceList(class_, class_.getInheritsFrom().getFirst());
-            else
+                formInheritanceList(class_, class_, class_.getInheritsFrom().getFirst());
+            else if (!class_.getName().equals("Object"))
                 class_.addInheritance(PredefinedClassCreator.getObjectClass().getToken());
         }
     }
 
-    private int checkClassMethods(int mainCount, Class class_, Collection<Method> methodList) throws SemanticException {
-        int thereIsMainMethod = 0;
+    private int checkClassMethods(int thereIsMainMethod, Class class_, Collection<Method> methodList) throws SemanticException {
         for (Method method : methodList) {
             if (method.getName().equals("main") && thereIsMainMethod == 0 && method.getType().getName().equals("void") && method.getIsStatic() && method.getParameterCollection().isEmpty())
                 thereIsMainMethod++;
@@ -80,7 +80,7 @@ public class SymbolTable {
                 throw new InvalidMainDeclarationException(class_, method);
 
             for (Parameter parameter : method.getParameterCollection()) {
-                if(!parameter.getType().getIsPrimitive() && classTable.containsKey(parameter.getType().getName()))
+                if(!parameter.getType().getIsPrimitive() && !classTable.containsKey(parameter.getType().getName()))
                     throw new ClassNotDeclaredException(parameter.getType().getToken());
             }
         }
@@ -94,17 +94,10 @@ public class SymbolTable {
     }
 
     public void consolidate() throws SemanticException {
-        // TODO
-        /* En esta pasada tambien
-se actualizaran las tablas de metodos y las tablas de variables de las clases en base a la relacion
-de herencia, proceso que denominamos consolidacion. En particular, en la consolidacion, se deberan
-agregar todos los metodos y las variables que la clase hereda de sus ancestros, con excepcion de aquellos
-que esta sobre-escribe. */
         for(Class class_ : classTable.values()) {
             checkAndUpdateMethodTable(class_);
             checkAndUpdateAttributeTable(class_);
         }
-
     }
 
     private void checkAndUpdateMethodTable(Class class_) throws SemanticException {
@@ -116,7 +109,7 @@ que esta sobre-escribe. */
                 for (Method method : ancestor.getMethodCollection()) {
                     if (class_.hasMethod(method.getName())) {
                         if (!class_.overrides(method))
-                            throw new InvalidMethodOverrideException(class_, method);
+                            throw new InvalidMethodOverrideException(class_, class_.getMethod(method.getName()));
                     } else {
                         class_.addMethod(method);
                     }
@@ -146,14 +139,20 @@ que esta sobre-escribe. */
         }
     }
 
-    public List<Token> formInheritanceList(Class currentClass, Token classFromInheritanceList) throws CircularInheritanceException {
+    public List<Token> formInheritanceList(Class startingClass, Class currentClass, Token classFromInheritanceList) throws CircularInheritanceException, ClassNotDeclaredException {
         List<Token> iterationClassList = new ArrayList<>(List.of(classFromInheritanceList));
         List<Token> inheritanceListFromFirstAncestor = new ArrayList<>();
-        if (!classTable.get(classFromInheritanceList.getLexeme()).getInheritsFrom().isEmpty()) {
+
+        if(startingClass.getName().equals(classFromInheritanceList.getLexeme()))
+            throw new CircularInheritanceException(startingClass);
+
+        if (classTable.containsKey(classFromInheritanceList.getLexeme()) && !classTable.get(classFromInheritanceList.getLexeme()).getInheritsFrom().isEmpty()) {
             Class classFromInheritanceList_ = classTable.get(classFromInheritanceList.getLexeme());
             if (!classFromInheritanceList_.getInheritsFrom().contains(PredefinedClassCreator.getObjectClass().getToken()))
-                inheritanceListFromFirstAncestor = formInheritanceList(classFromInheritanceList_, classFromInheritanceList_.getInheritsFrom().getFirst());
-        }
+                inheritanceListFromFirstAncestor = formInheritanceList(startingClass, classFromInheritanceList_, classFromInheritanceList_.getInheritsFrom().getFirst());
+        } else if (!classTable.containsKey(classFromInheritanceList.getLexeme()))
+            throw new ClassNotDeclaredException(classFromInheritanceList);
+
         iterationClassList.addAll(inheritanceListFromFirstAncestor);
 
         if (!iterationClassList.contains(PredefinedClassCreator.getObjectClass().getToken()))
