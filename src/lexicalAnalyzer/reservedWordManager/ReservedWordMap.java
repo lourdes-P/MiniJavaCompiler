@@ -10,7 +10,7 @@ public class ReservedWordMap {
     private CSVFileManager CSVFileManager;
 
     public ReservedWordMap() {
-        CSVFileManager = new CSVFileManager("reservedwords.csv");
+        CSVFileManager = new CSVFileManager("resources/reservedwords.csv");
         reservedWordMap = new HashMap<String, String>();
         initializeMap();
     }

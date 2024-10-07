@@ -17,7 +17,7 @@ public class CSVFileManager {
     private void initializeScanner() {
         InputStream inputStream = null;
         try {
-            inputStream = new FileInputStream( "./resources/" + fileName);
+            inputStream = new FileInputStream(fileName);
         } catch (FileNotFoundException e) {
             System.out.println("Error al leer .csv de palabras reservadas.");
         }
