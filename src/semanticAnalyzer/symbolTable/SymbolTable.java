@@ -1,10 +1,7 @@
 package semanticAnalyzer.symbolTable;
 
 import lexicalAnalyzer.Token;
-import semanticAnalyzer.exceptions.CircularInheritanceException;
-import semanticAnalyzer.exceptions.DuplicateClassException;
-import semanticAnalyzer.exceptions.InvalidMainDeclarationException;
-import semanticAnalyzer.exceptions.SemanticException;
+import semanticAnalyzer.exceptions.*;
 
 import java.util.*;
 
@@ -61,32 +58,92 @@ public class SymbolTable {
     }
 
     public void checkDeclarations() throws SemanticException {
-        for(Map.Entry<String, Class> classEntry : classTable.entrySet()) {
-            //TODO
+        int mainCount = 0;
+        for(Class class_ : classTable.values()) {
+            mainCount += checkClassMethods(mainCount, class_, class_.getMethodCollection());
+            checkForConstructor(class_);
+            if (!class_.getInheritsFrom().isEmpty())
+                formInheritanceList(class_, class_.getInheritsFrom().getFirst());
+            else
+                class_.addInheritance(PredefinedClassCreator.getObjectClass().getToken());
         }
     }
 
-    private int checkClassMethods(Class class_, List<Method> methodList) throws SemanticException {
+    private int checkClassMethods(int mainCount, Class class_, Collection<Method> methodList) throws SemanticException {
         int thereIsMainMethod = 0;
         for (Method method : methodList) {
-            // TODO chequear que las clases de los parametros de cada metodo existan.
-            if (method.getName().equals("main") && method.getType().getName().equals("void") && method.getIsStatic() && method.getParameterCollection().isEmpty())
+            if (method.getName().equals("main") && thereIsMainMethod == 0 && method.getType().getName().equals("void") && method.getIsStatic() && method.getParameterCollection().isEmpty())
                 thereIsMainMethod++;
+            else if (method.getName().equals("main") && thereIsMainMethod > 0)
+                throw new DuplicateMainException(method);
             else if (method.getName().equals("main"))
                 throw new InvalidMainDeclarationException(class_, method);
 
-
+            for (Parameter parameter : method.getParameterCollection()) {
+                if(!parameter.getType().getIsPrimitive() && classTable.containsKey(parameter.getType().getName()))
+                    throw new ClassNotDeclaredException(parameter.getType().getToken());
+            }
         }
 
         return thereIsMainMethod;
     }
 
-    private void checkForConstructor(Class class_) {
-        // TODO si la clase actual no tiene constructor, agregarle uno por defecto
+    private void checkForConstructor(Class class_) throws SemanticException {
+        if (!class_.hasConstructor())
+            class_.addDefaultConstructor();
     }
 
-    public void consolidate() {
+    public void consolidate() throws SemanticException {
         // TODO
+        /* En esta pasada tambien
+se actualizaran las tablas de metodos y las tablas de variables de las clases en base a la relacion
+de herencia, proceso que denominamos consolidacion. En particular, en la consolidacion, se deberan
+agregar todos los metodos y las variables que la clase hereda de sus ancestros, con excepcion de aquellos
+que esta sobre-escribe. */
+        for(Class class_ : classTable.values()) {
+            checkAndUpdateMethodTable(class_);
+            checkAndUpdateAttributeTable(class_);
+        }
+
+    }
+
+    private void checkAndUpdateMethodTable(Class class_) throws SemanticException {
+        if (!class_.getName().equals("Object")) {
+            if (!class_.isConsolidatedMethods()) {
+                Class ancestor = classTable.get(class_.getInheritsFrom().getFirst().getLexeme());
+                if (!ancestor.isConsolidatedMethods())
+                    checkAndUpdateMethodTable(ancestor);
+                for (Method method : ancestor.getMethodCollection()) {
+                    if (class_.hasMethod(method.getName())) {
+                        if (!class_.overrides(method))
+                            throw new InvalidMethodOverrideException(class_, method);
+                    } else {
+                        class_.addMethod(method);
+                    }
+                }
+            }
+        }
+    }
+
+    private void checkAndUpdateAttributeTable(Class class_) throws SemanticException {
+        if (!class_.getName().equals("Object")) {
+            if (!class_.isConsolidatedAttributes()) {
+                Class ancestor = classTable.get(class_.getInheritsFrom().getFirst().getLexeme());
+                if (!ancestor.isConsolidatedAttributes())
+                    checkAndUpdateAttributeTable(ancestor);
+                for (Attribute attribute : ancestor.getAttributeCollection()) {
+                    if (class_.hasAttribute(attribute.getName())) {
+                        Attribute clonedAttribute = Attribute.clone(attribute);
+                        clonedAttribute.setInvisibleToContainer(true);
+                        class_.addInvisibleAttribute(clonedAttribute);
+                    } else {
+                        Attribute clonedAttribute = Attribute.clone(attribute);
+                        class_.addAttribute(clonedAttribute);
+                    }
+                }
+                class_.setConsolidatedAttributes(true);
+            }
+        }
     }
 
     public List<Token> formInheritanceList(Class currentClass, Token classFromInheritanceList) throws CircularInheritanceException {

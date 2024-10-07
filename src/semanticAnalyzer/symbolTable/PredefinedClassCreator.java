@@ -1,6 +1,7 @@
 package semanticAnalyzer.symbolTable;
 
 import lexicalAnalyzer.Token;
+import semanticAnalyzer.exceptions.CircularInheritanceException;
 import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.symbolTable.type.PrimitiveType;
 import semanticAnalyzer.symbolTable.type.ReferenceType;
@@ -25,7 +26,11 @@ public class PredefinedClassCreator {
 
     public static Class getStringClass() {
         if (string == null) {
-            string = createStringClass();
+            try {
+                string = createStringClass();
+            } catch (CircularInheritanceException semanticException) {
+                System.out.println("Error while creating String class.");
+            }
         }
         return string;
     }
@@ -52,11 +57,17 @@ public class PredefinedClassCreator {
 
         object.addMethod(debugPrint);
 
+        object.setConsolidatedAttributes(true);
+        object.setConsolidatedMethods(true);
+
         return object;
     }
 
-    private static Class createStringClass() {
-        return new Class(new Token("idClass", "String", 0));
+    private static Class createStringClass() throws CircularInheritanceException {
+        Class string = new Class(new Token("idClass", "String", 0));
+        string.addInheritance(PredefinedClassCreator.getObjectClass().getToken());
+
+        return string;
     }
 
     private static Class createSystemClass() throws SemanticException {
@@ -99,6 +110,8 @@ public class PredefinedClassCreator {
         Parameter sln = new Parameter(new Token("idMetVar", "s", 0), new ReferenceType(new Token("idClass", "String", 0)), 0);
         Method printSln = createMethod("printSln", system, new PrimitiveType(new Token("pr_void", "void", 0)), sln);
         system.addMethod(printSln);
+
+        system.addInheritance(PredefinedClassCreator.getObjectClass().getToken());
 
         return system;
     }

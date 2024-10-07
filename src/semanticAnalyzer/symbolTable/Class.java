@@ -4,6 +4,7 @@ import lexicalAnalyzer.Token;
 import semanticAnalyzer.exceptions.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,12 +15,16 @@ public class Class {
     private Method currentMethod;
     private Token token;
     private ArrayList<Token> inheritsFrom;
+    private boolean consolidatedAttributes, consolidatedMethods, isConsolidated;
 
     public Class(Token token) {
         this.token = token;
         inheritsFrom = new ArrayList<>();
         attributeTable = new HashMap<>();
         methodTable = new HashMap<>();
+        consolidatedAttributes = false;
+        consolidatedMethods = false;
+        isConsolidated = false;
     }
 
     public void addMethod(Method method) throws SemanticException {
@@ -37,6 +42,10 @@ public class Class {
             throw new DuplicateAttributeException(this, attribute);
     }
 
+    public void addInvisibleAttribute(Attribute attribute) {
+        attributeTable.put(attribute.getName(), attribute);
+    }
+
     public void addParameterToCurrentMethod(Parameter parameter) throws SemanticException {
         currentMethod.addParameter(parameter);
     }
@@ -46,17 +55,28 @@ public class Class {
     }
 
     public void addConstructor(Constructor constructor) throws SemanticException {
-        if (    constructorTable.isEmpty()) {
+        if (constructorTable.isEmpty()) {
             constructorTable.put(constructor.getName(), constructor);
         } else
             throw new DuplicateConstructorException(this, constructor);
     }
 
     public void addDefaultConstructor() throws SemanticException {
-        Method constructor = new Method();
-        constructor.setToken(new Token("idMetVar", this.getName(), 0));
-        constructor.setContainerClass(this);
-        addMethod(constructor);
+        Constructor constructor = new Constructor(new Token("idMetVar", this.getName(), 0), this);
+        addConstructor(constructor);
+    }
+
+    public void addInheritance(Token class_) throws CircularInheritanceException {
+        if (!class_.getTokenName().equals(this.getName()))
+            inheritsFrom.add(class_);
+        else
+            throw new CircularInheritanceException(this);
+    }
+
+    public void addListedInheritance(List<Token> classInheritanceList) throws CircularInheritanceException {
+        for (Token class_ : classInheritanceList) {
+            addInheritance(class_);
+        }
     }
 
     public int getLineNumber() {
@@ -75,19 +95,6 @@ public class Class {
         return token;
     }
 
-    public void addInheritance(Token class_) throws CircularInheritanceException {
-        if (!class_.getTokenName().equals(this.getName()))
-            inheritsFrom.add(class_);
-        else
-            throw new CircularInheritanceException(this);
-    }
-
-    public void addListedInheritance(List<Token> classInheritanceList) throws CircularInheritanceException {
-        for (Token class_ : classInheritanceList) {
-            addInheritance(class_);
-        }
-    }
-
     public boolean hasConstructor() {
         return !constructorTable.isEmpty();
     }
@@ -96,13 +103,63 @@ public class Class {
         return inheritsFrom;
     }
 
-    public boolean overrides(Method superClassMethod) throws SemanticException {
-        if(methodTable.containsKey(superClassMethod.getName())) {
-            return true;
-            // TODO con los metodos que hay en method sobre equals
+    public Collection<Method> getMethodCollection() {
+        return methodTable.values();
+    }
 
+    public Collection<Attribute> getAttributeCollection() {
+        return attributeTable.values();
+    }
+
+    public boolean hasAttribute(Attribute attribute) {
+        for (Attribute attributeFromClassList : attributeTable.values()) {
+            if (attributeFromClassList.equals(attribute))
+                return true;
+        }
+        return false;
+    }
+
+    public boolean hasAttribute(String attributeName) {
+        return attributeTable.containsKey(attributeName);
+    }
+
+    public boolean overrides(Method superClassMethod) {
+        if(methodTable.containsKey(superClassMethod.getName())) {
+            return superClassMethod.equals(methodTable.get(superClassMethod.getName()));
         } else
             return false;
+    }
+
+    public void setConsolidatedAttributes(boolean consolidatedAttributes) {
+        this.consolidatedAttributes = consolidatedAttributes;
+    }
+
+    public void setConsolidatedMethods(boolean consolidatedMethods) {
+        this.consolidatedMethods = consolidatedMethods;
+    }
+
+    public void setConsolidated(boolean consolidated) {
+        isConsolidated = consolidated;
+    }
+
+    public boolean isConsolidatedAttributes() {
+        return consolidatedAttributes;
+    }
+
+    public boolean isConsolidatedMethods() {
+        return consolidatedMethods;
+    }
+
+    public boolean isConsolidated() {
+        return isConsolidated;
+    }
+
+    public boolean hasMethod(String methodName) {
+        return methodTable.containsKey(methodName);
+    }
+
+    public Method getMethod(String methodName) {
+        return methodTable.get(methodName);
     }
 
 

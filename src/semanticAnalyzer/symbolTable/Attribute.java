@@ -1,8 +1,6 @@
 package semanticAnalyzer.symbolTable;
 
 import lexicalAnalyzer.Token;
-import semanticAnalyzer.symbolTable.type.PrimitiveType;
-import semanticAnalyzer.symbolTable.type.ReferenceType;
 import semanticAnalyzer.symbolTable.type.Type;
 
 public class Attribute extends Variable {
@@ -25,6 +23,18 @@ public class Attribute extends Variable {
 
     public boolean isStatic() {
         return isStatic;
+    }
+
+    public static Attribute clone(Attribute attribute){
+        return new Attribute(attribute.getToken(), attribute.getType(), attribute.getContainerClass(), attribute.isStatic());
+    }
+
+    public boolean equals(Attribute attribute){
+        if(this.getType().equals(attribute.getType()) && this.getName().equals(attribute.getName())){
+            return true;
+        }else{
+            return false;
+        }
     }
 
 

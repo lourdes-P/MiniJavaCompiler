@@ -8,14 +8,12 @@ import semanticAnalyzer.symbolTable.type.Type;
 public abstract class Variable {
     private Token token;
     private Type type;
+    private boolean invisibleToContainer;
 
     protected Variable (Token token, Type type) {
         this.token = token;
         this.type = type;
-    }
-
-    public void prueba( String s, int i) {
-
+        invisibleToContainer = false;
     }
 
     public String getName() {
@@ -26,8 +24,16 @@ public abstract class Variable {
         return type;
     }
 
+    public boolean getInvisibleToContainer() {
+        return invisibleToContainer;
+    }
+
     public void setType(Type type) {
         this.type = type;
+    }
+
+    public void setInvisibleToContainer(boolean invisible) {
+        invisibleToContainer = invisible;
     }
 
     public int getLineNumber() {
