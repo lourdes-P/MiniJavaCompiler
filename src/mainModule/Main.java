@@ -21,7 +21,7 @@ public class Main {
 
         String sourceFile = "";
         if (args.length == 0) {
-            sourceFile = "./resources/dummySourceFile.txt";
+            sourceFile = "dummySourceFile.txt";
             System.out.println("No hay archivo fuente como argumento.");
         } else {
             sourceFile = args[0];
