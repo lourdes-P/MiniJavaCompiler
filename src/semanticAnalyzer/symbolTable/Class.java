@@ -2,6 +2,8 @@ package semanticAnalyzer.symbolTable;
 
 import lexicalAnalyzer.Token;
 import semanticAnalyzer.exceptions.*;
+import semanticAnalyzer.symbolTable.variables.Attribute;
+import semanticAnalyzer.symbolTable.variables.Parameter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,7 +13,7 @@ import java.util.List;
 public class Class {
     private HashMap<String,Constructor> constructorTable;
     private HashMap<String,Method> methodTable;
-    private HashMap<String,Attribute> attributeTable;
+    private HashMap<String, Attribute> attributeTable;
     private Method currentMethod;
     private Token token;
     private ArrayList<Token> inheritsFrom;

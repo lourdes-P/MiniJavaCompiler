@@ -1,6 +1,7 @@
 package semanticAnalyzer.exceptions;
 
 import semanticAnalyzer.symbolTable.*;
+import semanticAnalyzer.symbolTable.variables.Parameter;
 
 public class DuplicateParameterException extends SemanticException {
 

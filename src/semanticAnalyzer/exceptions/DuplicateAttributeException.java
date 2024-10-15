@@ -1,7 +1,7 @@
 package semanticAnalyzer.exceptions;
 
 import semanticAnalyzer.symbolTable.Class;
-import semanticAnalyzer.symbolTable.Attribute;
+import semanticAnalyzer.symbolTable.variables.Attribute;
 
 public class DuplicateAttributeException extends SemanticException {
 

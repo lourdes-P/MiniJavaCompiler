@@ -4,12 +4,13 @@ import lexicalAnalyzer.Token;
 import semanticAnalyzer.exceptions.DuplicateParameterException;
 import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.symbolTable.type.Type;
+import semanticAnalyzer.symbolTable.variables.Parameter;
 
 import java.util.*;
 
 public class Method {
     private Token token;
-    private HashMap<String,Parameter> parameterTable;
+    private HashMap<String, Parameter> parameterTable;
     private Type type;
     private Class containerClass;
     private boolean isStatic;

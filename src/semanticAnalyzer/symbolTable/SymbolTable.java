@@ -2,6 +2,8 @@ package semanticAnalyzer.symbolTable;
 
 import lexicalAnalyzer.Token;
 import semanticAnalyzer.exceptions.*;
+import semanticAnalyzer.symbolTable.variables.Attribute;
+import semanticAnalyzer.symbolTable.variables.Parameter;
 
 import java.util.*;
 
@@ -63,11 +65,15 @@ public class SymbolTable {
         for(Class class_ : classTable.values()) {
             mainCount += checkClassMethods(mainCount, class_, class_.getMethodCollection());
             checkForConstructor(class_);
+            checkAttributes(class_);
             if (!class_.getInheritsFrom().isEmpty())
                 formInheritanceList(class_, class_, class_.getInheritsFrom().getFirst());
             else if (!class_.getName().equals("Object"))
                 class_.addInheritance(PredefinedClassCreator.getObjectClass().getToken());
         }
+
+        if (mainCount == 0)
+            throw new NonexistentMainMethodException();
     }
 
     private int checkClassMethods(int thereIsMainMethod, Class class_, Collection<Method> methodList) throws SemanticException {
@@ -78,6 +84,9 @@ public class SymbolTable {
                 throw new DuplicateMainException(method);
             else if (method.getName().equals("main"))
                 throw new InvalidMainDeclarationException(class_, method);
+            else if (!method.getType().getIsPrimitive() && !classTable.containsKey(method.getType().getName())) {
+                throw new ClassNotDeclaredException(method.getType().getToken());
+            }
 
             for (Parameter parameter : method.getParameterCollection()) {
                 if(!parameter.getType().getIsPrimitive() && !classTable.containsKey(parameter.getType().getName()))
@@ -86,6 +95,13 @@ public class SymbolTable {
         }
 
         return thereIsMainMethod;
+    }
+
+    private void checkAttributes(Class class_) throws SemanticException {
+        for (Attribute attribute : class_.getAttributeCollection()) {
+            if (!attribute.getType().getIsPrimitive() && !classTable.containsKey(attribute.getType().getName()))
+                throw new ClassNotDeclaredException(attribute.getType().getToken());
+        }
     }
 
     private void checkForConstructor(Class class_) throws SemanticException {

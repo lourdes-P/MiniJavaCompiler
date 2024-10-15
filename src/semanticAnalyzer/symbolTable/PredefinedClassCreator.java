@@ -6,6 +6,7 @@ import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.symbolTable.type.PrimitiveType;
 import semanticAnalyzer.symbolTable.type.ReferenceType;
 import semanticAnalyzer.symbolTable.type.Type;
+import semanticAnalyzer.symbolTable.variables.Parameter;
 
 public class PredefinedClassCreator {
     private static Class object;

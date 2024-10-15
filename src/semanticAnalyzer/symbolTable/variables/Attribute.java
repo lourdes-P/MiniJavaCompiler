@@ -1,6 +1,7 @@
-package semanticAnalyzer.symbolTable;
+package semanticAnalyzer.symbolTable.variables;
 
 import lexicalAnalyzer.Token;
+import semanticAnalyzer.symbolTable.Class;
 import semanticAnalyzer.symbolTable.type.Type;
 
 public class Attribute extends Variable {

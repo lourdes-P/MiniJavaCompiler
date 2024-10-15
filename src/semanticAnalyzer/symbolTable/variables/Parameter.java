@@ -1,8 +1,7 @@
-package semanticAnalyzer.symbolTable;
+package semanticAnalyzer.symbolTable.variables;
 
 import lexicalAnalyzer.Token;
-import semanticAnalyzer.symbolTable.type.PrimitiveType;
-import semanticAnalyzer.symbolTable.type.ReferenceType;
+import semanticAnalyzer.symbolTable.Method;
 import semanticAnalyzer.symbolTable.type.Type;
 
 public class Parameter extends Variable {

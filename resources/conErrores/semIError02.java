@@ -1,7 +1,9 @@
-///[Error:C|7]
+///[Error:C|8]
 
 class A{
-
+    int primitive;
+    String reference;
+    D reference2;
 }
 
 class B extends C{
