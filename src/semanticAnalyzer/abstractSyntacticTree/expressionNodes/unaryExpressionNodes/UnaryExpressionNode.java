@@ -12,4 +12,7 @@ public abstract class UnaryExpressionNode {
         this.operator = operator;
     }
 
+    public UnaryExpressionNode(Token operator) {
+        this.operator = operator;
+    }
 }

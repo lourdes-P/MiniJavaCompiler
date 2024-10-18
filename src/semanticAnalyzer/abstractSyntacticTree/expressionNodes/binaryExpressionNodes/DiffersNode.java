@@ -9,4 +9,7 @@ public class DiffersNode extends BinaryExpressionNode {
         super(leftSide, rightSide, operator);
     }
 
+    public DiffersNode(Token operator) {
+        super(operator);
+    }
 }

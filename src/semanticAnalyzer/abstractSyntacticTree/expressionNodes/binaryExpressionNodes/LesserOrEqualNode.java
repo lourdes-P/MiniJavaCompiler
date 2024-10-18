@@ -8,4 +8,8 @@ public class LesserOrEqualNode extends BinaryExpressionNode {
     public LesserOrEqualNode(ExpressionNode leftSide, ExpressionNode rightSide, Token operator) {
         super(leftSide, rightSide, operator);
     }
+
+    public LesserOrEqualNode(Token operator) {
+        super(operator);
+    }
 }

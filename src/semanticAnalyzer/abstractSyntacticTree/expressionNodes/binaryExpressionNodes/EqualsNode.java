@@ -8,4 +8,8 @@ public class EqualsNode extends BinaryExpressionNode {
     public EqualsNode(ExpressionNode leftSide, ExpressionNode rightSide, Token operator) {
         super(leftSide, rightSide, operator);
     }
+
+    public EqualsNode(Token operator) {
+        super(operator);
+    }
 }

@@ -9,4 +9,8 @@ public class AdditionNode extends BinaryExpressionNode {
         super(leftSide, rightSide, operator);
     }
 
+    public AdditionNode(Token additionOperator) {
+        super(additionOperator);
+    }
+
 }

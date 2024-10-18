@@ -8,4 +8,8 @@ public class MultiplicationNode extends BinaryExpressionNode {
     public MultiplicationNode(ExpressionNode leftSide, ExpressionNode rightSide, Token operator) {
         super(leftSide, rightSide, operator);
     }
+
+    public MultiplicationNode(Token operator) {
+        super(operator);
+    }
 }

@@ -8,4 +8,9 @@ public class GreaterOrEqualNode extends BinaryExpressionNode {
     public GreaterOrEqualNode(ExpressionNode leftSide, ExpressionNode rightSide, Token operator) {
         super(leftSide, rightSide, operator);
     }
+
+    public GreaterOrEqualNode(Token operator) {
+        super(operator);
+    }
 }
+

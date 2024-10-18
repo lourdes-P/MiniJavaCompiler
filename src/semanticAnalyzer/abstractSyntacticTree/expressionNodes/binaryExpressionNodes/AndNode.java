@@ -8,4 +8,8 @@ public class AndNode extends BinaryExpressionNode {
     public AndNode(ExpressionNode leftSide, ExpressionNode rightSide, Token operator) {
         super(leftSide, rightSide, operator);
     }
+
+    public AndNode(Token operator) {
+        super(operator);
+    }
 }

@@ -8,4 +8,8 @@ public class LesserNode extends BinaryExpressionNode {
     public LesserNode(ExpressionNode leftSide, ExpressionNode rightSide, Token operator) {
         super(leftSide, rightSide, operator);
     }
+
+    public LesserNode(Token operator) {
+        super(operator);
+    }
 }

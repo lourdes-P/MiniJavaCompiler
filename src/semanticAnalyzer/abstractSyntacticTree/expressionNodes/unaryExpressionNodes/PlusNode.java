@@ -9,4 +9,7 @@ public class PlusNode extends UnaryExpressionNode {
         super(operand, operator);
     }
 
+    public PlusNode(Token operator) {
+        super(operator);
+    }
 }
