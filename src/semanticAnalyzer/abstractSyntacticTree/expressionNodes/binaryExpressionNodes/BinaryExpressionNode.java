@@ -4,7 +4,7 @@ import lexicalAnalyzer.Token;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ComposedExpressionNode;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ExpressionNode;
 
-public abstract class BinaryExpressionNode {
+public abstract class BinaryExpressionNode extends ComposedExpressionNode {
     private ExpressionNode leftSide, rightSide;
     private Token operator;
 

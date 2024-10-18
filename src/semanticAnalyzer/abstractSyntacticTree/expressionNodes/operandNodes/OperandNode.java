@@ -1,9 +1,8 @@
 package semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes;
 
-import lexicalAnalyzer.Token;
-import semanticAnalyzer.exceptions.SemanticException;
+import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ComposedExpressionNode;
 
-public abstract class OperandNode {
+public abstract class OperandNode extends ComposedExpressionNode {
 
     //public abstract boolean sentenceCheck() throws SemanticException;
 }

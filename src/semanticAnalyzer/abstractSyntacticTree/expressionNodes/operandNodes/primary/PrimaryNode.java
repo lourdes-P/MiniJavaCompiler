@@ -3,6 +3,6 @@ package semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.prim
 import lexicalAnalyzer.Token;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.OperandNode;
 
-public abstract class PrimaryNode extends OperandNode {
+public abstract class PrimaryNode {
 
 }

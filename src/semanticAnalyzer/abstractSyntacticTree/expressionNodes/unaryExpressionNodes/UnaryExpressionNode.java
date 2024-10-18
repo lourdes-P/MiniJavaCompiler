@@ -1,9 +1,10 @@
 package semanticAnalyzer.abstractSyntacticTree.expressionNodes.unaryExpressionNodes;
 
 import lexicalAnalyzer.Token;
+import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ComposedExpressionNode;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.OperandNode;
 
-public abstract class UnaryExpressionNode {
+public abstract class UnaryExpressionNode extends ComposedExpressionNode {
     private OperandNode operand;
     private Token operator;
 
