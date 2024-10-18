@@ -3,9 +3,9 @@ package semanticAnalyzer.symbolTable;
 import lexicalAnalyzer.Token;
 import semanticAnalyzer.exceptions.CircularInheritanceException;
 import semanticAnalyzer.exceptions.SemanticException;
-import semanticAnalyzer.symbolTable.type.PrimitiveType;
-import semanticAnalyzer.symbolTable.type.ReferenceType;
-import semanticAnalyzer.symbolTable.type.Type;
+import semanticAnalyzer.symbolTable.types.PrimitiveType;
+import semanticAnalyzer.symbolTable.types.ReferenceType;
+import semanticAnalyzer.symbolTable.types.Type;
 import semanticAnalyzer.symbolTable.variables.Parameter;
 
 public class PredefinedClassCreator {

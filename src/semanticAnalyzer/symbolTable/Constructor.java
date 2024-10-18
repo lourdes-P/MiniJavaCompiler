@@ -1,14 +1,8 @@
 package semanticAnalyzer.symbolTable;
 
 import lexicalAnalyzer.Token;
-import semanticAnalyzer.exceptions.DuplicateParameterException;
 import semanticAnalyzer.exceptions.InvalidConstructorException;
-import semanticAnalyzer.exceptions.SemanticException;
-import semanticAnalyzer.symbolTable.type.ReferenceType;
-import semanticAnalyzer.symbolTable.type.Type;
-
-import java.util.HashMap;
-import java.util.List;
+import semanticAnalyzer.symbolTable.types.ReferenceType;
 
 public class Constructor extends Method {
 

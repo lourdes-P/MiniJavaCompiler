@@ -2,9 +2,8 @@ package semanticAnalyzer.symbolTable.variables;
 
 import lexicalAnalyzer.Token;
 import semanticAnalyzer.symbolTable.Method;
-import semanticAnalyzer.symbolTable.type.PrimitiveType;
-import semanticAnalyzer.symbolTable.type.ReferenceType;
-import semanticAnalyzer.symbolTable.variables.Variable;
+import semanticAnalyzer.symbolTable.types.PrimitiveType;
+import semanticAnalyzer.symbolTable.types.ReferenceType;
 
 public class LocalVariable extends Variable {
     private Method containerMethod;

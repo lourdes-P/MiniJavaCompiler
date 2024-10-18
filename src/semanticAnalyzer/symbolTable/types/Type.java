@@ -1,4 +1,4 @@
-package semanticAnalyzer.symbolTable.type;
+package semanticAnalyzer.symbolTable.types;
 
 import lexicalAnalyzer.Token;
 

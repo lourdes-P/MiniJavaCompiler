@@ -3,7 +3,7 @@ package semanticAnalyzer.symbolTable;
 import lexicalAnalyzer.Token;
 import semanticAnalyzer.exceptions.DuplicateParameterException;
 import semanticAnalyzer.exceptions.SemanticException;
-import semanticAnalyzer.symbolTable.type.Type;
+import semanticAnalyzer.symbolTable.types.Type;
 import semanticAnalyzer.symbolTable.variables.Parameter;
 
 import java.util.*;
@@ -86,11 +86,11 @@ public class Method {
         return parameterTable.values();
     }
 
-    private boolean parameterAlreadyExists(Parameter parameter) {
+    protected boolean parameterAlreadyExists(Parameter parameter) {
         return parameterTable.containsKey(parameter.getName());
     }
 
-    private boolean equalParameterList(Collection<Parameter> collection) {
+    protected boolean equalParameterList(Collection<Parameter> collection) {
         List<Parameter> thisParameterList = orderByParameterPosition(parameterTable.values());
         boolean equalList = true;
         if(thisParameterList.size() == collection.size()) {
@@ -105,7 +105,7 @@ public class Method {
         return equalList;
     }
 
-    private List<Parameter> orderByParameterPosition(Collection<Parameter> values) {
+    protected List<Parameter> orderByParameterPosition(Collection<Parameter> values) {
         Parameter parameters[] = new Parameter[values.size()];
         if (values.size() > 0) {
             for (Parameter parameter : values) {

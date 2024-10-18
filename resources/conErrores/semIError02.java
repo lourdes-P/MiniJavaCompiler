@@ -3,7 +3,6 @@
 class A{
     int primitive;
     String reference;
-    D reference2;
 }
 
 class B extends C{

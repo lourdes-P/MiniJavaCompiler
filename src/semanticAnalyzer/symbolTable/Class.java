@@ -134,6 +134,11 @@ public class Class {
             return false;
     }
 
+    public boolean hasConstructor(Token constructor) {
+        // TODO has exact constructor.
+        return false;
+    }
+
     public void setConsolidatedAttributes(boolean consolidatedAttributes) {
         this.consolidatedAttributes = consolidatedAttributes;
     }

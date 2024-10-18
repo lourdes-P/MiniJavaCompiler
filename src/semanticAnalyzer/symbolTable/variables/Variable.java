@@ -1,9 +1,7 @@
 package semanticAnalyzer.symbolTable.variables;
 
 import lexicalAnalyzer.Token;
-import semanticAnalyzer.symbolTable.type.PrimitiveType;
-import semanticAnalyzer.symbolTable.type.ReferenceType;
-import semanticAnalyzer.symbolTable.type.Type;
+import semanticAnalyzer.symbolTable.types.Type;
 
 public abstract class Variable {
     private Token token;
