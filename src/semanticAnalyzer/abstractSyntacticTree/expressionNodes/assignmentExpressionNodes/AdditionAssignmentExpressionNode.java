@@ -5,8 +5,13 @@ import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ComposedExpression
 
 public class AdditionAssignmentExpressionNode extends AssignmentExpressionNode {
 
+
     public AdditionAssignmentExpressionNode(ComposedExpressionNode leftSideComposedExpressionNode) {
         super(leftSideComposedExpressionNode);
+    }
+
+    public AdditionAssignmentExpressionNode(ComposedExpressionNode leftSideComposedExpressionNode, Token assignmentToken) {
+        super(leftSideComposedExpressionNode, assignmentToken);
     }
 
     public AdditionAssignmentExpressionNode(ComposedExpressionNode leftSideComposedExpressionNode, ComposedExpressionNode rightSideComposedExpressionNode, Token assignmentToken) {

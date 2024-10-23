@@ -8,6 +8,12 @@ public class AssignmentExpressionNode extends ExpressionNode {
     private ComposedExpressionNode rightSideExpressionNode;
     private Token assignmentToken;
 
+
+    public AssignmentExpressionNode(ComposedExpressionNode leftSideComposedExpressionNode, Token assignmentToken) {
+        super(leftSideComposedExpressionNode);
+        this.assignmentToken = assignmentToken;
+    }
+
     public AssignmentExpressionNode(ComposedExpressionNode leftSideComposedExpressionNode) {
         super(leftSideComposedExpressionNode);
     }
@@ -15,8 +21,10 @@ public class AssignmentExpressionNode extends ExpressionNode {
     public AssignmentExpressionNode(ComposedExpressionNode leftSideComposedExpressionNode, ComposedExpressionNode rightSideComposedExpressionNode, Token assignmentToken) {
         super(leftSideComposedExpressionNode);
         this.rightSideExpressionNode = rightSideComposedExpressionNode;
+        this.hasRightSide = true;
         this.assignmentToken = assignmentToken;
     }
+
 
     public ComposedExpressionNode getRightSideExpressionNode() {
         return rightSideExpressionNode;
@@ -24,6 +32,7 @@ public class AssignmentExpressionNode extends ExpressionNode {
 
     public void setRightSideExpressionNode(ComposedExpressionNode rightSideExpressionNode) {
         this.rightSideExpressionNode = rightSideExpressionNode;
+        this.hasRightSide = true;
     }
 
     public Token getAssignmentToken() {

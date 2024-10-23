@@ -9,6 +9,7 @@ public class MinusNode extends UnaryExpressionNode {
         super(operand, operator);
     }
 
-
-
+    public MinusNode(Token operator) {
+        super(operator);
+    }
 }

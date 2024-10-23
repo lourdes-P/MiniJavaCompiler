@@ -47,7 +47,10 @@ public class Block {
 
     public void addLocalVariable(LocalVariable localVariable) {
         declaredVariablesInBlock.add(localVariable);
-        // TODO resolver visibilidad (por "herencia" de bloques)
+    }
+
+    public boolean isMainBlock() {
+        return parentBlock == null;
     }
 
 

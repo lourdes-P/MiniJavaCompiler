@@ -12,4 +12,11 @@ public class ThisAccessNode extends PrimaryNode {
         this.thisClass = thisClass;
     }
 
+    public ThisAccessNode(Token thisToken) {
+        this.thisToken = thisToken;
+    }
+
+    public void setThisClass(Class thisClass) {
+        this.thisClass = thisClass;
+    }
 }

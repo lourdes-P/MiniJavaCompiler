@@ -1,5 +1,5 @@
 package semanticAnalyzer.abstractSyntacticTree.sentenceNodes;
 
-public abstract class SentenceNode {
-
+public class SentenceNode {
+    // Not abstract so that statement ";" can be represented by something other than null.
 }

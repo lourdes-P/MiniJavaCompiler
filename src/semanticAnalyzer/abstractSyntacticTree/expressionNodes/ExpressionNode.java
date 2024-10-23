@@ -1,15 +1,29 @@
 package semanticAnalyzer.abstractSyntacticTree.expressionNodes;
 
 
-public abstract class ExpressionNode {
+public class ExpressionNode {
     private ComposedExpressionNode leftSideComposedExpressionNode;
+
+    protected boolean hasRightSide;
 
     public ExpressionNode(ComposedExpressionNode leftSideComposedExpressionNode) {
         this.leftSideComposedExpressionNode = leftSideComposedExpressionNode;
+        hasRightSide = false;
+    }
+
+    public ExpressionNode() {
+        hasRightSide = false;
     }
 
     public ComposedExpressionNode getLeftSideComposedExpressionNode() {
         return leftSideComposedExpressionNode;
     }
 
+    public void setLeftSideComposedExpressionNode(ComposedExpressionNode leftSideComposedExpressionNode) {
+        this.leftSideComposedExpressionNode = leftSideComposedExpressionNode;
+    }
+
+    public boolean hasRightSide() {
+        return hasRightSide;
+    }
 }

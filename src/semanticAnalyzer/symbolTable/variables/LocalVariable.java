@@ -9,5 +9,7 @@ public class LocalVariable extends Variable {
         super(token, type);
     }
 
-
+    public LocalVariable(Token token) {
+        super(token);
+    }
 }

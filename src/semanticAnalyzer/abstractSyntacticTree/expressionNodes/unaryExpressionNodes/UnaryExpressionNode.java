@@ -16,4 +16,8 @@ public abstract class UnaryExpressionNode extends ComposedExpressionNode {
     public UnaryExpressionNode(Token operator) {
         this.operator = operator;
     }
+
+    public void setOperandNode(OperandNode operandNode) {
+        this.operand = operandNode;
+    }
 }

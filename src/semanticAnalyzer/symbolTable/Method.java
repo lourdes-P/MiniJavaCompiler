@@ -14,9 +14,11 @@ public class Method {
     private Type type;
     private Class containerClass;
     private boolean isStatic;
+    private List<Block> blockList;
 
     public Method() {
         parameterTable = new HashMap<>();
+        blockList = new ArrayList<>();
         isStatic = false;
     }
 
@@ -26,6 +28,7 @@ public class Method {
         this.token = token;
         this.containerClass = containerClass;
         this.type = type;
+        blockList = new ArrayList<>();
     }
 
     public void setToken(Token token) {
@@ -82,6 +85,14 @@ public class Method {
         }
     }
 
+    public void addBlock(Block block) {
+        blockList.add(block);
+    }
+
+    public boolean isBlockListEmpty() {
+        return blockList.isEmpty();
+    }
+
     public Collection<Parameter> getParameterCollection() {
         return parameterTable.values();
     }
@@ -113,5 +124,9 @@ public class Method {
             }
         }
         return Arrays.stream(parameters).toList();
+    }
+
+    public Block getLastAddedBlock() {
+        return blockList.getLast();
     }
 }

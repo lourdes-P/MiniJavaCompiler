@@ -1,6 +1,7 @@
 package semanticAnalyzer.abstractSyntacticTree.sentenceNodes;
 
 import lexicalAnalyzer.Token;
+import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ComposedExpressionNode;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ExpressionNode;
 import semanticAnalyzer.symbolTable.Block;
 import semanticAnalyzer.symbolTable.variables.LocalVariable;
@@ -8,7 +9,7 @@ import semanticAnalyzer.symbolTable.variables.LocalVariable;
 public class LocalVariableNode extends SentenceNode {
     private Token idMetVar;
     private LocalVariable variable;
-    private ExpressionNode rightSide;
+    private ComposedExpressionNode rightSide;
     private Block containerBlock;
 
     public LocalVariableNode(Token idMetVar) {
@@ -24,8 +25,16 @@ public class LocalVariableNode extends SentenceNode {
         this.idMetVar = idMetVar;
     }
 
-    public void setRightSide(ExpressionNode rightSide) {
+    public void setRightSide(ComposedExpressionNode rightSide) {
         this.rightSide = rightSide;
+    }
+
+    public void setVariable(LocalVariable variable) {
+        this.variable = variable;
+    }
+
+    public void setContainerBlock(Block containerBlock) {
+        this.containerBlock = containerBlock;
     }
 
     public LocalVariable getVariable() {

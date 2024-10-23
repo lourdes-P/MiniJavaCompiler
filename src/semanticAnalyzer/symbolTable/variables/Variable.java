@@ -14,6 +14,12 @@ public abstract class Variable {
         invisibleToContainer = false;
     }
 
+    public Variable(Token token) {
+        this.token = token;
+        type = null;
+        invisibleToContainer = false;
+    }
+
     public String getName() {
         return token.getLexeme();
     }
@@ -44,5 +50,9 @@ public abstract class Variable {
 
     public boolean isTypePrimitive() {
         return type.getIsPrimitive();
+    }
+
+    public boolean typeIsResolved() {
+        return type != null;
     }
 }

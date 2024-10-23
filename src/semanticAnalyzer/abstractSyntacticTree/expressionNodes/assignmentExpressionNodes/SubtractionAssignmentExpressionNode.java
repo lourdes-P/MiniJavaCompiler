@@ -9,6 +9,10 @@ public class SubtractionAssignmentExpressionNode extends AssignmentExpressionNod
         super(leftSideComposedExpressionNode);
     }
 
+    public SubtractionAssignmentExpressionNode(ComposedExpressionNode leftSideComposedExpressionNode, Token assignmentToken) {
+        super(leftSideComposedExpressionNode, assignmentToken);
+    }
+
     public SubtractionAssignmentExpressionNode(ComposedExpressionNode leftSideComposedExpressionNode, ComposedExpressionNode rightSideComposedExpressionNode, Token assignmentToken) {
         super(leftSideComposedExpressionNode, rightSideComposedExpressionNode, assignmentToken);
     }

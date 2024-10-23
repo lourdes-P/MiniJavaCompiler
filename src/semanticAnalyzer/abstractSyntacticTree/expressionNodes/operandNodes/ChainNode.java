@@ -12,6 +12,21 @@ public class ChainNode {
     private ChainNode furtherChainNode;
     private Type finalType;
 
+
+    public ChainNode() {
+        this.furtherChainNode = null;
+        this.finalType = null;
+        this.actualArguments = null;
+        this.idMetVar = null;
+    }
+
+    public ChainNode(Token idMetVar) {
+        this.idMetVar = idMetVar;
+        this.furtherChainNode = null;
+        this.finalType = null;
+        this.actualArguments = null;
+    }
+
     public ChainNode(Token idMetVar, List<ExpressionNode> actualArguments) {
         this.furtherChainNode = null;
         this.idMetVar = idMetVar;

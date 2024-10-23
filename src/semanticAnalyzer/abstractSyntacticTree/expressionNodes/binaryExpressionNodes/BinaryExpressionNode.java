@@ -2,15 +2,19 @@ package semanticAnalyzer.abstractSyntacticTree.expressionNodes.binaryExpressionN
 
 import lexicalAnalyzer.Token;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ComposedExpressionNode;
-import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ExpressionNode;
 
 public abstract class BinaryExpressionNode extends ComposedExpressionNode {
-    private ExpressionNode leftSide, rightSide;
+    private ComposedExpressionNode leftSide, rightSide;
     private Token operator;
 
-    public BinaryExpressionNode(ExpressionNode leftSide, ExpressionNode rightSide, Token operator) {
+    public BinaryExpressionNode(ComposedExpressionNode leftSide, ComposedExpressionNode rightSide, Token operator) {
         this.leftSide = leftSide;
         this.rightSide = rightSide;
+        this.operator = operator;
+    }
+
+    public BinaryExpressionNode(ComposedExpressionNode leftSide, Token operator) {
+        this.leftSide = leftSide;
         this.operator = operator;
     }
 
@@ -18,19 +22,19 @@ public abstract class BinaryExpressionNode extends ComposedExpressionNode {
         this.operator = operator;
     }
 
-    public void setLeftSide(ExpressionNode leftSide) {
+    public void setLeftSide(ComposedExpressionNode leftSide) {
         this.leftSide = leftSide;
     }
 
-    public void setRightSide(ExpressionNode rightSide) {
+    public void setRightSide(ComposedExpressionNode rightSide) {
         this.rightSide = rightSide;
     }
 
-    public ExpressionNode getLeftSide() {
+    public ComposedExpressionNode getLeftSide() {
         return leftSide;
     }
 
-    public ExpressionNode getRightSide() {
+    public ComposedExpressionNode getRightSide() {
         return rightSide;
     }
 

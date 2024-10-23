@@ -60,6 +60,14 @@ public class SymbolTable {
         currentMethod = constructor;
     }
 
+    public void addBlockToCurrentMethod(Block block) {
+        currentMethod.addBlock(block);
+    }
+
+    public Block getLastAddedBlock() {
+        return currentMethod.getLastAddedBlock();
+    }
+
     public void checkDeclarations() throws SemanticException {
         int mainCount = 0;
         for(Class class_ : classTable.values()) {
@@ -198,4 +206,9 @@ public class SymbolTable {
     public boolean thereIsCurrentMethod() {
         return currentMethod != null;
     }
+
+    public boolean containsClass(String className) {
+        return classTable.containsKey(className);
+    }
+
 }

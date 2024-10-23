@@ -12,12 +12,16 @@ public class MethodAccessNode extends PrimaryNode {
     private List<ExpressionNode> actualArguments;
     private Type type;
 
+
+    public MethodAccessNode(Token idMetVar) {
+        this.idMetVar = idMetVar;
+    }
+
     public MethodAccessNode(Token idMetVar, List<ExpressionNode> actualArguments, Type type) {
         this.idMetVar = idMetVar;
         this.actualArguments = actualArguments;
         this.type = type;
     }
-
 
     public String getName() {
         return idMetVar.getLexeme();
@@ -25,5 +29,13 @@ public class MethodAccessNode extends PrimaryNode {
 
     public Type getType() {
         return type;
+    }
+
+    public void setActualArguments(List<ExpressionNode> actualArguments) {
+        this.actualArguments = actualArguments;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
     }
 }

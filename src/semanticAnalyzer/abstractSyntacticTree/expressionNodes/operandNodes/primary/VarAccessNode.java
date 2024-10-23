@@ -11,8 +11,16 @@ public class VarAccessNode extends PrimaryNode {
     private List<ExpressionNode> actualArguments;
     private Block accessBlock;
 
+    public VarAccessNode(Token idMetVar) {
+        this.idMetVar = idMetVar;
+    }
+
     public VarAccessNode(Token idMetVar, List<ExpressionNode> actualArguments) {
         this.idMetVar = idMetVar;
+        this.actualArguments = actualArguments;
+    }
+
+    public void setActualArguments(List<ExpressionNode> actualArguments) {
         this.actualArguments = actualArguments;
     }
 
