@@ -901,16 +901,12 @@ public class SyntacticAnalyzer {
         Token currentTokenReference = currentToken;
         List<SentenceNode> localVariables = new ArrayList<>();
         match("idMetVar");
-        if (currentToken.getTokenName().equals("Punto")) {
-            // TODO acceso a metodo estatico
-            staticMethodAccess();
-        } else {
-            LocalVariableNode localVariableNode = new LocalVariableNode(currentTokenReference, symbolTable.getLastAddedBlock());
-            LocalVariable localVariable = new LocalVariable(currentTokenReference, type);
-            localVariableNode.setVariable(localVariable);
-            optionalClassicVarInitialization();
-            continueLocalVarDeclaration(type);
-        }
+
+        LocalVariableNode localVariableNode = new LocalVariableNode(currentTokenReference, symbolTable.getLastAddedBlock());
+        LocalVariable localVariable = new LocalVariable(currentTokenReference, type);
+        localVariableNode.setVariable(localVariable);
+        optionalClassicVarInitialization();
+        continueLocalVarDeclaration(type);
 
         return localVariables;
     }
