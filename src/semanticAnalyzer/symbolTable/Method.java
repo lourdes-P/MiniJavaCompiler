@@ -15,10 +15,12 @@ public class Method {
     private Class containerClass;
     private boolean isStatic;
     private List<Block> blockList;
+    private Block currentBlock;
 
     public Method() {
         parameterTable = new HashMap<>();
         blockList = new ArrayList<>();
+        currentBlock = null;
         isStatic = false;
     }
 
@@ -29,6 +31,7 @@ public class Method {
         this.containerClass = containerClass;
         this.type = type;
         blockList = new ArrayList<>();
+        currentBlock = null;
     }
 
     public void setToken(Token token) {
@@ -128,5 +131,13 @@ public class Method {
 
     public Block getLastAddedBlock() {
         return blockList.getLast();
+    }
+
+    public Block getCurrentBlock() {
+        return currentBlock;
+    }
+
+    public void setCurrentBlock(Block currentBlock) {
+        this.currentBlock = currentBlock;
     }
 }

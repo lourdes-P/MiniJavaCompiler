@@ -199,6 +199,14 @@ public class SymbolTable {
         return currentMethod;
     }
 
+    public Block getCurrentBlock() {
+        return currentMethod.getCurrentBlock();
+    }
+
+    public void setCurrentBlock(Block block) {
+        currentMethod.setCurrentBlock(block);
+    }
+
     public boolean thereIsCurrentClass() {
         return currentClass != null;
     }

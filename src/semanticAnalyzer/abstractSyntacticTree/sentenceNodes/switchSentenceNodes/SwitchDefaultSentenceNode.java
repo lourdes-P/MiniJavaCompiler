@@ -1,11 +1,19 @@
 package semanticAnalyzer.abstractSyntacticTree.sentenceNodes.switchSentenceNodes;
 
+import lexicalAnalyzer.Token;
 import semanticAnalyzer.abstractSyntacticTree.sentenceNodes.SentenceNode;
 
-public class SwitchDefaultSentenceNode extends SwitchSentenceNode {
-    private SentenceNode sentenceNode;
+import java.util.List;
 
-    public void setSentenceNode(SentenceNode sentenceNode) {
+public class SwitchDefaultSentenceNode extends SwitchSentenceNode {
+    private List<SentenceNode> sentenceNode;
+
+    public SwitchDefaultSentenceNode(Token token) {
+        super(token);
+        this.sentenceNode = null;
+    }
+
+    public void setSentenceNode(List<SentenceNode> sentenceNode) {
         this.sentenceNode = sentenceNode;
     }
 }

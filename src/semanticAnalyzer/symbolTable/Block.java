@@ -41,6 +41,10 @@ public class Block {
         this.parentBlock = parentBlock;
     }
 
+    public Block getParentBlock() {
+        return parentBlock;
+    }
+
     public void addSentenceNode(SentenceNode sentenceNode) {
         sentenceNodeList.add(sentenceNode);
     }

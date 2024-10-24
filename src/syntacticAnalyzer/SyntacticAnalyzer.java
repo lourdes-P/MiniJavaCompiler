@@ -21,6 +21,9 @@ import semanticAnalyzer.abstractSyntacticTree.expressionNodes.unaryExpressionNod
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.unaryExpressionNodes.PlusNode;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.unaryExpressionNodes.UnaryExpressionNode;
 import semanticAnalyzer.abstractSyntacticTree.sentenceNodes.*;
+import semanticAnalyzer.abstractSyntacticTree.sentenceNodes.switchSentenceNodes.SwitchCaseSentenceNode;
+import semanticAnalyzer.abstractSyntacticTree.sentenceNodes.switchSentenceNodes.SwitchDefaultSentenceNode;
+import semanticAnalyzer.abstractSyntacticTree.sentenceNodes.switchSentenceNodes.SwitchSentenceNode;
 import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.symbolTable.*;
 import semanticAnalyzer.symbolTable.Class;
@@ -46,6 +49,7 @@ public class SyntacticAnalyzer {
     private Token currentToken;
     private MapManager firstsMap, nextsMap;
     private SymbolTable symbolTable;
+    private Token staticMethodAccessClass;
 
     public SyntacticAnalyzer(LexicalAnalyzer lexicalAnalyzer, SymbolTable symbolTable) {
         this.lexicalAnalyzer = lexicalAnalyzer;
@@ -57,7 +61,7 @@ public class SyntacticAnalyzer {
 
 
     private void match(String expectedTokenName) throws AbstractSyntacticException, LexicalException {
-        if(expectedTokenName.equals(currentToken.getTokenName())) {
+        if (expectedTokenName.equals(currentToken.getTokenName())) {
             currentToken = lexicalAnalyzer.nextToken();
         } else
             throw new NoMatchSyntacticException(currentToken, expectedTokenName);
@@ -67,7 +71,7 @@ public class SyntacticAnalyzer {
         currentToken = lexicalAnalyzer.nextToken();
         if (firstsMap.containsEntry("Start", currentToken.getTokenName())) {
             classList();
-        } else if (currentToken.getTokenName().equals("EOF")){
+        } else if (currentToken.getTokenName().equals("EOF")) {
             // end
         } else {
             throw new SyntacticException(currentToken, firstsMap.getValue("Start"));
@@ -75,13 +79,13 @@ public class SyntacticAnalyzer {
     }
 
     private void classList() throws AbstractSyntacticException, LexicalException, SemanticException {
-        if(firstsMap.containsEntry("ClassList", currentToken.getTokenName())) {
+        if (firstsMap.containsEntry("ClassList", currentToken.getTokenName())) {
             class_();
             classList();
-        } else if (nextsMap.containsEntry("ClassList", currentToken.getTokenName())){
+        } else if (nextsMap.containsEntry("ClassList", currentToken.getTokenName())) {
             // empty. Token is in the next list.
         } else {
-            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("ClassList"));
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("ClassList"));
         }
     }
 
@@ -113,7 +117,7 @@ public class SyntacticAnalyzer {
                 match("LlaveCierra");
             }
         } else {
-            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("ClassList"));
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("ClassList"));
         }
     }
 
@@ -127,7 +131,7 @@ public class SyntacticAnalyzer {
         } else if (nextsMap.containsEntry("OptionalGenericClassDeclaration", currentToken.getTokenName())) {
             // empty.
         } else {
-            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("OptionalGenericClassDeclaration"));
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("OptionalGenericClassDeclaration"));
         }
     }
 
@@ -138,20 +142,20 @@ public class SyntacticAnalyzer {
         } else if (nextsMap.containsEntry("ContinueOptionalGenericClassDeclaration", currentToken.getTokenName())) {
             // empty.
         } else {
-            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("ContinueOptionalGenericClassDeclaration"));
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("ContinueOptionalGenericClassDeclaration"));
         }
     }
 
     private void continueGenericClassDeclaration() throws AbstractSyntacticException, LexicalException {
         if (firstsMap.containsEntry("ContinueGenericClassDeclaration", currentToken.getTokenName())) {
             match("idClase");
-            if(currentToken.getTokenName().equals("Coma")) {
+            if (currentToken.getTokenName().equals("Coma")) {
                 continueOptionalGenericClassDeclaration();
             } else {
                 optionalGenericClassDeclaration();
             }
         } else {
-            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("ContinueGenericClassDeclaration"));
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("ContinueGenericClassDeclaration"));
         }
     }
 
@@ -183,7 +187,7 @@ public class SyntacticAnalyzer {
             // empty. Token is in the next list.
             return PredefinedClassCreator.getObjectClass().getToken();
         } else {
-            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("OptionalInheritance"));
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("OptionalInheritance"));
         }
     }
 
@@ -194,7 +198,7 @@ public class SyntacticAnalyzer {
         } else if (nextsMap.containsEntry("MemberList", currentToken.getTokenName())) {
             // empty. Token is in the next list.
         } else {
-            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("MemberList"));
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("MemberList"));
         }
     }
 
@@ -210,7 +214,7 @@ public class SyntacticAnalyzer {
                 attributeMethod(isStatic, type, name);
             }
         } else {
-            throw new SyntacticException(currentToken,firstsMap.getValue("Member"));
+            throw new SyntacticException(currentToken, firstsMap.getValue("Member"));
         }
     }
 
@@ -237,14 +241,14 @@ public class SyntacticAnalyzer {
         } else if (nextsMap.containsEntry("OptionalFormalArgumentList", currentToken.getTokenName())) {
             // empty. Token is in next list.
         } else {
-            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("OptionalFormalArgumentList"));
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("OptionalFormalArgumentList"));
         }
     }
 
     private void formalArgumentList(ArrayList<Parameter> parameterList) throws AbstractSyntacticException, LexicalException {
         Parameter parameter = formalArgument();
         parameterList.add(parameter);
-        parameter.setPositionInMethodParameterList(parameterList.size()-1);
+        parameter.setPositionInMethodParameterList(parameterList.size() - 1);
         stopOrContinueFAL(parameterList);
     }
 
@@ -262,12 +266,12 @@ public class SyntacticAnalyzer {
         } else if (nextsMap.containsEntry("StopOrContinueFAL", currentToken.getTokenName())) {
             // empty. Token is in next list.
         } else {
-            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("StopOrContinueFAL"));
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("StopOrContinueFAL"));
         }
     }
 
     private Type memberType() throws AbstractSyntacticException, LexicalException {
-        if(firstsMap.containsEntry("MemberType", currentToken.getTokenName())) {
+        if (firstsMap.containsEntry("MemberType", currentToken.getTokenName())) {
             if (currentToken.getTokenName().equals("pr_void")) {
                 Token voidToken = currentToken;
                 match("pr_void");
@@ -276,12 +280,12 @@ public class SyntacticAnalyzer {
                 return type();
             }
         } else {
-            throw new SyntacticException(currentToken,firstsMap.getValue("MemberType"));
+            throw new SyntacticException(currentToken, firstsMap.getValue("MemberType"));
         }
     }
 
     private Type type() throws AbstractSyntacticException, LexicalException {
-        if(firstsMap.containsEntry("Type", currentToken.getTokenName())) {
+        if (firstsMap.containsEntry("Type", currentToken.getTokenName())) {
             if (currentToken.getTokenName().equals("idClase")) {
                 Type type = new ReferenceType(currentToken);
                 match("idClase");
@@ -291,7 +295,7 @@ public class SyntacticAnalyzer {
                 return primitiveType();
             }
         } else {
-            throw new SyntacticException(currentToken,firstsMap.getValue("Type"));
+            throw new SyntacticException(currentToken, firstsMap.getValue("Type"));
         }
 
     }
@@ -306,7 +310,7 @@ public class SyntacticAnalyzer {
         } else if (nextsMap.containsEntry("OptionalGenericDeclaration", currentToken.getTokenName())) {
             // empty.
         } else {
-            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("OptionalGenericDeclaration"));
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("OptionalGenericDeclaration"));
         }
     }
 
@@ -317,20 +321,20 @@ public class SyntacticAnalyzer {
         } else if (nextsMap.containsEntry("ContinueOptionalGenericDeclaration", currentToken.getTokenName())) {
             // empty.
         } else {
-            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("ContinueOptionalGenericDeclaration"));
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("ContinueOptionalGenericDeclaration"));
         }
     }
 
     private void continueGenericDeclaration() throws AbstractSyntacticException, LexicalException {
         if (firstsMap.containsEntry("ContinueGenericDeclaration", currentToken.getTokenName())) {
             match("idClase");
-            if(currentToken.getTokenName().equals("Coma")) {
+            if (currentToken.getTokenName().equals("Coma")) {
                 continueOptionalGenericDeclaration();
             } else {
                 optionalGenericDeclaration();
             }
         } else {
-            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("ContinueGenericDeclaration"));
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("ContinueGenericDeclaration"));
         }
     }
 
@@ -346,19 +350,19 @@ public class SyntacticAnalyzer {
             match("pr_int");
             return new PrimitiveType(type);
         } else {
-            throw new SyntacticException(currentToken,firstsMap.getValue("PrimitiveType"));
+            throw new SyntacticException(currentToken, firstsMap.getValue("PrimitiveType"));
         }
     }
 
     private boolean optionalStatic() throws AbstractSyntacticException, LexicalException {
-        if(firstsMap.containsEntry("OptionalStatic", currentToken.getTokenName())) {
+        if (firstsMap.containsEntry("OptionalStatic", currentToken.getTokenName())) {
             match("pr_static");
             return true;
         } else if (nextsMap.containsEntry("OptionalStatic", currentToken.getTokenName())) {
             // empty. Token is in next list.
             return false;
         } else {
-            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("OptionalStatic"));
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("OptionalStatic"));
         }
     }
 
@@ -376,7 +380,7 @@ public class SyntacticAnalyzer {
                 block();
             }
         } else {
-            throw new SyntacticException(currentToken,firstsMap.getValue("AttributeMethod"));
+            throw new SyntacticException(currentToken, firstsMap.getValue("AttributeMethod"));
         }
     }
 
@@ -392,36 +396,40 @@ public class SyntacticAnalyzer {
         } else if (nextsMap.containsEntry("OptionalAttributeInitialization", currentToken.getTokenName())) {
             //empty. Token is in next list.
         } else {
-            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("OptionalAttributeInitialization"));
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("OptionalAttributeInitialization"));
         }
-     }
+    }
 
-     private void continueAttributeDeclaration() throws AbstractSyntacticException, LexicalException {
-         if (firstsMap.containsEntry("ContinueAttributeDeclaration", currentToken.getTokenName())) {
-             match("Coma");
-             match("idMetVar");
-             attribute();
-         } else if (nextsMap.containsEntry("ContinueAttributeDeclaration", currentToken.getTokenName())) {
-             //empty. Token is in next list.
-         } else {
-             throw new SyntacticException(currentToken,concatenateFirstListAndNextList("ContinueAttributeDeclaration"));
-         }
-     }
+    private void continueAttributeDeclaration() throws AbstractSyntacticException, LexicalException {
+        if (firstsMap.containsEntry("ContinueAttributeDeclaration", currentToken.getTokenName())) {
+            match("Coma");
+            match("idMetVar");
+            attribute();
+        } else if (nextsMap.containsEntry("ContinueAttributeDeclaration", currentToken.getTokenName())) {
+            //empty. Token is in next list.
+        } else {
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("ContinueAttributeDeclaration"));
+        }
+    }
 
     private BlockNode block() throws AbstractSyntacticException, LexicalException {
         match("LlaveAbre");
 
         Block block = new Block(symbolTable.getCurrentMethod());
         if (!symbolTable.getCurrentMethod().isBlockListEmpty())
-            block.setParentBlock(symbolTable.getLastAddedBlock());
+            block.setParentBlock(symbolTable.getCurrentBlock());
 
         symbolTable.addBlockToCurrentMethod(block);
 
-        BlockNode blockNode= new BlockNode(block);
+        BlockNode blockNode = new BlockNode(block);
         block.setCorrespondingBlockNode(blockNode);
 
         sentenceList(block);
         match("LlaveCierra");
+
+        if (block.getParentBlock() != null) {
+            symbolTable.setCurrentBlock(block.getParentBlock());
+        }
 
         return blockNode;
     }
@@ -429,14 +437,14 @@ public class SyntacticAnalyzer {
     private void sentenceList(Block block) throws AbstractSyntacticException, LexicalException {
         if (firstsMap.containsEntry("SentenceList", currentToken.getTokenName())) {
             List<SentenceNode> sentenceNodes = sentence();
-            for(SentenceNode sentenceNode : sentenceNodes) {
+            for (SentenceNode sentenceNode : sentenceNodes) {
                 block.addSentenceNode(sentenceNode);
             }
             sentenceList(block);
         } else if (nextsMap.containsEntry("SentenceList", currentToken.getTokenName())) {
             // empty. Token is in next list.
         } else {
-            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("SentenceList"));
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("SentenceList"));
         }
     }
 
@@ -447,33 +455,35 @@ public class SyntacticAnalyzer {
                 match("PuntoYComa");
             } else if (firstsMap.containsEntry("Block", currentToken.getTokenName())) {
                 statementReturned.add(block());
+            } else if (currentToken.getTokenName().equals("idClase")) {
+                statementReturned = staticMethodAccessOrLocalVarClassic();
+                match("PuntoYComa");
             } else if (firstsMap.containsEntry("AssignmentOrCall", currentToken.getTokenName())) {
-                statementReturned.add(assignmentOrCallOrLocalClassicVar());
+                statementReturned.add(assignmentOrCall());
                 match("PuntoYComa");
             } else if (firstsMap.containsEntry("LocalVar", currentToken.getTokenName())) {
                 statementReturned = localVar();
                 match("PuntoYComa");
-            } else if (firstsMap.containsEntry("Return",currentToken.getTokenName())) {
-                return_();
+            } else if (firstsMap.containsEntry("Return", currentToken.getTokenName())) {
+                statementReturned.add(return_());
                 match("PuntoYComa");
             } else if (firstsMap.containsEntry("Break", currentToken.getTokenName())) {
-                break_();
+                statementReturned.add(break_());
                 match("PuntoYComa");
             } else if (firstsMap.containsEntry("If", currentToken.getTokenName())) {
-                if_();
+                statementReturned.add(if_());
             } else if (firstsMap.containsEntry("While", currentToken.getTokenName())) {
-                while_();
+                statementReturned.add(while_());
             } else if (firstsMap.containsEntry("Switch", currentToken.getTokenName())) {
-                switch_();
+                statementReturned.add(switch_());
             }
         } else {
-            throw new SyntacticException(currentToken,firstsMap.getValue("Sentence"));
+            throw new SyntacticException(currentToken, firstsMap.getValue("Sentence"));
         }
         return statementReturned;
     }
 
-    private SentenceNode assignmentOrCallOrLocalClassicVar() throws AbstractSyntacticException, LexicalException {
-
+    private SentenceNode assignmentOrCall() throws AbstractSyntacticException, LexicalException {
         ExpressionNode expressionNode = expression();
         SentenceNode sentenceNode;
         if (expressionNode.hasRightSide())
@@ -513,7 +523,7 @@ public class SyntacticAnalyzer {
                 composedExpressionNode = operand();
             }
         } else {
-            throw new SyntacticException(currentToken,firstsMap.getValue("BasicExpression"));
+            throw new SyntacticException(currentToken, firstsMap.getValue("BasicExpression"));
         }
         return composedExpressionNode;
     }
@@ -547,7 +557,7 @@ public class SyntacticAnalyzer {
                 operandNode = access();
             }
         } else {
-            throw new SyntacticException(currentToken,firstsMap.getValue("Operand"));
+            throw new SyntacticException(currentToken, firstsMap.getValue("Operand"));
         }
         return operandNode;
     }
@@ -561,7 +571,7 @@ public class SyntacticAnalyzer {
                 literalNode = objectLiteral();
             }
         } else {
-            throw new SyntacticException(currentToken,firstsMap.getValue("Literal"));
+            throw new SyntacticException(currentToken, firstsMap.getValue("Literal"));
         }
         return literalNode;
     }
@@ -573,8 +583,7 @@ public class SyntacticAnalyzer {
             case "pr_false" -> match("pr_false");
             case "intLiteral" -> match("intLiteral");
             case "charLiteral" -> match("charLiteral");
-            default ->
-                    throw new SyntacticException(currentToken, firstsMap.getValue("PrimitiveLiteral"));
+            default -> throw new SyntacticException(currentToken, firstsMap.getValue("PrimitiveLiteral"));
         }
         return primitiveLiteralNode;
     }
@@ -584,8 +593,7 @@ public class SyntacticAnalyzer {
         switch (currentToken.getTokenName()) {
             case "pr_null" -> match("pr_null");
             case "stringLiteral" -> match("stringLiteral");
-            default ->
-                    throw new SyntacticException(currentToken, firstsMap.getValue("ObjectLiteral")); // not reachable
+            default -> throw new SyntacticException(currentToken, firstsMap.getValue("ObjectLiteral")); // not reachable
         }
         return objectLiteralNode;
     }
@@ -629,11 +637,11 @@ public class SyntacticAnalyzer {
         } else if (nextsMap.containsEntry("VarOrMethodAccess", currentToken.getTokenName())) {
             // empty. Token is in next list.
             VarAccessNode varAccessNode = new VarAccessNode(idMetVar);
-            varAccessNode.setAccessBlock(symbolTable.getLastAddedBlock());
+            varAccessNode.setAccessBlock(symbolTable.getCurrentBlock());
 
             return varAccessNode;
         } else {
-            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("VarOrMethodAccess"));
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("VarOrMethodAccess"));
         }
     }
 
@@ -652,7 +660,7 @@ public class SyntacticAnalyzer {
         } else if (nextsMap.containsEntry("OptionalExpressionList", currentToken.getTokenName())) {
             // empty. Token is in next list.
         } else {
-            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("OptionalExpressionList"));
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("OptionalExpressionList"));
         }
     }
 
@@ -668,7 +676,7 @@ public class SyntacticAnalyzer {
         } else if (nextsMap.containsEntry("ExpressionListContinuation", currentToken.getTokenName())) {
             // empty. Token is in next list.
         } else {
-            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("ExpressionListContinuation"));
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("ExpressionListContinuation"));
         }
     }
 
@@ -698,13 +706,13 @@ public class SyntacticAnalyzer {
         } else if (nextsMap.containsEntry("OptionalGenericConstructorInvocation", currentToken.getTokenName())) {
             // empty.
         } else {
-            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("OptionalGenericConstructorInvocation"));
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("OptionalGenericConstructorInvocation"));
         }
     }
 
     private void optionalDiamondNotation() throws AbstractSyntacticException, LexicalException {
         if (firstsMap.containsEntry("OptionalDiamondNotation", currentToken.getTokenName())) {
-            if(currentToken.getTokenName().equals("Mayor")) {
+            if (currentToken.getTokenName().equals("Mayor")) {
                 match("Mayor");
             } else {
                 match("idClase");
@@ -713,7 +721,7 @@ public class SyntacticAnalyzer {
                 match("Mayor");
             }
         } else {
-            throw new SyntacticException(currentToken,firstsMap.getValue("OptionalDiamondNotation"));
+            throw new SyntacticException(currentToken, firstsMap.getValue("OptionalDiamondNotation"));
         }
     }
 
@@ -724,26 +732,25 @@ public class SyntacticAnalyzer {
         } else if (nextsMap.containsEntry("ContinueOptionalGenericConstructorInvocation", currentToken.getTokenName())) {
             // empty.
         } else {
-            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("ContinueOptionalGenericConstructorInvocation"));
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("ContinueOptionalGenericConstructorInvocation"));
         }
     }
 
     private void continueGenericConstructorInvocation() throws AbstractSyntacticException, LexicalException {
         if (firstsMap.containsEntry("ContinueGenericConstructorInvocation", currentToken.getTokenName())) {
             match("idClase");
-            if(currentToken.getTokenName().equals("Coma")) {
+            if (currentToken.getTokenName().equals("Coma")) {
                 continueGenericConstructorInvocation();
             } else {
                 optionalGenericDeclaration();
             }
         } else {
-            throw new SyntacticException(currentToken,firstsMap.getValue("ContinueGenericConstructorInvocation"));
+            throw new SyntacticException(currentToken, firstsMap.getValue("ContinueGenericConstructorInvocation"));
         }
     }
 
     private StaticMethodAccessNode staticMethodAccess() throws AbstractSyntacticException, LexicalException {
         StaticMethodAccessNode staticMethodAccessNode = new StaticMethodAccessNode(currentToken);
-        match("idClase");
         match("Punto");
         staticMethodAccessNode.setIdMetVar(currentToken);
         match("idMetVar");
@@ -770,7 +777,7 @@ public class SyntacticAnalyzer {
         } else if (nextsMap.containsEntry("OptionalChain", currentToken.getTokenName())) {
             // empty. Token is in next list.
         } else {
-            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("OptionalChain"));
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("OptionalChain"));
         }
         return chainNode;
     }
@@ -793,7 +800,7 @@ public class SyntacticAnalyzer {
             // empty. Token is in next list.
             return leftSideComposedExpressionNode;
         } else {
-            throw new SyntacticException(currentToken,concatenateFirstListAndNextList("ContinueComposedExpression"));
+            throw new SyntacticException(currentToken, concatenateFirstListAndNextList("ContinueComposedExpression"));
         }
     }
 
@@ -865,8 +872,7 @@ public class SyntacticAnalyzer {
                 binaryExpressionNode.setLeftSide(leftSideComposedExpressionNode);
                 match("Porcentaje");
             }
-            default ->
-                    throw new SyntacticException(currentToken, firstsMap.getValue("BinaryOperator"));
+            default -> throw new SyntacticException(currentToken, firstsMap.getValue("BinaryOperator"));
         }
         return binaryExpressionNode;
     }
@@ -880,12 +886,13 @@ public class SyntacticAnalyzer {
                 Type type = type();
                 localVariableNodes = localVarClassic(type);
             }
-        } return localVariableNodes;
+        }
+        return localVariableNodes;
     }
 
     private LocalVariableNode localVarVar() throws AbstractSyntacticException, LexicalException {
         match("pr_var");
-        LocalVariableNode localVariableNode = new LocalVariableNode(currentToken, symbolTable.getLastAddedBlock());
+        LocalVariableNode localVariableNode = new LocalVariableNode(currentToken, symbolTable.getCurrentBlock());
         LocalVariable localVariable = new LocalVariable(currentToken);
         localVariableNode.setVariable(localVariable);
         // TODO resolver el tipo de la variable local (usar parte derecha).
@@ -897,14 +904,29 @@ public class SyntacticAnalyzer {
         return localVariableNode;
     }
 
+    private List<SentenceNode> staticMethodAccessOrLocalVarClassic() throws AbstractSyntacticException, LexicalException {
+        Type type = type();
+        staticMethodAccessClass = type.getToken();
+        if (firstsMap.containsEntry("LocalVarClassic", currentToken.getTokenName())) {
+            return localVarClassic(type);
+        } else if (firstsMap.containsEntry("StaticMethodAccess", currentToken.getTokenName())) {
+            return List.of(assignmentOrCall());
+        } else {
+            List<String> concatenated = firstsMap.getValue("LocalVarClassic");
+            concatenated.addAll(firstsMap.getValue("StaticMethodAccess"));
+            throw new SyntacticException(currentToken, concatenated);
+        }
+    }
+
     private List<SentenceNode> localVarClassic(Type type) throws AbstractSyntacticException, LexicalException {
         Token currentTokenReference = currentToken;
         List<SentenceNode> localVariables = new ArrayList<>();
         match("idMetVar");
 
-        LocalVariableNode localVariableNode = new LocalVariableNode(currentTokenReference, symbolTable.getLastAddedBlock());
+        LocalVariableNode localVariableNode = new LocalVariableNode(currentTokenReference, symbolTable.getCurrentBlock());
         LocalVariable localVariable = new LocalVariable(currentTokenReference, type);
         localVariableNode.setVariable(localVariable);
+        localVariables.add(localVariableNode);
         optionalClassicVarInitialization();
         continueLocalVarDeclaration(type);
 
@@ -933,67 +955,83 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private void return_() throws AbstractSyntacticException, LexicalException {
+    private ReturnNode return_() throws AbstractSyntacticException, LexicalException {
+        ReturnNode returnNode = new ReturnNode(currentToken);
         match("pr_return");
-        optionalExpression();
+        returnNode.setReturnExpression(optionalExpression());
+        return returnNode;
     }
 
-    private void optionalExpression() throws AbstractSyntacticException, LexicalException {
+    private ExpressionNode optionalExpression() throws AbstractSyntacticException, LexicalException {
+        ExpressionNode expressionNode = null;
         if (firstsMap.containsEntry("OptionalExpression", currentToken.getTokenName())) {
-            expression();
+            expressionNode = expression();
         } else if (nextsMap.containsEntry("OptionalExpression", currentToken.getTokenName())) {
             // empty. Token is in next list.
         } else {
             throw new SyntacticException(currentToken, concatenateFirstListAndNextList("OptionalExpression"));
         }
+        return expressionNode;
     }
 
-    private void break_() throws AbstractSyntacticException, LexicalException {
+    private BreakNode break_() throws AbstractSyntacticException, LexicalException {
+        BreakNode breakNode = new BreakNode(currentToken);
         match("pr_break");
+        return breakNode;
     }
 
-    private void if_() throws AbstractSyntacticException, LexicalException {
+    private IfNode if_() throws AbstractSyntacticException, LexicalException {
+        IfNode ifNode = new IfNode(currentToken);
         match("pr_if");
         match("ParentesisAbre");
-        expression();
+        ifNode.setCondition(expression());
         match("ParentesisCierra");
-        sentence();
-        else_();
+        ifNode.setBody(sentence());
+        ifNode.setElseBody(else_());
+
+        return ifNode;
     }
 
-    private void else_() throws AbstractSyntacticException, LexicalException {
+    private List<SentenceNode> else_() throws AbstractSyntacticException, LexicalException {
         if (firstsMap.containsEntry("Else", currentToken.getTokenName())) {
             match("pr_else");
-            sentence();
+            return sentence();
         } else if (nextsMap.containsEntry("Else", currentToken.getTokenName())) {
             // empty. Token is in next list.
+            return null;
         } else {
             throw new SyntacticException(currentToken, concatenateFirstListAndNextList("Else"));
         }
     }
 
-    private void while_() throws AbstractSyntacticException, LexicalException {
+    private WhileNode while_() throws AbstractSyntacticException, LexicalException {
+        WhileNode whileNode = new WhileNode(currentToken);
         match("pr_while");
         match("ParentesisAbre");
-        expression();
+        whileNode.setCondition(expression());
         match("ParentesisCierra");
-        sentence();
+        whileNode.setWhileSentence(sentence());
+
+        return whileNode;
     }
 
-    private void switch_() throws AbstractSyntacticException, LexicalException {
+    private SwitchNode switch_() throws AbstractSyntacticException, LexicalException {
+        SwitchNode switchNode = new SwitchNode(currentToken);
         match("pr_switch");
         match("ParentesisAbre");
-        expression();
+        switchNode.setCondition(expression());
         match("ParentesisCierra");
         match("LlaveAbre");
-        switchSentenceList();
+        switchSentenceList(switchNode);
         match("LlaveCierra");
+
+        return switchNode;
     }
 
-    private void switchSentenceList() throws AbstractSyntacticException, LexicalException {
+    private void switchSentenceList(SwitchNode switchNode) throws AbstractSyntacticException, LexicalException {
         if(firstsMap.containsEntry("SwitchSentenceList", currentToken.getTokenName())) {
-            switchSentence();
-            switchSentenceList();
+            switchNode.addSwitchSentenceToList(switchSentence());
+            switchSentenceList(switchNode);
         } else if (nextsMap.containsEntry("SwitchSentenceList", currentToken.getTokenName())) {
             // empty. Token is in next list.
         } else {
@@ -1001,26 +1039,31 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private void switchSentence() throws AbstractSyntacticException, LexicalException {
+    private SwitchSentenceNode switchSentence() throws AbstractSyntacticException, LexicalException {
         if (currentToken.getTokenName().equals("pr_case")) {
+            SwitchCaseSentenceNode switchCaseSentenceNode = new SwitchCaseSentenceNode(currentToken);
             match("pr_case");
-            primitiveLiteral();
+            switchCaseSentenceNode.setPrimitiveLiteralNode(primitiveLiteral());
             match("DosPuntos");
-            optionalSentence();
+            switchCaseSentenceNode.setOptionalSentence(optionalSentence());
+            return switchCaseSentenceNode;
         } else if (currentToken.getTokenName().equals("pr_default")) {
+            SwitchDefaultSentenceNode switchDefaultSentenceNode = new SwitchDefaultSentenceNode(currentToken);
             match("pr_default");
             match("DosPuntos");
-            sentence();
+            switchDefaultSentenceNode.setSentenceNode(sentence());
+            return switchDefaultSentenceNode;
         } else {
             throw new SyntacticException(currentToken, firstsMap.getValue("SwitchSentenceList"));
         }
     }
 
-    private void optionalSentence() throws AbstractSyntacticException, LexicalException {
+    private List<SentenceNode> optionalSentence() throws AbstractSyntacticException, LexicalException {
         if(firstsMap.containsEntry("OptionalSentence", currentToken.getTokenName())) {
-            sentence();
+            return sentence();
         } else if (nextsMap.containsEntry("OptionalSentence", currentToken.getTokenName())) {
             // empty. Token is in next list.
+            return null;
         } else {
             throw new SyntacticException(currentToken, concatenateFirstListAndNextList("OptionalSentence"));
         }

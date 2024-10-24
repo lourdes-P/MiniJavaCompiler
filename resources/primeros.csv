@@ -58,6 +58,7 @@ FormalArgument,Type
 Block,LlaveAbre
 SentenceList,Sentence
 Sentence,PuntoYComa
+Sentence,idClase
 Sentence,AssignmentOrCall
 Sentence,LocalVar
 Sentence,Return
@@ -70,9 +71,11 @@ OptionalSentence,Sentence
 OptionalSentence,empty
 AssignmentOrCall,Expression
 LocalVar,LocalVarVar
-LocalVar,LocalVarClassic
+LocalVar,PrimitiveType
 LocalVarVar,pr_var
-LocalVarClassic,Type
+LocalVarClassic,idMetVar
+StaticMethodAccessOrLocalVarClassic,AssignmentOrCall
+StaticMethodAccessOrLocalVarClassic,LocalVarClassic
 OptionalClassicVarInitialization,Asignacion
 OptionalClassicVarInitialization,empty
 ContinueLocalVarDeclaration,Coma
@@ -135,7 +138,7 @@ Primary,StaticMethodAccess
 Primary,ParenthesizedExpression
 ThisAccess,pr_this
 ConstructorAccess,pr_new
-StaticMethodAccess,idClase
+StaticMethodAccess,Punto
 ParenthesizedExpression,ParentesisAbre
 VarOrMethodAccess,ActualArguments
 ActualArguments,ParentesisAbre
