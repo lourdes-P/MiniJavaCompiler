@@ -8,4 +8,11 @@ public class ReferenceType extends Type {
         super(token);
         setIsPrimitive(false);
     }
+
+    public String getType() {
+        if(this.getToken().getTokenName().equals("idClass"))
+            return this.getToken().getLexeme();
+        else
+            return "null";
+    }
 }

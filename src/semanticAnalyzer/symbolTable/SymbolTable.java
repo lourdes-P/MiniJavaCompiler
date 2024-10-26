@@ -2,6 +2,7 @@ package semanticAnalyzer.symbolTable;
 
 import lexicalAnalyzer.Token;
 import semanticAnalyzer.exceptions.*;
+import semanticAnalyzer.exceptions.part1.*;
 import semanticAnalyzer.symbolTable.variables.Attribute;
 import semanticAnalyzer.symbolTable.variables.Parameter;
 
@@ -217,6 +218,27 @@ public class SymbolTable {
 
     public boolean containsClass(String className) {
         return classTable.containsKey(className);
+    }
+
+    public Class getClass(String className) {
+        return classTable.get(className);
+    }
+
+    public boolean extendsClass(Token childClass, Token parentClass) throws SemanticException {
+        if (!classTable.containsKey(childClass.getLexeme()))
+            throw new ClassNotDeclaredException(childClass);
+        if (!classTable.containsKey(parentClass.getLexeme()))
+            throw new ClassNotDeclaredException(parentClass);
+
+        return classTable.get(childClass.getLexeme()).getInheritsFrom().contains(parentClass);
+    }
+
+    public Method getClassSelfDeclaredMethod(String className, String methodName) {
+        return classTable.get(className).getStrictlySelfDeclaredMethod(methodName);
+    }
+
+    public Constructor getClassConstructor(String className) {
+        return classTable.get(className).getConstructor(className);
     }
 
 }

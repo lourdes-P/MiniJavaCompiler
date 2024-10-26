@@ -1,5 +1,6 @@
-package semanticAnalyzer.exceptions;
+package semanticAnalyzer.exceptions.part1;
 
+import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.symbolTable.Class;
 import semanticAnalyzer.symbolTable.variables.Attribute;
 

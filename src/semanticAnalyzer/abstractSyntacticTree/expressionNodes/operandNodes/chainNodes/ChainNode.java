@@ -1,37 +1,31 @@
-package semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes;
+package semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.chainNodes;
 
 import lexicalAnalyzer.Token;
-import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ExpressionNode;
+import semanticAnalyzer.exceptions.SemanticException;
+import semanticAnalyzer.symbolTable.Method;
+import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
 
-import java.util.List;
-
-public class ChainNode {
+public abstract class ChainNode {
     private Token idMetVar;
-    private List<ExpressionNode> actualArguments;
     private ChainNode furtherChainNode;
     private Type finalType;
+    private Method containerMethod;
 
 
     public ChainNode() {
         this.furtherChainNode = null;
         this.finalType = null;
-        this.actualArguments = null;
         this.idMetVar = null;
+        this.containerMethod = null;
     }
 
     public ChainNode(Token idMetVar) {
         this.idMetVar = idMetVar;
         this.furtherChainNode = null;
         this.finalType = null;
-        this.actualArguments = null;
-    }
+        this.containerMethod = null;
 
-    public ChainNode(Token idMetVar, List<ExpressionNode> actualArguments) {
-        this.furtherChainNode = null;
-        this.idMetVar = idMetVar;
-        this.actualArguments = actualArguments;
-        this.finalType = null;
     }
 
     public ChainNode getFurtherChainNode() {
@@ -50,12 +44,12 @@ public class ChainNode {
         this.idMetVar = idMetVar;
     }
 
-    public List<ExpressionNode> getActualArguments() {
-        return actualArguments;
+    public void setContainerMethod(Method containerMethod) {
+        this.containerMethod = containerMethod;
     }
 
-    public void setActualArguments(List<ExpressionNode> actualArguments) {
-        this.actualArguments = actualArguments;
+    public Method getContainerMethod() {
+        return containerMethod;
     }
 
     public Type getFinalType() {
@@ -65,4 +59,14 @@ public class ChainNode {
     public void setFinalType(Type finalType) {
         this.finalType = finalType;
     }
+
+    public abstract Type statementCheck(Type primaryNodeType, SymbolTable symbolTable) throws SemanticException;
+
+    public abstract boolean canBeAssignedAValue();
+
+
+    public boolean canBeCalled() {
+        return !canBeAssignedAValue();
+    }
+
 }

@@ -3,8 +3,15 @@ package semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.prim
 
 import lexicalAnalyzer.Token;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ExpressionNode;
+import semanticAnalyzer.exceptions.SemanticException;
+import semanticAnalyzer.exceptions.part1.ClassNotDeclaredException;
+import semanticAnalyzer.exceptions.part2.expressionExceptions.DifferentNumberOfArgumentsException;
+import semanticAnalyzer.exceptions.part2.expressionExceptions.InvalidActualArgumentException;
+import semanticAnalyzer.symbolTable.Constructor;
+import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.ReferenceType;
 import semanticAnalyzer.symbolTable.types.Type;
+import semanticAnalyzer.symbolTable.variables.Parameter;
 
 import java.util.List;
 
@@ -32,4 +39,36 @@ public class ConstructorAccessNode extends PrimaryNode {
         this.returnType = returnType;
     }
 
+    public Type statementCheck(SymbolTable symbolTable) throws SemanticException {
+        String className = idClase.getLexeme();
+        if (!symbolTable.containsClass(className))
+            throw new ClassNotDeclaredException(idClase);
+
+        Constructor constructor = symbolTable.getClassConstructor(className);
+        List<Parameter> formalArgumentList = constructor.getOrderedParameterList();
+
+        if (actualArguments.size() == formalArgumentList.size()) {
+            for (int i = 0; i < actualArguments.size() ; i++) {
+                Type actualArgumentType = actualArguments.get(i).statementCheck(symbolTable);
+                if (!(actualArgumentType.getName().equals("null") && !formalArgumentList.get(i).isTypePrimitive()) ||
+                    !(!actualArgumentType.getIsPrimitive() && !formalArgumentList.get(i).isTypePrimitive() && symbolTable.extendsClass(actualArgumentType.getToken(), formalArgumentList.get(i).getToken())) ||
+                    (!actualArgumentType.getType().equals((formalArgumentList.get(i).getType().getType())))) {
+                    throw new InvalidActualArgumentException(actualArgumentType.getToken());
+                }
+            }
+        } else {
+            throw new DifferentNumberOfArgumentsException(idClase);
+        }
+
+        return returnType;
+    }
+
+    public boolean canBeAssignedAValue() {
+        return false;
+    }
+
+    @Override
+    public boolean canBeCalled() {
+        return true;
+    }
 }

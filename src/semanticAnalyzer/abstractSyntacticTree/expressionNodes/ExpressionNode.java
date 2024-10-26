@@ -1,6 +1,10 @@
 package semanticAnalyzer.abstractSyntacticTree.expressionNodes;
 
 
+import semanticAnalyzer.exceptions.SemanticException;
+import semanticAnalyzer.symbolTable.SymbolTable;
+import semanticAnalyzer.symbolTable.types.Type;
+
 public class ExpressionNode {
     private ComposedExpressionNode leftSideComposedExpressionNode;
 
@@ -25,5 +29,17 @@ public class ExpressionNode {
 
     public boolean hasRightSide() {
         return hasRightSide;
+    }
+
+    public Type statementCheck(SymbolTable symbolTable) throws SemanticException {
+        return leftSideComposedExpressionNode.statementCheck(symbolTable);
+    }
+
+    public boolean canBeAssignedAValue() {
+        return leftSideComposedExpressionNode.canBeAssignedAValue();
+    }
+
+    public boolean canBeCalled() {
+        return leftSideComposedExpressionNode.canBeCalled();
     }
 }

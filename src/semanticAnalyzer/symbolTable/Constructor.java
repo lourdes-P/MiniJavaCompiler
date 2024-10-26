@@ -1,7 +1,7 @@
 package semanticAnalyzer.symbolTable;
 
 import lexicalAnalyzer.Token;
-import semanticAnalyzer.exceptions.InvalidConstructorException;
+import semanticAnalyzer.exceptions.part1.InvalidConstructorException;
 import semanticAnalyzer.symbolTable.types.ReferenceType;
 
 public class Constructor extends Method {

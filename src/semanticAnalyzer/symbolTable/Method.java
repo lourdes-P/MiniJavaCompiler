@@ -1,7 +1,7 @@
 package semanticAnalyzer.symbolTable;
 
 import lexicalAnalyzer.Token;
-import semanticAnalyzer.exceptions.DuplicateParameterException;
+import semanticAnalyzer.exceptions.part1.DuplicateParameterException;
 import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.symbolTable.types.Type;
 import semanticAnalyzer.symbolTable.variables.Parameter;
@@ -100,6 +100,10 @@ public class Method {
         return parameterTable.values();
     }
 
+    public List<Parameter> getOrderedParameterList() {
+        return orderByParameterPosition(parameterTable.values());
+    }
+
     protected boolean parameterAlreadyExists(Parameter parameter) {
         return parameterTable.containsKey(parameter.getName());
     }
@@ -139,5 +143,13 @@ public class Method {
 
     public void setCurrentBlock(Block currentBlock) {
         this.currentBlock = currentBlock;
+    }
+
+    public boolean containsParameter(String parameterName) {
+        return parameterTable.containsKey(parameterName);
+    }
+
+    public Parameter getParameter(String parameterName) {
+        return parameterTable.get(parameterName);
     }
 }

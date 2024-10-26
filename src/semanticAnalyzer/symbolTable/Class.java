@@ -2,8 +2,13 @@ package semanticAnalyzer.symbolTable;
 
 import lexicalAnalyzer.Token;
 import semanticAnalyzer.exceptions.*;
+import semanticAnalyzer.exceptions.part1.CircularInheritanceException;
+import semanticAnalyzer.exceptions.part1.DuplicateAttributeException;
+import semanticAnalyzer.exceptions.part1.DuplicateConstructorException;
+import semanticAnalyzer.exceptions.part1.DuplicateMethodException;
 import semanticAnalyzer.symbolTable.variables.Attribute;
 import semanticAnalyzer.symbolTable.variables.Parameter;
+import semanticAnalyzer.symbolTable.variables.Variable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,7 +17,7 @@ import java.util.List;
 
 public class Class {
     private HashMap<String,Constructor> constructorTable;
-    private HashMap<String,Method> methodTable;
+    private HashMap<String,Method> methodTable, strictlySelfDeclaredMethodTable;
     private HashMap<String, Attribute> attributeTable;
     private Method currentMethod;
     private Token token;
@@ -24,6 +29,7 @@ public class Class {
         inheritsFrom = new ArrayList<>();
         attributeTable = new HashMap<>();
         methodTable = new HashMap<>();
+        strictlySelfDeclaredMethodTable = new HashMap<>();
         constructorTable = new HashMap<>();
         consolidatedAttributes = false;
         consolidatedMethods = false;
@@ -32,6 +38,7 @@ public class Class {
     public void addMethod(Method method) throws SemanticException {
         if (!methodTable.containsKey(method.getName())) {
             methodTable.put(method.getName(), method);
+            strictlySelfDeclaredMethodTable.put(method.getName(), method);
             currentMethod = method;
         } else
             throw new DuplicateMethodException(this, method);
@@ -134,11 +141,6 @@ public class Class {
             return false;
     }
 
-    public boolean hasConstructor(Token constructor) {
-        // TODO has exact constructor.
-        return false;
-    }
-
     public void setConsolidatedAttributes(boolean consolidatedAttributes) {
         this.consolidatedAttributes = consolidatedAttributes;
     }
@@ -163,5 +165,19 @@ public class Class {
         return methodTable.get(methodName);
     }
 
+    public boolean hasStrictlySelfDeclaredMethod(String methodName) {
+        return strictlySelfDeclaredMethodTable.containsKey(methodName);
+    }
 
+    public Method getStrictlySelfDeclaredMethod(String methodName) {
+        return strictlySelfDeclaredMethodTable.get(methodName);
+    }
+
+    public Constructor getConstructor(String constructorName) {
+        return constructorTable.get(constructorName);
+    }
+
+    public Attribute getAttribute(String attributeName) {
+        return attributeTable.get(attributeName);
+    }
 }

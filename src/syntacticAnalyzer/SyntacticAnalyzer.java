@@ -10,8 +10,10 @@ import semanticAnalyzer.abstractSyntacticTree.expressionNodes.assignmentExpressi
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.assignmentExpressionNodes.SubtractionAssignmentExpressionNode;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.binaryExpressionNodes.*;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.AccessNode;
-import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.ChainNode;
+import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.chainNodes.ChainNode;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.OperandNode;
+import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.chainNodes.MethodCallChainNode;
+import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.chainNodes.VarChainNode;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.literal.LiteralNode;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.literal.ObjectLiteralNode;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.literal.PrimitiveLiteralNode;
@@ -484,12 +486,13 @@ public class SyntacticAnalyzer {
     }
 
     private SentenceNode assignmentOrCall() throws AbstractSyntacticException, LexicalException {
+        Token token = currentToken;
         ExpressionNode expressionNode = expression();
         SentenceNode sentenceNode;
         if (expressionNode.hasRightSide())
             sentenceNode = new AssignmentNode((AssignmentExpressionNode) expressionNode);
         else
-            sentenceNode = new CallNode(expressionNode);
+            sentenceNode = new CallNode(token, expressionNode);
 
         return sentenceNode;
     }
@@ -632,6 +635,8 @@ public class SyntacticAnalyzer {
         if (firstsMap.containsEntry("VarOrMethodAccess", currentToken.getTokenName())) {
             List<ExpressionNode> actualArguments = actualArguments();
             MethodAccessNode methodAccessNode = new MethodAccessNode(idMetVar);
+            methodAccessNode.setClass(symbolTable.getCurrentClass());
+            methodAccessNode.setContainerMethod(symbolTable.getCurrentMethod());
             methodAccessNode.setActualArguments(actualArguments);
             return methodAccessNode;
         } else if (nextsMap.containsEntry("VarOrMethodAccess", currentToken.getTokenName())) {
@@ -683,6 +688,7 @@ public class SyntacticAnalyzer {
     private ThisAccessNode thisAccess() throws AbstractSyntacticException, LexicalException {
         ThisAccessNode thisAccessNode = new ThisAccessNode(currentToken);
         thisAccessNode.setThisClass(symbolTable.getCurrentClass());
+        thisAccessNode.setContainerMethod(symbolTable.getCurrentMethod());
         match("pr_this");
 
         return thisAccessNode;
@@ -750,12 +756,13 @@ public class SyntacticAnalyzer {
     }
 
     private StaticMethodAccessNode staticMethodAccess() throws AbstractSyntacticException, LexicalException {
-        StaticMethodAccessNode staticMethodAccessNode = new StaticMethodAccessNode(currentToken);
+        StaticMethodAccessNode staticMethodAccessNode = new StaticMethodAccessNode(staticMethodAccessClass);
         match("Punto");
         staticMethodAccessNode.setIdMetVar(currentToken);
         match("idMetVar");
         List<ExpressionNode> actualArguments = actualArguments();
         staticMethodAccessNode.setActualArguments(actualArguments);
+        staticMethodAccessNode.setContainerMethod(symbolTable.getCurrentMethod());
 
         return staticMethodAccessNode;
     }
@@ -768,12 +775,12 @@ public class SyntacticAnalyzer {
     }
 
     private ChainNode optionalChain() throws AbstractSyntacticException, LexicalException {
-        ChainNode chainNode = new ChainNode();
+        ChainNode chainNode = null;
         if (firstsMap.containsEntry("OptionalChain", currentToken.getTokenName())) {
             match("Punto");
-            chainNode.setIdMetVar(currentToken);
+            Token idMetVar = currentToken;
             match("idMetVar");
-            chainNode.setFurtherChainNode(chainedVarOrMethod(chainNode));
+            chainNode = chainedVarOrMethod(idMetVar);
         } else if (nextsMap.containsEntry("OptionalChain", currentToken.getTokenName())) {
             // empty. Token is in next list.
         } else {
@@ -782,12 +789,22 @@ public class SyntacticAnalyzer {
         return chainNode;
     }
 
-    private ChainNode chainedVarOrMethod(ChainNode chainNode) throws AbstractSyntacticException, LexicalException {
+    private ChainNode chainedVarOrMethod(Token idMetVar) throws AbstractSyntacticException, LexicalException {
         if (firstsMap.containsEntry("ActualArguments", currentToken.getTokenName())) {
+            MethodCallChainNode chainNode = new MethodCallChainNode();
             List<ExpressionNode> actualArguments = actualArguments();
+            chainNode.setIdMetVar(idMetVar);
             chainNode.setActualArguments(actualArguments);
+            chainNode.setFurtherChainNode(optionalChain());
+            chainNode.setContainerMethod(symbolTable.getCurrentMethod());
+            return chainNode;
+        } else {
+            VarChainNode chainNode = new VarChainNode();
+            chainNode.setIdMetVar(idMetVar);
+            chainNode.setFurtherChainNode(optionalChain());
+            chainNode.setContainerMethod(symbolTable.getCurrentMethod());
+            return chainNode;
         }
-        return optionalChain();
     }
 
     private ComposedExpressionNode continueComposedExpression(ComposedExpressionNode leftSideComposedExpressionNode) throws AbstractSyntacticException, LexicalException {
@@ -884,7 +901,7 @@ public class SyntacticAnalyzer {
                 localVariableNodes.add(localVarVar());
             } else if (firstsMap.containsEntry("Type", currentToken.getTokenName())) {
                 Type type = type();
-                localVariableNodes = localVarClassic(type);
+                localVarClassic(localVariableNodes, type);
             }
         }
         return localVariableNodes;
@@ -908,7 +925,8 @@ public class SyntacticAnalyzer {
         Type type = type();
         staticMethodAccessClass = type.getToken();
         if (firstsMap.containsEntry("LocalVarClassic", currentToken.getTokenName())) {
-            return localVarClassic(type);
+            List<SentenceNode> localVariableNodes = new ArrayList<>();
+            return localVarClassic(localVariableNodes, type);
         } else if (firstsMap.containsEntry("StaticMethodAccess", currentToken.getTokenName())) {
             return List.of(assignmentOrCall());
         } else {
@@ -918,25 +936,24 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private List<SentenceNode> localVarClassic(Type type) throws AbstractSyntacticException, LexicalException {
+    private List<SentenceNode> localVarClassic(List<SentenceNode> localVariables, Type type) throws AbstractSyntacticException, LexicalException {
         Token currentTokenReference = currentToken;
-        List<SentenceNode> localVariables = new ArrayList<>();
         match("idMetVar");
 
         LocalVariableNode localVariableNode = new LocalVariableNode(currentTokenReference, symbolTable.getCurrentBlock());
         LocalVariable localVariable = new LocalVariable(currentTokenReference, type);
         localVariableNode.setVariable(localVariable);
         localVariables.add(localVariableNode);
-        optionalClassicVarInitialization();
-        continueLocalVarDeclaration(type);
+        optionalClassicVarInitialization(localVariableNode);
+        continueLocalVarDeclaration(localVariables, type);
 
         return localVariables;
     }
 
-    private void optionalClassicVarInitialization() throws AbstractSyntacticException, LexicalException {
+    private void optionalClassicVarInitialization(LocalVariableNode localVariableNode) throws AbstractSyntacticException, LexicalException {
         if (firstsMap.containsEntry("OptionalClassicVarInitialization", currentToken.getTokenName())) {
             match("Asignacion");
-            composedExpression();
+            localVariableNode.setRightSide(composedExpression());
         } else if (nextsMap.containsEntry("OptionalClassicVarInitialization", currentToken.getTokenName())) {
             // empty. Token is in next list.
         } else {
@@ -944,10 +961,10 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private void continueLocalVarDeclaration(Type type) throws AbstractSyntacticException, LexicalException {
+    private void continueLocalVarDeclaration(List<SentenceNode> localVariables, Type type) throws AbstractSyntacticException, LexicalException {
         if (firstsMap.containsEntry("ContinueLocalVarDeclaration", currentToken.getTokenName())) {
             match("Coma");
-            localVarClassic(type);
+            localVarClassic(localVariables, type);
         } else if (nextsMap.containsEntry("ContinueLocalVarDeclaration", currentToken.getTokenName())) {
             // empty. Token is in next list.
         } else {
@@ -958,6 +975,7 @@ public class SyntacticAnalyzer {
     private ReturnNode return_() throws AbstractSyntacticException, LexicalException {
         ReturnNode returnNode = new ReturnNode(currentToken);
         match("pr_return");
+        returnNode.setContainerMethod(symbolTable.getCurrentMethod());
         returnNode.setReturnExpression(optionalExpression());
         return returnNode;
     }
@@ -977,6 +995,7 @@ public class SyntacticAnalyzer {
     private BreakNode break_() throws AbstractSyntacticException, LexicalException {
         BreakNode breakNode = new BreakNode(currentToken);
         match("pr_break");
+        breakNode.setContainerBlock(symbolTable.getCurrentBlock());
         return breakNode;
     }
 
@@ -1074,7 +1093,7 @@ public class SyntacticAnalyzer {
         if (firstsMap.containsEntry("AssignmentOrEndOfExpression", currentToken.getTokenName())) {
             assignmentExpressionNode = assignOperator(composedExpressionNode);
             ComposedExpressionNode rightSideComposedExpressionNode = composedExpression();
-            assignmentExpressionNode.setRightSideExpressionNode(rightSideComposedExpressionNode);
+            assignmentExpressionNode.setRightSideComposedExpressionNode(rightSideComposedExpressionNode);
         } else if (nextsMap.containsEntry("AssignmentOrEndOfExpression", currentToken.getTokenName())) {
             // empty. Token is in next list.
         } else {

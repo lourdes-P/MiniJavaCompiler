@@ -20,4 +20,22 @@ public abstract class UnaryExpressionNode extends ComposedExpressionNode {
     public void setOperandNode(OperandNode operandNode) {
         this.operand = operandNode;
     }
+
+    public OperandNode getOperandNode() {
+        return operand;
+    }
+
+    public Token getOperatorToken() {
+        return operator;
+    }
+
+    @Override
+    public boolean canBeAssignedAValue() {
+        return false;
+    }
+
+    @Override
+    public boolean canBeCalled() {
+        return false;
+    }
 }

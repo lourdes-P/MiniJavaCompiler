@@ -29,4 +29,6 @@ public abstract class Type {
     public boolean equals(Type type) {
         return type.getName().equals(this.getName());
     }
+
+    public abstract String getType();
 }

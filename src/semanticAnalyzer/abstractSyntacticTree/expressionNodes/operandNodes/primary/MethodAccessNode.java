@@ -2,8 +2,16 @@ package semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.prim
 
 import lexicalAnalyzer.Token;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ExpressionNode;
-import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.AccessNode;
+import semanticAnalyzer.exceptions.SemanticException;
+import semanticAnalyzer.exceptions.part2.expressionExceptions.DifferentNumberOfArgumentsException;
+import semanticAnalyzer.exceptions.part2.expressionExceptions.InvalidActualArgumentException;
+import semanticAnalyzer.exceptions.part2.expressionExceptions.InvalidDynamicCallException;
+import semanticAnalyzer.exceptions.part2.expressionExceptions.MethodNotDeclaredException;
+import semanticAnalyzer.symbolTable.Class;
+import semanticAnalyzer.symbolTable.Method;
+import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
+import semanticAnalyzer.symbolTable.variables.Parameter;
 
 import java.util.List;
 
@@ -11,6 +19,8 @@ public class MethodAccessNode extends PrimaryNode {
     private Token idMetVar;
     private List<ExpressionNode> actualArguments;
     private Type type;
+    private Class containerClass;
+    private Method containerMethod;
 
 
     public MethodAccessNode(Token idMetVar) {
@@ -37,5 +47,51 @@ public class MethodAccessNode extends PrimaryNode {
 
     public void setType(Type type) {
         this.type = type;
+    }
+
+    public void setClass(Class class_) {
+        containerClass = class_;
+    }
+
+    public void setContainerMethod(Method containerMethod) {
+        this.containerMethod = containerMethod;
+    }
+
+    public Type statementCheck(SymbolTable symbolTable) throws SemanticException {
+        String className = containerClass.getName();
+        String methodName = idMetVar.getLexeme();
+        if (!symbolTable.getClass(className).hasMethod(methodName))
+            throw new MethodNotDeclaredException(idMetVar);
+
+        Method method = symbolTable.getClass(className).getMethod(methodName);
+        type = method.getType();
+        List<Parameter> formalArgumentList = method.getOrderedParameterList();
+
+        if (containerMethod.getIsStatic() && !method.getIsStatic())
+            throw new InvalidDynamicCallException(idMetVar);
+
+        if (actualArguments.size() == formalArgumentList.size()) {
+            for (int i = 0; i < actualArguments.size() ; i++) {
+                Type actualArgumentType = actualArguments.get(i).statementCheck(symbolTable);
+                if (!(actualArgumentType.getName().equals("null") && !formalArgumentList.get(i).isTypePrimitive()) ||
+                        !(!actualArgumentType.getIsPrimitive() && !formalArgumentList.get(i).isTypePrimitive() && symbolTable.extendsClass(actualArgumentType.getToken(), formalArgumentList.get(i).getToken())) ||
+                        (!actualArgumentType.getType().equals((formalArgumentList.get(i).getType().getType())))) {
+                    throw new InvalidActualArgumentException(actualArgumentType.getToken());
+                }
+            }
+        } else {
+            throw new DifferentNumberOfArgumentsException(idMetVar);
+        }
+
+        return type;
+    }
+
+    public boolean canBeAssignedAValue() {
+        return false;
+    }
+
+    @Override
+    public boolean canBeCalled() {
+        return true;
     }
 }

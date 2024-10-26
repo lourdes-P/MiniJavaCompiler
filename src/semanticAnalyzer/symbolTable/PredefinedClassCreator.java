@@ -1,7 +1,7 @@
 package semanticAnalyzer.symbolTable;
 
 import lexicalAnalyzer.Token;
-import semanticAnalyzer.exceptions.CircularInheritanceException;
+import semanticAnalyzer.exceptions.part1.CircularInheritanceException;
 import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.symbolTable.types.PrimitiveType;
 import semanticAnalyzer.symbolTable.types.ReferenceType;

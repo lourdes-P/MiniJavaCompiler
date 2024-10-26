@@ -4,5 +4,4 @@ import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ComposedExpression
 
 public abstract class OperandNode extends ComposedExpressionNode {
 
-    //public abstract boolean sentenceCheck() throws SemanticException;
 }

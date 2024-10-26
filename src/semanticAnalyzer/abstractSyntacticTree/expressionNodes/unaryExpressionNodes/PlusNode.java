@@ -2,6 +2,10 @@ package semanticAnalyzer.abstractSyntacticTree.expressionNodes.unaryExpressionNo
 
 import lexicalAnalyzer.Token;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.OperandNode;
+import semanticAnalyzer.exceptions.SemanticException;
+import semanticAnalyzer.exceptions.part2.expressionExceptions.InvalidOperandTypeForUnaryOperatorException;
+import semanticAnalyzer.symbolTable.SymbolTable;
+import semanticAnalyzer.symbolTable.types.Type;
 
 public class PlusNode extends UnaryExpressionNode {
 
@@ -12,4 +16,16 @@ public class PlusNode extends UnaryExpressionNode {
     public PlusNode(Token operator) {
         super(operator);
     }
+
+    @Override
+    public Type statementCheck(SymbolTable symbolTable) throws SemanticException {
+        Type operandType = getOperandNode().statementCheck(symbolTable);
+        if(operandType.getType().equals("int")){
+            return operandType;
+        }else{
+            throw new InvalidOperandTypeForUnaryOperatorException(this.getOperatorToken());
+        }
+    }
+
+
 }

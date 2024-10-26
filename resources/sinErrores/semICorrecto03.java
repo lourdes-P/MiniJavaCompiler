@@ -11,6 +11,8 @@ class B extends A {
         A blink, arr, as;
         A.m3(new A(), this);
         blink.m3(new A(), this);
+        B b;
+        b != as;
     }
 }
 

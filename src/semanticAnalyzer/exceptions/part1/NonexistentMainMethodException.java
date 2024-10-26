@@ -1,4 +1,6 @@
-package semanticAnalyzer.exceptions;
+package semanticAnalyzer.exceptions.part1;
+
+import semanticAnalyzer.exceptions.SemanticException;
 
 public class NonexistentMainMethodException extends SemanticException {
 

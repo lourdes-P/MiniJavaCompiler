@@ -3,9 +3,14 @@ package semanticAnalyzer.abstractSyntacticTree.expressionNodes.assignmentExpress
 import lexicalAnalyzer.Token;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ComposedExpressionNode;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ExpressionNode;
+import semanticAnalyzer.exceptions.SemanticException;
+import semanticAnalyzer.exceptions.part2.expressionExceptions.IncompatibleTypeAssignmentException;
+import semanticAnalyzer.exceptions.part2.expressionExceptions.LeftSideCannotBeAssignedAValueException;
+import semanticAnalyzer.symbolTable.SymbolTable;
+import semanticAnalyzer.symbolTable.types.Type;
 
 public class AssignmentExpressionNode extends ExpressionNode {
-    private ComposedExpressionNode rightSideExpressionNode;
+    private ComposedExpressionNode rightSideComposedExpressionNode;
     private Token assignmentToken;
 
 
@@ -20,18 +25,18 @@ public class AssignmentExpressionNode extends ExpressionNode {
 
     public AssignmentExpressionNode(ComposedExpressionNode leftSideComposedExpressionNode, ComposedExpressionNode rightSideComposedExpressionNode, Token assignmentToken) {
         super(leftSideComposedExpressionNode);
-        this.rightSideExpressionNode = rightSideComposedExpressionNode;
+        this.rightSideComposedExpressionNode = rightSideComposedExpressionNode;
         this.hasRightSide = true;
         this.assignmentToken = assignmentToken;
     }
 
 
-    public ComposedExpressionNode getRightSideExpressionNode() {
-        return rightSideExpressionNode;
+    public ComposedExpressionNode getRightSideComposedExpressionNode() {
+        return rightSideComposedExpressionNode;
     }
 
-    public void setRightSideExpressionNode(ComposedExpressionNode rightSideExpressionNode) {
-        this.rightSideExpressionNode = rightSideExpressionNode;
+    public void setRightSideComposedExpressionNode(ComposedExpressionNode rightSideComposedExpressionNode) {
+        this.rightSideComposedExpressionNode = rightSideComposedExpressionNode;
         this.hasRightSide = true;
     }
 
@@ -41,5 +46,34 @@ public class AssignmentExpressionNode extends ExpressionNode {
 
     public void setAssignmentToken(Token assignmentToken) {
         this.assignmentToken = assignmentToken;
+    }
+
+    public Type statementCheck(SymbolTable symbolTable) throws SemanticException {
+        Type leftSideType =  getLeftSideComposedExpressionNode().statementCheck(symbolTable);
+        Type rightSideType = rightSideComposedExpressionNode.statementCheck(symbolTable);
+
+        if (getLeftSideComposedExpressionNode().canBeAssignedAValue()) {
+            if (!leftSideType.getName().equals("Object")) {
+                if (!rightSideType.getName().equals("null")) {
+                    if (!leftSideType.getIsPrimitive() && !leftSideType.getType().equals(rightSideType.getType()) && !symbolTable.extendsClass(rightSideType.getToken(), leftSideType.getToken())) {
+                        throw new IncompatibleTypeAssignmentException(assignmentToken);
+                    } else if (leftSideType.getIsPrimitive() && !leftSideType.getType().equals(rightSideType.getType())) {
+                        throw new IncompatibleTypeAssignmentException(assignmentToken);
+                    }
+                }
+            }
+        } else {
+            throw new LeftSideCannotBeAssignedAValueException(assignmentToken);
+        }
+        return leftSideType;
+    }
+
+    public boolean canBeAssignedAValue() {
+        return rightSideComposedExpressionNode.canBeAssignedAValue();
+    }
+
+    @Override
+    public boolean canBeCalled() {
+        return false;
     }
 }

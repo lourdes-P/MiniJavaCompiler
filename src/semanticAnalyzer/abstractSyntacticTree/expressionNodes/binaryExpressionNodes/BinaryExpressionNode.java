@@ -41,4 +41,13 @@ public abstract class BinaryExpressionNode extends ComposedExpressionNode {
     public Token getOperator() {
         return operator;
     }
+
+    public boolean canBeAssignedAValue() {
+        return false;
+    }
+
+    @Override
+    public boolean canBeCalled() {
+        return false;
+    }
 }
