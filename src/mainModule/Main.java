@@ -29,7 +29,6 @@ public class Main {
             sourceFile = args[0];
         }
         ReservedWordMap reservedWordMap = new ReservedWordMap();
-        //reservedWordMap.showMap();
         SourceManager sourceManager = new SourceManagerImpl();
         try {
             sourceManager.open(sourceFile);
@@ -50,6 +49,7 @@ public class Main {
             syntacticAnalyzer.start();
             symbolTable.checkDeclarations();
             symbolTable.consolidate();
+            symbolTable.statementCheck();
         } catch (LexicalException lexicalException) {
             System.out.println(lexicalException.getMessage());
             lexicalAnalyzer.registerLexicalError();
@@ -65,9 +65,46 @@ public class Main {
             System.out.println("[SinErrores]");
         }
 
-
     }
 
+    /*
 
+    public static void main(String[] args) {
+
+        String sourceFile = "";
+        if (args.length == 0) {
+            sourceFile = "dummySourceFile.txt";
+            System.out.println("No hay archivo fuente como argumento.");
+        } else {
+            sourceFile = args[0];
+        }
+        ReservedWordMap reservedWordMap = new ReservedWordMap();
+        //reservedWordMap.showMap();
+        SourceManager sourceManager = new SourceManagerImpl();
+        try {
+            sourceManager.open(sourceFile);
+        } catch (FileNotFoundException e) {
+            System.out.println("Error al intentar abrir el archivo fuente.");
+        }
+
+        LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(sourceManager, reservedWordMap);
+        SyntacticAnalyzer syntacticAnalyzer = new SyntacticAnalyzer(lexicalAnalyzer);
+
+        try {
+            syntacticAnalyzer.start();
+        } catch (LexicalException lexicalException) {
+            System.out.println(lexicalException.getMessage());
+            lexicalAnalyzer.registerLexicalError();
+        } catch (AbstractSyntacticException syntacticException) {
+            System.out.println(syntacticException.getMessage());
+            syntacticAnalyzer.registerSyntacticError();
+        }
+
+        if (lexicalAnalyzer.getSinErrores() && syntacticAnalyzer.getSinErrores()) {
+            System.out.println("[SinErrores]");
+        }
+
+    }
+    */
 
 }

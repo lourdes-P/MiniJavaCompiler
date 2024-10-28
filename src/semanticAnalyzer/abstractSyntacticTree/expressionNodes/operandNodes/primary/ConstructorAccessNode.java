@@ -50,10 +50,11 @@ public class ConstructorAccessNode extends PrimaryNode {
         if (actualArguments.size() == formalArgumentList.size()) {
             for (int i = 0; i < actualArguments.size() ; i++) {
                 Type actualArgumentType = actualArguments.get(i).statementCheck(symbolTable);
-                if (!(actualArgumentType.getName().equals("null") && !formalArgumentList.get(i).isTypePrimitive()) ||
-                    !(!actualArgumentType.getIsPrimitive() && !formalArgumentList.get(i).isTypePrimitive() && symbolTable.extendsClass(actualArgumentType.getToken(), formalArgumentList.get(i).getToken())) ||
-                    (!actualArgumentType.getType().equals((formalArgumentList.get(i).getType().getType())))) {
-                    throw new InvalidActualArgumentException(actualArgumentType.getToken());
+
+                if(formalArgumentList.get(i).isTypePrimitive() && actualArgumentType.getName().equals("null")) {
+                    throw new InvalidActualArgumentException(idClase, actualArgumentType.getToken());
+                } else if (!actualArgumentType.getIsPrimitive() && !formalArgumentList.get(i).isTypePrimitive() && (!actualArgumentType.getType().equals((formalArgumentList.get(i).getType().getType())) || !symbolTable.extendsClass(actualArgumentType.getToken(), formalArgumentList.get(i).getToken()))) {
+                    throw new InvalidActualArgumentException(idClase, actualArgumentType.getToken());
                 }
             }
         } else {

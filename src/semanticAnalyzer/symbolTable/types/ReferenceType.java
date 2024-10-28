@@ -10,7 +10,7 @@ public class ReferenceType extends Type {
     }
 
     public String getType() {
-        if(this.getToken().getTokenName().equals("idClass"))
+        if(this.getToken().getTokenName().equals("idClase"))
             return this.getToken().getLexeme();
         else
             return "null";

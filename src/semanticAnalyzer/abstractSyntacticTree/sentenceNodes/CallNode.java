@@ -31,6 +31,8 @@ public class CallNode extends SentenceNode {
     public void statementCheck(SymbolTable symbolTable) throws SemanticException {
         if (!expressionNode.canBeCalled())
             throw new UncallableCallStatementException(callToken);
+
+        expressionNode.statementCheck(symbolTable);
     }
 
     @Override

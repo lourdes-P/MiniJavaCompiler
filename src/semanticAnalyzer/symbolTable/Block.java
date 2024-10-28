@@ -111,6 +111,8 @@ public class Block {
             doesContain = variable != null;
             currentBlock = currentBlock.getParentBlock();
         }
+        if (variable != null)
+            variable = (localVariable.getLineNumber() > variable.getLineNumber()) ? variable : null;
         return variable;
     }
 
@@ -124,5 +126,9 @@ public class Block {
             return parentBlock.hasNestedWhileOrSwitchStatement();
         else
             return false;
+    }
+
+    public void statementCheck(SymbolTable symbolTable) throws SemanticException {
+        correspondingBlockNode.statementCheck(symbolTable);
     }
 }

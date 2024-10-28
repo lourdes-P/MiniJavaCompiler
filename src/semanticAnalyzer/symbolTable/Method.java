@@ -152,4 +152,8 @@ public class Method {
     public Parameter getParameter(String parameterName) {
         return parameterTable.get(parameterName);
     }
+
+    public void statementCheck(SymbolTable symbolTable) throws SemanticException {
+        blockList.getFirst().statementCheck(symbolTable);
+    }
 }

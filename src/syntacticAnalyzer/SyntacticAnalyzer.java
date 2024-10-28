@@ -422,6 +422,7 @@ public class SyntacticAnalyzer {
             block.setParentBlock(symbolTable.getCurrentBlock());
 
         symbolTable.addBlockToCurrentMethod(block);
+        symbolTable.setCurrentBlock(block);
 
         BlockNode blockNode = new BlockNode(block);
         block.setCorrespondingBlockNode(blockNode);
@@ -912,11 +913,11 @@ public class SyntacticAnalyzer {
         LocalVariableNode localVariableNode = new LocalVariableNode(currentToken, symbolTable.getCurrentBlock());
         LocalVariable localVariable = new LocalVariable(currentToken);
         localVariableNode.setVariable(localVariable);
-        // TODO resolver el tipo de la variable local (usar parte derecha).
         match("idMetVar");
         match("Asignacion");
         ComposedExpressionNode rightSideComposedExpressionNode = composedExpression();
         localVariableNode.setRightSide(rightSideComposedExpressionNode);
+        symbolTable.getCurrentBlock().addLocalVariable(localVariable);
 
         return localVariableNode;
     }
@@ -944,6 +945,7 @@ public class SyntacticAnalyzer {
         LocalVariable localVariable = new LocalVariable(currentTokenReference, type);
         localVariableNode.setVariable(localVariable);
         localVariables.add(localVariableNode);
+        symbolTable.getCurrentBlock().addLocalVariable(localVariable);
         optionalClassicVarInitialization(localVariableNode);
         continueLocalVarDeclaration(localVariables, type);
 
@@ -1104,16 +1106,23 @@ public class SyntacticAnalyzer {
 
     private AssignmentExpressionNode assignOperator(ComposedExpressionNode leftSideComposedExpressionNode) throws AbstractSyntacticException, LexicalException {
         AssignmentExpressionNode assignmentExpressionNode;
+        Token assignmentToken;
         if (firstsMap.containsEntry("AssignOperator", currentToken.getTokenName())) {
             if (currentToken.getTokenName().equals("Asignacion")) {
+                assignmentToken = currentToken;
                 match("Asignacion");
                 assignmentExpressionNode = new AssignmentExpressionNode(leftSideComposedExpressionNode);
+                assignmentExpressionNode.setAssignmentToken(assignmentToken);
             } else if (currentToken.getTokenName().equals("AsignacionSuma")) {
+                assignmentToken = currentToken;
                 match("AsignacionSuma");
                 assignmentExpressionNode = new AdditionAssignmentExpressionNode(leftSideComposedExpressionNode);
+                assignmentExpressionNode.setAssignmentToken(assignmentToken);
             } else {
+                assignmentToken = currentToken;
                 match("AsignacionResta");
                 assignmentExpressionNode = new SubtractionAssignmentExpressionNode(leftSideComposedExpressionNode);
+                assignmentExpressionNode.setAssignmentToken(assignmentToken);
             }
         } else {
             throw new SyntacticException(currentToken,concatenateFirstListAndNextList("AssignOperator"));

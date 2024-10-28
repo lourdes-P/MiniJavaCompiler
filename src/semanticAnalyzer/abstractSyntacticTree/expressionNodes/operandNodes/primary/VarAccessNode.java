@@ -20,8 +20,6 @@ public class VarAccessNode extends PrimaryNode {
         this.idMetVar = idMetVar;
     }
 
-
-
     public void setAccessBlock(Block accessBlock) {
         this.accessBlock = accessBlock;
     }

@@ -44,6 +44,13 @@ public class Class {
             throw new DuplicateMethodException(this, method);
     }
 
+    public void addParentMethod(Method method) throws SemanticException {
+        if (!methodTable.containsKey(method.getName())) {
+            methodTable.put(method.getName(), method);
+        } else
+            throw new DuplicateMethodException(this, method);
+    }
+
     public void addAttribute(Attribute attribute) throws SemanticException  {
         if (!attributeTable.containsKey(attribute.getName())) {
             attributeTable.put(attribute.getName(), attribute);

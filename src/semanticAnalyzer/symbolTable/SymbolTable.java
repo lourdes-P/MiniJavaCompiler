@@ -136,7 +136,7 @@ public class SymbolTable {
                         if (!class_.overrides(method))
                             throw new InvalidMethodOverrideException(class_, class_.getMethod(method.getName()));
                     } else {
-                        class_.addMethod(method);
+                        class_.addParentMethod(method);
                     }
                 }
             }
@@ -186,6 +186,15 @@ public class SymbolTable {
         currentClass.addListedInheritance(iterationClassList);
 
         return iterationClassList;
+    }
+
+    public void statementCheck() throws SemanticException {
+        for (Class class_ : classTable.values()) {
+            for (Method method : class_.getMethodCollection()) {
+                if (method.getContainerClass().getName().equals(class_.getName()))
+                    method.statementCheck(this);
+            }
+        }
     }
 
     public Class getCurrentClass() {

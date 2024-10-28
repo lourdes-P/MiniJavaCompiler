@@ -56,3 +56,5 @@ public abstract class Variable {
         return type != null;
     }
 }
+
+
