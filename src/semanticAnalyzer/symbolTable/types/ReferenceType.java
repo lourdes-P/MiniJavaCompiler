@@ -12,6 +12,8 @@ public class ReferenceType extends Type {
     public String getType() {
         if(this.getToken().getTokenName().equals("idClase"))
             return this.getToken().getLexeme();
+        else if (this.getToken().getTokenName().equals("stringLiteral"))
+            return "String";
         else
             return "null";
     }

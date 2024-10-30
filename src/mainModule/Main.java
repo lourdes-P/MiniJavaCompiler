@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 
 public class Main {
+
     public static void main(String[] args) {
 
         String sourceFile = "";
@@ -64,11 +65,10 @@ public class Main {
         if (lexicalAnalyzer.getSinErrores() && syntacticAnalyzer.getSinErrores()) {
             System.out.println("[SinErrores]");
         }
-
     }
 
-    /*
 
+/*
     public static void main(String[] args) {
 
         String sourceFile = "";
@@ -88,14 +88,20 @@ public class Main {
         }
 
         LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(sourceManager, reservedWordMap);
-        SyntacticAnalyzer syntacticAnalyzer = new SyntacticAnalyzer(lexicalAnalyzer);
+        SymbolTable symbolTable = null;
+        try {
+            symbolTable = new SymbolTable();
+        } catch (SemanticException semanticException) {
+            System.out.println(semanticException.getMessage());
+        }
+        SyntacticAnalyzer syntacticAnalyzer = new SyntacticAnalyzer(lexicalAnalyzer,symbolTable);
 
         try {
             syntacticAnalyzer.start();
         } catch (LexicalException lexicalException) {
             System.out.println(lexicalException.getMessage());
             lexicalAnalyzer.registerLexicalError();
-        } catch (AbstractSyntacticException syntacticException) {
+        } catch (AbstractSyntacticException | SemanticException syntacticException) {
             System.out.println(syntacticException.getMessage());
             syntacticAnalyzer.registerSyntacticError();
         }
@@ -105,6 +111,8 @@ public class Main {
         }
 
     }
-    */
+
+ */
+
 
 }

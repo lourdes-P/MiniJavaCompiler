@@ -14,9 +14,7 @@ import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.chain
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.OperandNode;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.chainNodes.MethodCallChainNode;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.chainNodes.VarChainNode;
-import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.literal.LiteralNode;
-import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.literal.ObjectLiteralNode;
-import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.literal.PrimitiveLiteralNode;
+import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.literal.*;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.primary.*;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.unaryExpressionNodes.MinusNode;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.unaryExpressionNodes.NotNode;
@@ -127,7 +125,6 @@ public class SyntacticAnalyzer {
         if (firstsMap.containsEntry("OptionalGenericClassDeclaration", currentToken.getTokenName())) {
             match("Menor");
             match("idClase");
-            optionalGenericClassDeclaration();
             continueOptionalGenericClassDeclaration();
             match("Mayor");
         } else if (nextsMap.containsEntry("OptionalGenericClassDeclaration", currentToken.getTokenName())) {
@@ -151,11 +148,7 @@ public class SyntacticAnalyzer {
     private void continueGenericClassDeclaration() throws AbstractSyntacticException, LexicalException {
         if (firstsMap.containsEntry("ContinueGenericClassDeclaration", currentToken.getTokenName())) {
             match("idClase");
-            if (currentToken.getTokenName().equals("Coma")) {
-                continueOptionalGenericClassDeclaration();
-            } else {
-                optionalGenericClassDeclaration();
-            }
+            continueOptionalGenericClassDeclaration();
         } else {
             throw new SyntacticException(currentToken, concatenateFirstListAndNextList("ContinueGenericClassDeclaration"));
         }
@@ -306,7 +299,6 @@ public class SyntacticAnalyzer {
         if (firstsMap.containsEntry("OptionalGenericDeclaration", currentToken.getTokenName())) {
             match("Menor");
             match("idClase");
-            optionalGenericDeclaration();
             continueOptionalGenericDeclaration();
             match("Mayor");
         } else if (nextsMap.containsEntry("OptionalGenericDeclaration", currentToken.getTokenName())) {
@@ -330,11 +322,7 @@ public class SyntacticAnalyzer {
     private void continueGenericDeclaration() throws AbstractSyntacticException, LexicalException {
         if (firstsMap.containsEntry("ContinueGenericDeclaration", currentToken.getTokenName())) {
             match("idClase");
-            if (currentToken.getTokenName().equals("Coma")) {
-                continueOptionalGenericDeclaration();
-            } else {
-                optionalGenericDeclaration();
-            }
+            continueOptionalGenericDeclaration();
         } else {
             throw new SyntacticException(currentToken, concatenateFirstListAndNextList("ContinueGenericDeclaration"));
         }
@@ -581,22 +569,40 @@ public class SyntacticAnalyzer {
     }
 
     private PrimitiveLiteralNode primitiveLiteral() throws AbstractSyntacticException, LexicalException {
-        PrimitiveLiteralNode primitiveLiteralNode = new PrimitiveLiteralNode(currentToken);
+        PrimitiveLiteralNode primitiveLiteralNode = null;
         switch (currentToken.getTokenName()) {
-            case "pr_true" -> match("pr_true");
-            case "pr_false" -> match("pr_false");
-            case "intLiteral" -> match("intLiteral");
-            case "charLiteral" -> match("charLiteral");
+            case "pr_true" -> {
+                primitiveLiteralNode = new BooleanLiteralNode(currentToken);
+                match("pr_true");
+            }
+            case "pr_false" -> {
+                primitiveLiteralNode = new BooleanLiteralNode(currentToken);
+                match("pr_false");
+            }
+            case "intLiteral" -> {
+                primitiveLiteralNode = new IntLiteralNode(currentToken);
+                match("intLiteral");
+            }
+            case "charLiteral" -> {
+                primitiveLiteralNode = new CharLiteralNode(currentToken);
+                match("charLiteral");
+            }
             default -> throw new SyntacticException(currentToken, firstsMap.getValue("PrimitiveLiteral"));
         }
         return primitiveLiteralNode;
     }
 
     private ObjectLiteralNode objectLiteral() throws AbstractSyntacticException, LexicalException {
-        ObjectLiteralNode objectLiteralNode = new ObjectLiteralNode(currentToken);
+        ObjectLiteralNode objectLiteralNode = null;
         switch (currentToken.getTokenName()) {
-            case "pr_null" -> match("pr_null");
-            case "stringLiteral" -> match("stringLiteral");
+            case "pr_null" -> {
+                objectLiteralNode = new NullLiteralNode(currentToken);
+                match("pr_null");
+            }
+            case "stringLiteral" -> {
+                objectLiteralNode = new StringLiteralNode(currentToken);
+                match("stringLiteral");
+            }
             default -> throw new SyntacticException(currentToken, firstsMap.getValue("ObjectLiteral")); // not reachable
         }
         return objectLiteralNode;
@@ -723,8 +729,8 @@ public class SyntacticAnalyzer {
                 match("Mayor");
             } else {
                 match("idClase");
-                optionalGenericDeclaration();
                 continueOptionalGenericConstructorInvocation();
+
                 match("Mayor");
             }
         } else {
@@ -746,18 +752,21 @@ public class SyntacticAnalyzer {
     private void continueGenericConstructorInvocation() throws AbstractSyntacticException, LexicalException {
         if (firstsMap.containsEntry("ContinueGenericConstructorInvocation", currentToken.getTokenName())) {
             match("idClase");
-            if (currentToken.getTokenName().equals("Coma")) {
-                continueGenericConstructorInvocation();
-            } else {
-                optionalGenericDeclaration();
-            }
+            continueOptionalGenericConstructorInvocation();
         } else {
             throw new SyntacticException(currentToken, firstsMap.getValue("ContinueGenericConstructorInvocation"));
         }
     }
 
     private StaticMethodAccessNode staticMethodAccess() throws AbstractSyntacticException, LexicalException {
-        StaticMethodAccessNode staticMethodAccessNode = new StaticMethodAccessNode(staticMethodAccessClass);
+        StaticMethodAccessNode staticMethodAccessNode;
+        if(currentToken.getTokenName().equals("Punto")) {
+            staticMethodAccessNode = new StaticMethodAccessNode(staticMethodAccessClass);
+
+        } else {
+            staticMethodAccessNode = new StaticMethodAccessNode(currentToken);
+            match("idClase");
+        }
         match("Punto");
         staticMethodAccessNode.setIdMetVar(currentToken);
         match("idMetVar");

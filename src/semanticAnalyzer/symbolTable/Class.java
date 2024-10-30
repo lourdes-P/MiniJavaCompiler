@@ -121,6 +121,14 @@ public class Class {
         return inheritsFrom;
     }
 
+    public boolean containsInheritance(Token classInheritedFrom) {
+        for (Token token : inheritsFrom) {
+            if (token.getLexeme().equals(classInheritedFrom.getLexeme()))
+                return true;
+        }
+        return false;
+    }
+
     public Collection<Method> getMethodCollection() {
         return methodTable.values();
     }

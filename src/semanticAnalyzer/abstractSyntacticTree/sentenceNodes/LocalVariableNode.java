@@ -50,14 +50,16 @@ public class LocalVariableNode extends SentenceNode {
     @Override
     public void statementCheck(SymbolTable symbolTable) throws SemanticException {
         if (variable.typeIsResolved()) {
-            Type varType = rightSide.statementCheck(symbolTable);
+            if (rightSide != null) {
+                Type varType = rightSide.statementCheck(symbolTable);
 
-            if (!variable.getType().getName().equals("Object")) {
-                if (!varType.getName().equals("null")) {
-                    if (!variable.getType().getIsPrimitive() && !variable.getType().getType().equals(varType.getType()) && !symbolTable.extendsClass(varType.getToken(), variable.getType().getToken())) {
-                        throw new IncorrectTypeException(idMetVar);
-                    } else if (variable.getType().getIsPrimitive() && !variable.getType().getType().equals(varType.getType())) {
-                        throw new IncorrectTypeException(idMetVar);
+                if (!variable.getType().getName().equals("Object")) {
+                    if (!varType.getName().equals("null")) {
+                        if (!variable.getType().getIsPrimitive() && !variable.getType().getType().equals(varType.getType()) && !symbolTable.extendsClass(varType.getToken(), variable.getType().getToken())) {
+                            throw new IncorrectTypeException(idMetVar);
+                        } else if (variable.getType().getIsPrimitive() && !variable.getType().getType().equals(varType.getType())) {
+                            throw new IncorrectTypeException(idMetVar);
+                        }
                     }
                 }
             }

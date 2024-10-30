@@ -239,7 +239,7 @@ public class SymbolTable {
         if (!classTable.containsKey(parentClass.getLexeme()))
             throw new ClassNotDeclaredException(parentClass);
 
-        return classTable.get(childClass.getLexeme()).getInheritsFrom().contains(parentClass);
+        return classTable.get(childClass.getLexeme()).containsInheritance(parentClass);
     }
 
     public Method getClassSelfDeclaredMethod(String className, String methodName) {

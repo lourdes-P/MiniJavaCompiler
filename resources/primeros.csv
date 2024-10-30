@@ -10,13 +10,11 @@ OptionalGenericClassDeclaration,Menor
 OptionalGenericClassDeclaration,empty
 ContinueOptionalGenericClassDeclaration,Coma
 ContinueOptionalGenericClassDeclaration,empty
-ContinueMandatoryGenericClassDeclaration,Coma
 ContinueGenericClassDeclaration,idClase
 OptionalGenericDeclaration,Menor
 OptionalGenericDeclaration,empty
 ContinueOptionalGenericDeclaration,Coma
 ContinueOptionalGenericDeclaration,empty
-ContinueMandatoryGenericDeclaration,Coma
 ContinueGenericDeclaration,idClase
 OptionalGenericConstructorInvocation,Menor
 OptionalGenericConstructorInvocation,empty
@@ -24,8 +22,8 @@ OptionalDiamondNotation,Mayor
 OptionalDiamondNotation,idClase
 ContinueOptionalGenericConstructorInvocation,Coma
 ContinueOptionalGenericConstructorInvocation,empty
-ContinueMandatoryGenericConstructorInvocation,Coma
 ContinueGenericConstructorInvocation,idClase
+ContinueGenericConstructorInvocation,Coma
 OptionalInheritance,pr_extends
 OptionalInheritance,empty
 MemberList,Member
@@ -142,6 +140,7 @@ Primary,ParenthesizedExpression
 ThisAccess,pr_this
 ConstructorAccess,pr_new
 StaticMethodAccess,Punto
+StaticMethodAccess,idClase
 ParenthesizedExpression,ParentesisAbre
 VarOrMethodAccess,ActualArguments
 ActualArguments,ParentesisAbre
