@@ -49,7 +49,7 @@ public class PredefinedClassCreator {
     }
 
     private static Class createObjectClass() throws SemanticException{
-        Class object = new Class(new Token("idClass", "Object", 0));
+        Class object = new Class(new Token("idClase", "Object", 0));
 
         Method debugPrint = new Method(true, new Token("idMetVar", "debugPrint", 0), object, new PrimitiveType(new Token("pr_void", "void", 0)));
 
@@ -69,14 +69,14 @@ public class PredefinedClassCreator {
     }
 
     private static Class createStringClass() throws CircularInheritanceException {
-        Class string = new Class(new Token("idClass", "String", 0));
+        Class string = new Class(new Token("idClase", "String", 0));
         string.addInheritance(PredefinedClassCreator.getObjectClass().getToken());
 
         return string;
     }
 
     private static Class createSystemClass() throws SemanticException {
-        Class system = new Class(new Token("idClass", "System", 0));
+        Class system = new Class(new Token("idClase", "System", 0));
 
         Method read = new Method(true, new Token("idMetVar", "read", 0), system, new PrimitiveType(new Token("pr_int", "int", 0)));
         setBlock(read);
@@ -100,7 +100,7 @@ public class PredefinedClassCreator {
         setBlock(printI);
         system.addMethod(printI);
 
-        Parameter s = new Parameter(new Token("idMetVar", "s", 0), new ReferenceType(new Token("idClass", "String", 0)), 0);
+        Parameter s = new Parameter(new Token("idMetVar", "s", 0), new ReferenceType(new Token("idClase", "String", 0)), 0);
         s.setPositionInMethodParameterList(0);
         Method printS = createMethod("printS", system, new PrimitiveType(new Token("pr_void", "void", 0)), s);
         setBlock(printS);
@@ -128,7 +128,7 @@ public class PredefinedClassCreator {
         setBlock(printIln);
         system.addMethod(printIln);
 
-        Parameter sln = new Parameter(new Token("idMetVar", "s", 0), new ReferenceType(new Token("idClass", "String", 0)), 0);
+        Parameter sln = new Parameter(new Token("idMetVar", "s", 0), new ReferenceType(new Token("idClase", "String", 0)), 0);
         sln.setPositionInMethodParameterList(0);
         Method printSln = createMethod("printSln", system, new PrimitiveType(new Token("pr_void", "void", 0)), sln);
         setBlock(printSln);

@@ -7,7 +7,7 @@ import semanticAnalyzer.symbolTable.types.ReferenceType;
 public class Constructor extends Method {
 
     public Constructor(Token token, Class containerClass) throws InvalidConstructorException {
-        super(true, token, containerClass, new ReferenceType(containerClass.getToken()));
+        super(false, token, containerClass, new ReferenceType(containerClass.getToken()));
         if (!token.getLexeme().equals(containerClass.getName()))
             throw new InvalidConstructorException(containerClass, this);
     }

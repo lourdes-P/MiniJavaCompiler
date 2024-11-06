@@ -26,4 +26,9 @@ public class SwitchDefaultSentenceNode extends SwitchSentenceNode {
             sentenceNode.statementCheck(symbolTable);
         }
     }
+
+    @Override
+    public boolean isWhileOrSwitchStatement() {
+        return true;
+    }
 }

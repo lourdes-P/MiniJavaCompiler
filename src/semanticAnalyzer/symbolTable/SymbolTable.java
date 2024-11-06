@@ -1,8 +1,11 @@
 package semanticAnalyzer.symbolTable;
 
 import lexicalAnalyzer.Token;
+import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ComposedExpressionNode;
 import semanticAnalyzer.exceptions.*;
 import semanticAnalyzer.exceptions.part1.*;
+import semanticAnalyzer.exceptions.part2.InvalidTypeAttributeInitializationException;
+import semanticAnalyzer.symbolTable.types.Type;
 import semanticAnalyzer.symbolTable.variables.Attribute;
 import semanticAnalyzer.symbolTable.variables.Parameter;
 
@@ -10,11 +13,13 @@ import java.util.*;
 
 public class SymbolTable {
     private HashMap<String, Class> classTable;
+    private List<Map.Entry<Attribute, ComposedExpressionNode>> attributeInitializationsToCheck;
     private Class currentClass;
     private Method currentMethod;
 
     public SymbolTable() throws SemanticException {
         classTable = new HashMap<>();
+        attributeInitializationsToCheck = new ArrayList<>();
         currentClass = null;
         currentMethod = null;
         addPredefinedClassesToTable();
@@ -194,6 +199,11 @@ public class SymbolTable {
                 if (method.getContainerClass().getName().equals(class_.getName()))
                     method.statementCheck(this);
             }
+            class_.getConstructor(class_.getName()).statementCheck(this);
+        }
+
+        for (Map.Entry<Attribute,ComposedExpressionNode> entry : attributeInitializationsToCheck) {
+            checkInitializedAttribute(entry.getKey(), entry.getValue());
         }
     }
 
@@ -240,6 +250,22 @@ public class SymbolTable {
             throw new ClassNotDeclaredException(parentClass);
 
         return classTable.get(childClass.getLexeme()).containsInheritance(parentClass);
+    }
+
+    public void checkInitializedAttribute(Attribute attribute, ComposedExpressionNode composedExpressionNode) throws SemanticException {
+        Type type = composedExpressionNode.statementCheck(this);
+
+        if (attribute.getType().getType().equals(type.getType())) {
+
+        } else if (!attribute.getType().getIsPrimitive() && !type.getIsPrimitive() && !type.getType().equals("null") && extendsClass(new Token("idClase", type.getType(), type.getToken().getLineNumber()), attribute.getType().getToken())) {
+
+        } else if (!type.getType().equals("null")) {
+            throw new InvalidTypeAttributeInitializationException(attribute.getToken());
+        }
+    }
+
+    public void addInitializedAttributeToCheck(Attribute attribute, ComposedExpressionNode composedExpressionNode) {
+        attributeInitializationsToCheck.add(new AbstractMap.SimpleEntry<>(attribute, composedExpressionNode));
     }
 
     public Method getClassSelfDeclaredMethod(String className, String methodName) {

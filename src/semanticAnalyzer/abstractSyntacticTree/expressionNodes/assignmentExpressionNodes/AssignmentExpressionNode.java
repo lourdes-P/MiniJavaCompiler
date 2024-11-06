@@ -8,6 +8,7 @@ import semanticAnalyzer.exceptions.part2.expressionExceptions.IncompatibleTypeAs
 import semanticAnalyzer.exceptions.part2.expressionExceptions.LeftSideCannotBeAssignedAValueException;
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
+import semanticAnalyzer.symbolTable.variables.Attribute;
 
 public class AssignmentExpressionNode extends ExpressionNode {
     private ComposedExpressionNode rightSideComposedExpressionNode;

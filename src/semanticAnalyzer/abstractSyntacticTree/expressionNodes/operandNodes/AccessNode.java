@@ -16,8 +16,17 @@ public class AccessNode extends OperandNode {
         chainNode = null;
     }
 
+    public AccessNode(PrimaryNode primaryNode) {
+        this.primaryNode = primaryNode;
+        chainNode = null;
+    }
+
     public void setPrimaryNode(PrimaryNode primaryNode) {
         this.primaryNode = primaryNode;
+    }
+
+    public PrimaryNode getPrimaryNode() {
+        return primaryNode;
     }
 
     public void setChainNode(ChainNode chainNode) {

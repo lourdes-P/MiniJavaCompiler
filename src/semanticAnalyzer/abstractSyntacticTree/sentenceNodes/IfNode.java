@@ -45,9 +45,10 @@ public class IfNode extends SentenceNode {
         for (SentenceNode sentenceNode : body) {
             sentenceNode.statementCheck(symbolTable);
         }
-
-        for (SentenceNode sentenceNode : elseBody) {
-            sentenceNode.statementCheck(symbolTable);
+        if (elseBody != null) {
+            for (SentenceNode sentenceNode : elseBody) {
+                sentenceNode.statementCheck(symbolTable);
+            }
         }
     }
 

@@ -19,8 +19,8 @@ public class AndNode extends BinaryExpressionNode {
     }
 
     public Type statementCheck(SymbolTable symbolTable) throws SemanticException {
-        Type leftSideType = getRightSide().statementCheck(symbolTable);
-        Type rightSideType = getLeftSide().statementCheck(symbolTable);
+        Type leftSideType = getLeftSide().statementCheck(symbolTable);
+        Type rightSideType = getRightSide().statementCheck(symbolTable);
 
         if(leftSideType.getType().equals(rightSideType.getType()) && rightSideType.getType().equals("boolean")) {
             return new PrimitiveType(new Token("pr_boolean", "boolean", rightSideType.getToken().getLineNumber()));

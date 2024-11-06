@@ -50,6 +50,9 @@ public class LocalVariableNode extends SentenceNode {
     @Override
     public void statementCheck(SymbolTable symbolTable) throws SemanticException {
         if (variable.typeIsResolved()) {
+            if (!containerBlock.declaredVariableUniqueToContainerMethod(idMetVar)) {
+                throw new DuplicateLocalVariableNameException(idMetVar);
+            }
             if (rightSide != null) {
                 Type varType = rightSide.statementCheck(symbolTable);
 
@@ -74,8 +77,6 @@ public class LocalVariableNode extends SentenceNode {
                     variable.setType(varType);
                 }
             }
-            // TODO testear que la variable sea visible por todas las sentencias subsiguientes
-            // hasta que finalice el bloque actual.
         }
     }
 

@@ -1,6 +1,7 @@
 package semanticAnalyzer.symbolTable;
 
 import lexicalAnalyzer.Token;
+import semanticAnalyzer.abstractSyntacticTree.sentenceNodes.BlockNode;
 import semanticAnalyzer.exceptions.*;
 import semanticAnalyzer.exceptions.part1.CircularInheritanceException;
 import semanticAnalyzer.exceptions.part1.DuplicateAttributeException;
@@ -79,7 +80,12 @@ public class Class {
     }
 
     public void addDefaultConstructor() throws SemanticException {
-        Constructor constructor = new Constructor(new Token("idMetVar", this.getName(), 0), this);
+        Constructor constructor = new Constructor(new Token("idClase", this.getName(), 0), this);
+        Block block = new Block(constructor);
+        constructor.addBlock(block);
+        BlockNode blockNode = new BlockNode(block);
+        block.setCorrespondingBlockNode(blockNode);
+
         addConstructor(constructor);
     }
 

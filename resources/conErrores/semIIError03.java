@@ -1,4 +1,4 @@
-///[Error:b|22]
+///[Error:b|23]
 // El lado izquierdo de la asignación es no asignable - ln: 9
 class A {
     int a1;

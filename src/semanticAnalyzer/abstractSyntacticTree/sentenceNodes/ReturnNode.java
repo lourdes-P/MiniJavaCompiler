@@ -38,9 +38,11 @@ public class ReturnNode extends SentenceNode {
 
             if (!containerMethod.getType().getName().equals("Object")) {
                 if (!returnType.getName().equals("null")) {
-                    if (!containerMethod.getType().getIsPrimitive() && !containerMethod.getType().getType().equals(returnType.getType()) && !symbolTable.extendsClass(returnType.getToken(), containerMethod.getType().getToken())) {
+                    if (!containerMethod.getType().getIsPrimitive() && !returnType.getIsPrimitive() && !containerMethod.getType().getType().equals(returnType.getType()) && !symbolTable.extendsClass(returnType.getToken(), containerMethod.getType().getToken())) {
                         throw new IncorrectTypeException(returnToken);
                     } else if (containerMethod.getType().getIsPrimitive() && !containerMethod.getType().getType().equals(returnType.getType())) {
+                        throw new IncorrectTypeException(returnToken);
+                    } else if ((!containerMethod.getType().getIsPrimitive() && returnType.getIsPrimitive()) || (containerMethod.getType().getIsPrimitive() && !returnType.getIsPrimitive())) {
                         throw new IncorrectTypeException(returnToken);
                     }
                 }

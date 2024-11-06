@@ -38,4 +38,9 @@ public class SwitchCaseSentenceNode extends SwitchSentenceNode {
             sentenceNode.statementCheck(symbolTable);
         }
     }
+
+    @Override
+    public boolean isWhileOrSwitchStatement() {
+        return true;
+    }
 }

@@ -25,6 +25,7 @@ import semanticAnalyzer.abstractSyntacticTree.sentenceNodes.switchSentenceNodes.
 import semanticAnalyzer.abstractSyntacticTree.sentenceNodes.switchSentenceNodes.SwitchDefaultSentenceNode;
 import semanticAnalyzer.abstractSyntacticTree.sentenceNodes.switchSentenceNodes.SwitchSentenceNode;
 import semanticAnalyzer.exceptions.SemanticException;
+import semanticAnalyzer.exceptions.part2.InvalidAttributeInitialization;
 import semanticAnalyzer.symbolTable.*;
 import semanticAnalyzer.symbolTable.Class;
 import semanticAnalyzer.symbolTable.types.PrimitiveType;
@@ -359,9 +360,9 @@ public class SyntacticAnalyzer {
     private void attributeMethod(boolean isStatic, Type type, Token attrOrMethodToken) throws AbstractSyntacticException, LexicalException, SemanticException {
         if (firstsMap.containsEntry("AttributeMethod", currentToken.getTokenName())) {
             if (firstsMap.containsEntry("Attribute", currentToken.getTokenName())) {
-                attribute();
                 Attribute attribute = new Attribute(attrOrMethodToken, type, symbolTable.getCurrentClass(), isStatic);
                 symbolTable.addAttributeToCurrentClass(attribute);
+                attribute(attribute);
                 match("PuntoYComa");
             } else {
                 Method method = new Method(isStatic, attrOrMethodToken, symbolTable.getCurrentClass(), type);
@@ -374,15 +375,26 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private void attribute() throws AbstractSyntacticException, LexicalException {
-        optionalAttributeInitialization();
-        continueAttributeDeclaration();
+    private void attribute(Attribute attribute) throws AbstractSyntacticException, LexicalException, SemanticException {
+        optionalAttributeInitialization(attribute);
+        continueAttributeDeclaration(attribute.getType(), attribute.isStatic());
     }
 
-    private void optionalAttributeInitialization() throws AbstractSyntacticException, LexicalException {
+    private void optionalAttributeInitialization(Attribute attribute) throws AbstractSyntacticException, LexicalException, SemanticException {
         if (firstsMap.containsEntry("OptionalAttributeInitialization", currentToken.getTokenName())) {
             match("Asignacion");
-            composedExpression();
+            ComposedExpressionNode composedExpressionNode = composedExpression();
+            VarAccessNode varAccessNode = new VarAccessNode(attribute.getToken());
+            varAccessNode.setVariable(attribute);
+            if (composedExpressionNode instanceof AccessNode) {
+                if (((AccessNode) composedExpressionNode).getPrimaryNode() instanceof VarAccessNode) {
+                    ((VarAccessNode) (((AccessNode) composedExpressionNode).getPrimaryNode())).setVariable(attribute);
+                } else {
+                    throw new InvalidAttributeInitialization(attribute.getToken());
+                }
+            }
+
+            symbolTable.addInitializedAttributeToCheck(attribute, composedExpressionNode);
         } else if (nextsMap.containsEntry("OptionalAttributeInitialization", currentToken.getTokenName())) {
             //empty. Token is in next list.
         } else {
@@ -390,11 +402,13 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private void continueAttributeDeclaration() throws AbstractSyntacticException, LexicalException {
+    private void continueAttributeDeclaration(Type type, boolean isStatic) throws AbstractSyntacticException, LexicalException, SemanticException {
         if (firstsMap.containsEntry("ContinueAttributeDeclaration", currentToken.getTokenName())) {
             match("Coma");
+            Attribute attribute = new Attribute(currentToken, type, symbolTable.getCurrentClass(), isStatic);
+            symbolTable.addAttributeToCurrentClass(attribute);
             match("idMetVar");
-            attribute();
+            attribute(attribute);
         } else if (nextsMap.containsEntry("ContinueAttributeDeclaration", currentToken.getTokenName())) {
             //empty. Token is in next list.
         } else {
@@ -649,7 +663,8 @@ public class SyntacticAnalyzer {
         } else if (nextsMap.containsEntry("VarOrMethodAccess", currentToken.getTokenName())) {
             // empty. Token is in next list.
             VarAccessNode varAccessNode = new VarAccessNode(idMetVar);
-            varAccessNode.setAccessBlock(symbolTable.getCurrentBlock());
+            if (symbolTable.getCurrentMethod() != null && symbolTable.getCurrentBlock() != null)
+                varAccessNode.setAccessBlock(symbolTable.getCurrentBlock());
 
             return varAccessNode;
         } else {

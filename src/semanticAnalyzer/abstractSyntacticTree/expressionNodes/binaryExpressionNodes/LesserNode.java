@@ -4,6 +4,7 @@ import lexicalAnalyzer.Token;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ComposedExpressionNode;
 import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.exceptions.part2.expressionExceptions.IncompatibleBinaryExpressionException;
+import semanticAnalyzer.exceptions.part2.expressionExceptions.IncompatibleWithRelationalOperatorException;
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.PrimitiveType;
 import semanticAnalyzer.symbolTable.types.Type;
@@ -19,11 +20,13 @@ public class LesserNode extends BinaryExpressionNode {
     }
 
     public Type statementCheck(SymbolTable symbolTable) throws SemanticException {
-        Type leftSideType = getRightSide().statementCheck(symbolTable);
-        Type rightSideType = getLeftSide().statementCheck(symbolTable);
+        Type leftSideType = getLeftSide().statementCheck(symbolTable);
+        Type rightSideType = getRightSide().statementCheck(symbolTable);
 
         if(leftSideType.getType().equals(rightSideType.getType()) && rightSideType.getType().equals("int")) {
             return new PrimitiveType(new Token("pr_boolean", "boolean", rightSideType.getToken().getLineNumber()));
+        } else if (!leftSideType.getType().equals("int") || !rightSideType.getType().equals("int")) {
+            throw new IncompatibleWithRelationalOperatorException(this.getOperator());
         } else {
             throw new IncompatibleBinaryExpressionException(this.getOperator());
         }

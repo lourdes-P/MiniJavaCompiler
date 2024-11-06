@@ -14,6 +14,9 @@ public class VarChainNode extends ChainNode {
     public Type statementCheck(Type primaryNodeType, SymbolTable symbolTable) throws SemanticException {
         if (!primaryNodeType.getIsPrimitive() && symbolTable.containsClass(primaryNodeType.getName())) {
             attribute = symbolTable.getClass(primaryNodeType.getName()).getAttribute(getIdMetVar().getLexeme());
+            if (attribute == null) {
+                throw new InvalidChainedVariableAccessException(getIdMetVar(), primaryNodeType.getName());
+            }
         } else
             throw new InvalidChainedVariableAccessException(getIdMetVar(), primaryNodeType.getName());
 

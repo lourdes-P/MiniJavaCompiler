@@ -12,6 +12,7 @@ public class Attribute extends Variable {
     public Attribute(Token token, Type type, Class class_, boolean isStatic) {
         super(token, type);
         containerClass = class_;
+        this.isStatic = isStatic;
     }
 
     public Class getContainerClass() {

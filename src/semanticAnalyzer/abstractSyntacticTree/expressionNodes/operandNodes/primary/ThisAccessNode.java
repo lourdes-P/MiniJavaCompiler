@@ -39,7 +39,7 @@ public class ThisAccessNode extends PrimaryNode {
         if(containerMethod.getIsStatic())
             throw new InvalidDynamicThisUseException(thisToken);
 
-        return new ReferenceType(new Token("idClass", thisClass.getName(), thisToken.getLineNumber()));
+        return new ReferenceType(new Token("idClase", thisClass.getName(), thisToken.getLineNumber()));
     }
 
     public boolean canBeAssignedAValue() {

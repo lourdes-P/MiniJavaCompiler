@@ -18,4 +18,5 @@ public abstract class SwitchSentenceNode {
     public Token getSwitchSentenceToken() {
         return switchSentenceToken;
     }
+    public abstract boolean isWhileOrSwitchStatement();
 }

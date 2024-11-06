@@ -76,7 +76,9 @@ public class MethodAccessNode extends PrimaryNode {
 
                 if(formalArgumentList.get(i).isTypePrimitive() && actualArgumentType.getName().equals("null")) {
                     throw new InvalidActualArgumentException(idMetVar, actualArgumentType.getToken());
-                } else if (!actualArgumentType.getIsPrimitive() && !formalArgumentList.get(i).isTypePrimitive() && (!actualArgumentType.getType().equals((formalArgumentList.get(i).getType().getType())) || !symbolTable.extendsClass(actualArgumentType.getToken(), formalArgumentList.get(i).getToken()))) {
+                } else if (!actualArgumentType.getIsPrimitive() && !formalArgumentList.get(i).isTypePrimitive() && (!actualArgumentType.getType().equals((formalArgumentList.get(i).getType().getType())) && !symbolTable.extendsClass(new Token("idClase", actualArgumentType.getType(), actualArgumentType.getToken().getLineNumber()), formalArgumentList.get(i).getType().getToken()))) {
+                    throw new InvalidActualArgumentException(idMetVar, actualArgumentType.getToken());
+                } else if ((actualArgumentType.getIsPrimitive() && !formalArgumentList.get(i).isTypePrimitive()) || (!actualArgumentType.getIsPrimitive() && formalArgumentList.get(i).isTypePrimitive())) {
                     throw new InvalidActualArgumentException(idMetVar, actualArgumentType.getToken());
                 }
             }

@@ -162,8 +162,6 @@ public class LexicalAnalyzer {
     }
 
 
-
-
     private Token eAndUnfinished() throws LexicalException {
         if(currentChar == '&') {
             updateLexeme();
