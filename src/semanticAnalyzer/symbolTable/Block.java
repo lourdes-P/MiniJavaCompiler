@@ -19,6 +19,7 @@ public class Block {
     private BlockNode correspondingBlockNode;
     private Block parentBlock;
     private List<SentenceNode> sentenceNodeList;
+    private int localVarRAOffset;
 
 
     public Block(Method containerMethod) {
@@ -27,6 +28,7 @@ public class Block {
         sentenceNodeList = new ArrayList<>();
         parentBlock = null;
         correspondingBlockNode = null;
+        localVarRAOffset = 0;
     }
 
     public Block(Method containerMethod, Block parentBlock) {
@@ -35,6 +37,8 @@ public class Block {
         declaredVariablesInBlock = new HashMap<>();
         sentenceNodeList = new ArrayList<>();
         correspondingBlockNode = null;
+        localVarRAOffset = parentBlock.getOffset();
+        // TODO chequear que siga bien
     }
 
     public void setCorrespondingBlockNode(BlockNode correspondingBlockNode) {
@@ -57,6 +61,8 @@ public class Block {
         return sentenceNodeList;
     }
     public void addLocalVariable(LocalVariable localVariable) {
+        localVariable.setOffset(localVarRAOffset--); // Notese que a raiz de que el .stack crece desde las direcciones altas hacia las
+        //bajas, las variables locales a una unidad poseeran desplazamientos no positivos a partir de 0.
         declaredVariablesInBlock.put(localVariable.getName(), localVariable);
     }
 
@@ -130,5 +136,19 @@ public class Block {
 
     public void statementCheck(SymbolTable symbolTable) throws SemanticException {
         correspondingBlockNode.statementCheck(symbolTable);
+    }
+
+    public void setOffset(int offset) {
+        this.localVarRAOffset = offset;
+    }
+
+    public int getOffset() {
+        return localVarRAOffset;
+    }
+
+    public void checkOffsets() {
+        for (LocalVariable variable : declaredVariablesInBlock.values()) {
+            System.out.println("Local variable" + variable.getName() + " offset: " + variable.getOffset());
+        }
     }
 }

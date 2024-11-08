@@ -51,6 +51,8 @@ public class Main {
             symbolTable.checkDeclarations();
             symbolTable.consolidate();
             symbolTable.statementCheck();
+
+            checkOffsets(symbolTable);
         } catch (LexicalException lexicalException) {
             System.out.println(lexicalException.getMessage());
             lexicalAnalyzer.registerLexicalError();
@@ -67,6 +69,9 @@ public class Main {
         }
     }
 
+    private static void checkOffsets(SymbolTable symbolTable) {
+        symbolTable.checkOffsets();
+    }
 
 /*
     public static void main(String[] args) {

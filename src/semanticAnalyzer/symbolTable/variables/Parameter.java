@@ -12,11 +12,13 @@ public class Parameter extends Variable {
         super(token, type);
         this.containerMethod = containerMethod;
         this.positionInList = positionInList;
+        this.setOffset(positionInList);
     }
 
     public Parameter(Token token, Type type, int positionInList) {
         super(token, type);
         this.positionInList = positionInList;
+        this.setOffset(positionInList);
     }
 
     public Parameter(Token token, Type type, Method containerMethod) {
@@ -33,6 +35,7 @@ public class Parameter extends Variable {
 
     public void setPositionInMethodParameterList(int i) {
         positionInList = i;
+        this.setOffset(i);
     }
 
     public int getPositionInMethodParameterList() {

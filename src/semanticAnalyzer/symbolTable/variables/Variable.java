@@ -7,6 +7,7 @@ public abstract class Variable {
     private Token token;
     private Type type;
     private boolean invisibleToContainer;
+    private int offset;
 
     protected Variable (Token token, Type type) {
         this.token = token;
@@ -54,6 +55,14 @@ public abstract class Variable {
 
     public boolean typeIsResolved() {
         return type != null;
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
+
+    public int getOffset() {
+        return offset;
     }
 }
 

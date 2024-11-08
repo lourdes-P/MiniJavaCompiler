@@ -9,7 +9,6 @@ import semanticAnalyzer.exceptions.part1.DuplicateConstructorException;
 import semanticAnalyzer.exceptions.part1.DuplicateMethodException;
 import semanticAnalyzer.symbolTable.variables.Attribute;
 import semanticAnalyzer.symbolTable.variables.Parameter;
-import semanticAnalyzer.symbolTable.variables.Variable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,25 +18,30 @@ import java.util.List;
 public class Class {
     private HashMap<String,Constructor> constructorTable;
     private HashMap<String,Method> methodTable, strictlySelfDeclaredMethodTable;
-    private HashMap<String, Attribute> attributeTable;
+    private HashMap<String, Attribute> attributeTable, strictlySelfDeclaredAttributeTable;
     private Method currentMethod;
     private Token token;
     private ArrayList<Token> inheritsFrom;
     private boolean consolidatedAttributes, consolidatedMethods;
+    private int attributeCIROffset, methodVTOffset;
 
     public Class(Token token) {
         this.token = token;
         inheritsFrom = new ArrayList<>();
         attributeTable = new HashMap<>();
+        strictlySelfDeclaredAttributeTable = new HashMap<>();
         methodTable = new HashMap<>();
         strictlySelfDeclaredMethodTable = new HashMap<>();
         constructorTable = new HashMap<>();
         consolidatedAttributes = false;
         consolidatedMethods = false;
+        attributeCIROffset = 1;         // dejo el primero para la referencia a la VT
+        methodVTOffset = 0;
     }
 
     public void addMethod(Method method) throws SemanticException {
         if (!methodTable.containsKey(method.getName())) {
+            method.setOffset(methodVTOffset++);
             methodTable.put(method.getName(), method);
             strictlySelfDeclaredMethodTable.put(method.getName(), method);
             currentMethod = method;
@@ -54,7 +58,9 @@ public class Class {
 
     public void addAttribute(Attribute attribute) throws SemanticException  {
         if (!attributeTable.containsKey(attribute.getName())) {
+            attribute.setOffset(attributeCIROffset++);
             attributeTable.put(attribute.getName(), attribute);
+            strictlySelfDeclaredAttributeTable.put(attribute.getName(), attribute);
         } else
             throw new DuplicateAttributeException(this, attribute);
     }
@@ -194,11 +200,27 @@ public class Class {
         return strictlySelfDeclaredMethodTable.get(methodName);
     }
 
+    public Collection<Method> getStrictlySelfDeclaredMethodCollection() {
+        return strictlySelfDeclaredMethodTable.values();
+    }
+
+    public Collection<Attribute> getStrictlySelfDeclaredAttributeCollection() {
+        return strictlySelfDeclaredAttributeTable.values();
+    }
+
     public Constructor getConstructor(String constructorName) {
         return constructorTable.get(constructorName);
     }
 
     public Attribute getAttribute(String attributeName) {
         return attributeTable.get(attributeName);
+    }
+
+    public int getAttributeCIROffset() {
+        return attributeCIROffset;
+    }
+
+    public int getMethodVTOffset() {
+        return methodVTOffset;
     }
 }

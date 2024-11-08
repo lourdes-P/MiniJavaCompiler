@@ -53,8 +53,7 @@ public class PredefinedClassCreator {
 
         Method debugPrint = new Method(true, new Token("idMetVar", "debugPrint", 0), object, new PrimitiveType(new Token("pr_void", "void", 0)));
 
-        Parameter i = new Parameter(new Token("idMetVar", "i", 0), new PrimitiveType(new Token("pr_int", "int", 0)), debugPrint, 1);
-        i.setPositionInMethodParameterList(0);
+        Parameter i = new Parameter(new Token("idMetVar", "i", 0), new PrimitiveType(new Token("pr_int", "int", 0)), debugPrint, 0);
         debugPrint.addParameter(i);
         Block block = new Block(debugPrint);
         block.setCorrespondingBlockNode(new BlockNode(block));

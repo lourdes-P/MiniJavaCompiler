@@ -131,9 +131,10 @@ public class SymbolTable {
     }
 
     private void checkAndUpdateMethodTable(Class class_) throws SemanticException {
+        Class ancestor = null;
         if (!class_.getName().equals("Object")) {
             if (!class_.isConsolidatedMethods()) {
-                Class ancestor = classTable.get(class_.getInheritsFrom().getFirst().getLexeme());
+                ancestor = classTable.get(class_.getInheritsFrom().getFirst().getLexeme());
                 if (!ancestor.isConsolidatedMethods())
                     checkAndUpdateMethodTable(ancestor);
                 for (Method method : ancestor.getMethodCollection()) {
@@ -144,8 +145,17 @@ public class SymbolTable {
                         class_.addParentMethod(method);
                     }
                 }
+                class_.setConsolidatedMethods(true);
+
+                recalculateMethodOffsets(class_, ancestor.getMethodVTOffset());
             }
         }
+    }
+
+    private void recalculateMethodOffsets(Class class_, int methodVTOffset) {
+        for (Method method : class_.getStrictlySelfDeclaredMethodCollection()) {
+            method.setOffset(method.getOffset() + methodVTOffset);
+        }   // TODO si empieza desde cero está bien (chequear)
     }
 
     private void checkAndUpdateAttributeTable(Class class_) throws SemanticException {
@@ -165,8 +175,16 @@ public class SymbolTable {
                     }
                 }
                 class_.setConsolidatedAttributes(true);
+
+                recalculateAttributeOffsets(class_, ancestor.getAttributeCIROffset());
             }
         }
+    }
+
+    private void recalculateAttributeOffsets(Class class_, int attributeCIROffset) {
+        for(Attribute attribute : class_.getStrictlySelfDeclaredAttributeCollection()) {
+            attribute.setOffset((attribute.getOffset() + attributeCIROffset) - 1);
+        }   // TODO empiezan siempre desde 1 los atributos (por la ref a VT), por lo que debo restarle 1 (chequear)
     }
 
     public List<Token> formInheritanceList(Class startingClass, Class currentClass, Token classFromInheritanceList) throws CircularInheritanceException, ClassNotDeclaredException {
@@ -189,6 +207,7 @@ public class SymbolTable {
             iterationClassList.add(PredefinedClassCreator.getObjectClass().getToken());
 
         currentClass.addListedInheritance(iterationClassList);
+
 
         return iterationClassList;
     }
@@ -276,4 +295,22 @@ public class SymbolTable {
         return classTable.get(className).getConstructor(className);
     }
 
+
+    public void checkOffsets() {
+        // TODO eliminar este metodo
+        for (Class class_ : classTable.values()) {
+            System.out.println("Class " + class_.getName());
+            for (Attribute attribute : class_.getAttributeCollection())
+                System.out.println("    Attribute " + attribute.getName() + " offset: " + attribute.getOffset());
+
+            for (Method method : class_.getMethodCollection()) {
+                System.out.println("    Method " + method.getName() + " offset: " + method.getOffset());
+                for (Parameter parameter : method.getOrderedParameterList())
+                    System.out.println(" Parameter " + parameter.getPositionInMethodParameterList() + " offset: " + parameter.getOffset());
+                method.checkOffsets();
+            }
+
+
+        }
+    }
 }

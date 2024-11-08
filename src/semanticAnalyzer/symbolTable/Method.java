@@ -16,6 +16,7 @@ public class Method {
     private boolean isStatic;
     private List<Block> blockList;
     private Block currentBlock;
+    private int offset;
 
     public Method() {
         parameterTable = new HashMap<>();
@@ -155,5 +156,20 @@ public class Method {
 
     public void statementCheck(SymbolTable symbolTable) throws SemanticException {
         blockList.getFirst().statementCheck(symbolTable);
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
+
+    public int getOffset() {
+        return offset;
+    }
+
+    public void checkOffsets() {
+        // TODO eliminar este metodo
+        for (Block block : blockList) {
+            block.checkOffsets();
+        }
     }
 }
