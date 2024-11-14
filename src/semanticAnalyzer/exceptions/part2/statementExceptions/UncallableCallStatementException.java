@@ -6,6 +6,6 @@ import semanticAnalyzer.exceptions.SemanticException;
 public class UncallableCallStatementException extends SemanticException {
 
     public UncallableCallStatementException(Token token) {
-        super("Semantic error in line " + token.getLineNumber() + ": expression is not callable.\n[Error:" + token.getLexeme() + "|" + token.getLineNumber() + "]");
+        super("Semantic error in line " + token.getLineNumber() + ": not a call statement.\n[Error:" + token.getLexeme() + "|" + token.getLineNumber() + "]");
     }
 }

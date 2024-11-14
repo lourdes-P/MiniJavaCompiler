@@ -36,7 +36,7 @@ public class ThisAccessNode extends PrimaryNode {
 
     @Override
     public Type statementCheck(SymbolTable symbolTable) throws SemanticException {
-        if(containerMethod.getIsStatic())
+        if(containerMethod!= null && containerMethod.getIsStatic())
             throw new InvalidDynamicThisUseException(thisToken);
 
         return new ReferenceType(new Token("idClase", thisClass.getName(), thisToken.getLineNumber()));
@@ -49,5 +49,10 @@ public class ThisAccessNode extends PrimaryNode {
     @Override
     public boolean canBeCalled() {
         return false;
+    }
+
+    @Override
+    public Token getToken() {
+        return thisToken;
     }
 }

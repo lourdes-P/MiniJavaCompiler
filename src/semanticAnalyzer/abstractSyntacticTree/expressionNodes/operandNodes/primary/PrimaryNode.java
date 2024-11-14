@@ -13,4 +13,6 @@ public abstract class PrimaryNode {
     public abstract boolean canBeAssignedAValue();
 
     public abstract boolean canBeCalled();
+
+    public abstract Token getToken();
 }

@@ -28,6 +28,10 @@ public class WhileNode extends SentenceNode {
         this.whileSentence = whileSentence;
     }
 
+    public Token getToken() {
+        return whileToken;
+    }
+
     @Override
     public void statementCheck(SymbolTable symbolTable) throws SemanticException {
         Type whileType = condition.statementCheck(symbolTable);

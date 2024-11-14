@@ -24,7 +24,8 @@ class A {
         while (true) {
 
         }
-        a1 = new B(this);
+        //a1 = new B(this);
+        A as = new B(this);
     }
 
     void m1(B p1) {
@@ -46,6 +47,10 @@ class B extends A{
 
     A asd() {
         return new B(a3);
+    }
+
+    static void cua() {
+        A b2 = new A("hola");
     }
 
     void m2(int p1)

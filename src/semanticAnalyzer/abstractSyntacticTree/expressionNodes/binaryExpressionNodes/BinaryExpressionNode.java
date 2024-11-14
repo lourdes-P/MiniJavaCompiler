@@ -50,4 +50,9 @@ public abstract class BinaryExpressionNode extends ComposedExpressionNode {
     public boolean canBeCalled() {
         return false;
     }
+
+    @Override
+    public Token getToken() {
+        return operator;
+    }
 }

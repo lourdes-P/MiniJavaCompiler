@@ -57,6 +57,8 @@ public class ConstructorAccessNode extends PrimaryNode {
                         throw new InvalidActualArgumentException(idClase, actualArgumentType.getToken());
                 } else if ((actualArgumentType.getIsPrimitive() && !formalArgumentList.get(i).isTypePrimitive()) || (!actualArgumentType.getIsPrimitive() && formalArgumentList.get(i).isTypePrimitive())) {
                     throw new InvalidActualArgumentException(idClase, actualArgumentType.getToken());
+                } else if (actualArgumentType.getIsPrimitive() && !actualArgumentType.getType().equals(formalArgumentList.get(i).getType().getType())) {
+                    throw new InvalidActualArgumentException(idClase, actualArgumentType.getToken());
                 }
             }
         } else {
@@ -73,5 +75,10 @@ public class ConstructorAccessNode extends PrimaryNode {
     @Override
     public boolean canBeCalled() {
         return true;
+    }
+
+    @Override
+    public Token getToken() {
+        return idClase;
     }
 }

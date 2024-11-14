@@ -25,7 +25,7 @@ public abstract class UnaryExpressionNode extends ComposedExpressionNode {
         return operand;
     }
 
-    public Token getOperatorToken() {
+    public Token getToken() {
         return operator;
     }
 
@@ -38,4 +38,6 @@ public abstract class UnaryExpressionNode extends ComposedExpressionNode {
     public boolean canBeCalled() {
         return false;
     }
+
+
 }

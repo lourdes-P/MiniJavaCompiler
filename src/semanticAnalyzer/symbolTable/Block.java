@@ -5,6 +5,8 @@ import semanticAnalyzer.abstractSyntacticTree.sentenceNodes.BlockNode;
 import semanticAnalyzer.abstractSyntacticTree.sentenceNodes.SentenceNode;
 import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.exceptions.part2.expressionExceptions.InvalidDynamicAttributeUseException;
+import semanticAnalyzer.exceptions.part2.statementExceptions.DuplicateLocalVariableNameException;
+import semanticAnalyzer.exceptions.part2.statementExceptions.IncorrectTypeException;
 import semanticAnalyzer.symbolTable.variables.Attribute;
 import semanticAnalyzer.symbolTable.variables.LocalVariable;
 import semanticAnalyzer.symbolTable.variables.Variable;
@@ -20,6 +22,7 @@ public class Block {
     private Block parentBlock;
     private List<SentenceNode> sentenceNodeList;
     private int localVarRAOffset;
+    private boolean whileOrSwitchBlock;
 
 
     public Block(Method containerMethod) {
@@ -28,6 +31,7 @@ public class Block {
         sentenceNodeList = new ArrayList<>();
         parentBlock = null;
         correspondingBlockNode = null;
+        whileOrSwitchBlock = false;
         localVarRAOffset = 0;
     }
 
@@ -37,6 +41,7 @@ public class Block {
         declaredVariablesInBlock = new HashMap<>();
         sentenceNodeList = new ArrayList<>();
         correspondingBlockNode = null;
+        whileOrSwitchBlock = false;
         localVarRAOffset = parentBlock.getOffset();
         // TODO chequear que siga bien
     }
@@ -60,10 +65,22 @@ public class Block {
     public List<SentenceNode> getSentenceNodeList() {
         return sentenceNodeList;
     }
-    public void addLocalVariable(LocalVariable localVariable) {
-        localVariable.setOffset(localVarRAOffset--); // Notese que a raiz de que el .stack crece desde las direcciones altas hacia las
-        //bajas, las variables locales a una unidad poseeran desplazamientos no positivos a partir de 0.
-        declaredVariablesInBlock.put(localVariable.getName(), localVariable);
+
+    public void setWhileOrSwitchBlock(boolean whileOrSwitchBlock) {
+        this.whileOrSwitchBlock = whileOrSwitchBlock;
+    }
+
+    public boolean isWhileOrSwitchBlock() {
+        return whileOrSwitchBlock;
+    }
+    public void addLocalVariable(LocalVariable localVariable) throws SemanticException {
+        if (!declaredVariablesInBlock.containsKey(localVariable.getName())) {
+            localVariable.setOffset(localVarRAOffset--); // Notese que a raiz de que el .stack crece desde las direcciones altas hacia las
+            //bajas, las variables locales a una unidad poseeran desplazamientos no positivos a partir de 0.
+            declaredVariablesInBlock.put(localVariable.getName(), localVariable);
+        } else {
+            throw new DuplicateLocalVariableNameException(localVariable.getToken());
+        }
     }
 
     public HashMap<String, LocalVariable> getDeclaredVariablesInBlock() {

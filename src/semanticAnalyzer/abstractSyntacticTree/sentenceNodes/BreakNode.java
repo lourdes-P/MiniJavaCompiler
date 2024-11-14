@@ -9,9 +9,13 @@ import semanticAnalyzer.symbolTable.SymbolTable;
 public class BreakNode extends SentenceNode {
     private Token breakToken;
     private Block containerBlock;
+    private WhileNode containerWhileStatement;
+    private SwitchNode containerSwitchStatement;
 
     public BreakNode(Token breakToken) {
         this.breakToken = breakToken;
+        containerSwitchStatement = null;
+        containerWhileStatement = null;
     }
 
     public void setContainerBlock(Block containerBlock) {
@@ -19,8 +23,16 @@ public class BreakNode extends SentenceNode {
     }
 
     public void statementCheck(SymbolTable symbolTable) throws SemanticException {
-        if (!containerBlock.hasNestedWhileOrSwitchStatement())
+        if (containerWhileStatement == null && containerSwitchStatement == null)
             throw new InvalidBreakAppearanceException(breakToken);
+    }
+
+    public void setContainerWhileStatement(WhileNode containerWhileStatement) {
+        this.containerWhileStatement = containerWhileStatement;
+    }
+
+    public void setContainerSwitchStatement(SwitchNode containerSwitchStatement) {
+        this.containerSwitchStatement = containerSwitchStatement;
     }
 
     @Override

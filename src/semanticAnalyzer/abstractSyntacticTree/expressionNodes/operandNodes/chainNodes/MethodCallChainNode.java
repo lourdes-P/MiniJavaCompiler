@@ -41,9 +41,6 @@ public class MethodCallChainNode extends ChainNode {
         Method method = symbolTable.getClass(className).getMethod(methodName);
         List<Parameter> formalArgumentList = method.getOrderedParameterList();
 
-        if (this.getContainerMethod().getIsStatic() && !method.getIsStatic())
-            throw new InvalidDynamicCallException(getIdMetVar());
-
         if (actualArguments.size() == formalArgumentList.size()) {
             for (int i = 0; i < actualArguments.size() ; i++) {
                 Type actualArgumentType = actualArguments.get(i).statementCheck(symbolTable);
@@ -53,6 +50,8 @@ public class MethodCallChainNode extends ChainNode {
                 } else if (!actualArgumentType.getIsPrimitive() && !formalArgumentList.get(i).isTypePrimitive() && (!actualArgumentType.getType().equals((formalArgumentList.get(i).getType().getType())) && !symbolTable.extendsClass(new Token("idClase", actualArgumentType.getType(), actualArgumentType.getToken().getLineNumber()), formalArgumentList.get(i).getType().getToken()))) {
                     throw new InvalidActualArgumentException(getIdMetVar(), actualArgumentType.getToken());
                 } else if ((actualArgumentType.getIsPrimitive() && !formalArgumentList.get(i).isTypePrimitive()) || (!actualArgumentType.getIsPrimitive() && formalArgumentList.get(i).isTypePrimitive())) {
+                    throw new InvalidActualArgumentException(getIdMetVar(), actualArgumentType.getToken());
+                } else if (actualArgumentType.getIsPrimitive() && !actualArgumentType.getType().equals(formalArgumentList.get(i).getType().getType())) {
                     throw new InvalidActualArgumentException(getIdMetVar(), actualArgumentType.getToken());
                 }
             }

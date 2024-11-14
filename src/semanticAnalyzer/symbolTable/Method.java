@@ -172,4 +172,8 @@ public class Method {
             block.checkOffsets();
         }
     }
+
+    public void generateInterCode(SymbolTable symbolTable) {
+        // TODO
+    }
 }

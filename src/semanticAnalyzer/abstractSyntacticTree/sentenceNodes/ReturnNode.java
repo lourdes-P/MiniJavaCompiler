@@ -45,6 +45,10 @@ public class ReturnNode extends SentenceNode {
                     } else if ((!containerMethod.getType().getIsPrimitive() && returnType.getIsPrimitive()) || (containerMethod.getType().getIsPrimitive() && !returnType.getIsPrimitive())) {
                         throw new IncorrectTypeException(returnToken);
                     }
+                } else {
+                    if (containerMethod.getType().getName().equals("void")) {
+                        throw new InvalidReturnStatementException(returnToken, containerMethod.getName());
+                    }
                 }
             }
         }

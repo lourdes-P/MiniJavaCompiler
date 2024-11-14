@@ -19,4 +19,9 @@ public abstract class LiteralNode extends OperandNode {
     public boolean canBeAssignedAValue() {
         return false;
     }
+
+    @Override
+    public Token getToken() {
+         return literal;
+    }
 }

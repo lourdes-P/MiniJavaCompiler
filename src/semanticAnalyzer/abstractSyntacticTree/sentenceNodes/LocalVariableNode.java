@@ -3,10 +3,10 @@ package semanticAnalyzer.abstractSyntacticTree.sentenceNodes;
 import lexicalAnalyzer.Token;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ComposedExpressionNode;
 import semanticAnalyzer.exceptions.SemanticException;
-import semanticAnalyzer.exceptions.part2.expressionExceptions.IncompatibleTypeAssignmentException;
 import semanticAnalyzer.exceptions.part2.statementExceptions.DuplicateLocalVariableNameException;
 import semanticAnalyzer.exceptions.part2.statementExceptions.IncorrectTypeException;
 import semanticAnalyzer.exceptions.part2.statementExceptions.NullDeclaredLocalVariableException;
+import semanticAnalyzer.exceptions.part2.statementExceptions.VoidDeclaredAttributeException;
 import semanticAnalyzer.symbolTable.Block;
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
@@ -57,10 +57,16 @@ public class LocalVariableNode extends SentenceNode {
                 Type varType = rightSide.statementCheck(symbolTable);
 
                 if (!variable.getType().getName().equals("Object")) {
-                    if (!varType.getName().equals("null")) {
+                    if (!varType.getType().equals("null")) {
                         if (!variable.getType().getIsPrimitive() && !variable.getType().getType().equals(varType.getType()) && !symbolTable.extendsClass(varType.getToken(), variable.getType().getToken())) {
                             throw new IncorrectTypeException(idMetVar);
                         } else if (variable.getType().getIsPrimitive() && !variable.getType().getType().equals(varType.getType())) {
+                            throw new IncorrectTypeException(idMetVar);
+                        }
+                    } else {
+                        if (varType.getName().equals("void")) {
+                            throw new VoidDeclaredAttributeException(idMetVar);
+                        } else if(variable.getType().getIsPrimitive()) {
                             throw new IncorrectTypeException(idMetVar);
                         }
                     }

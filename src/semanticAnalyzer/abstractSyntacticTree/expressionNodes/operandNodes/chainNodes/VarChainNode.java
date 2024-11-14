@@ -9,7 +9,6 @@ import semanticAnalyzer.symbolTable.variables.Attribute;
 public class VarChainNode extends ChainNode {
     private Attribute attribute;
 
-
     @Override
     public Type statementCheck(Type primaryNodeType, SymbolTable symbolTable) throws SemanticException {
         if (!primaryNodeType.getIsPrimitive() && symbolTable.containsClass(primaryNodeType.getName())) {

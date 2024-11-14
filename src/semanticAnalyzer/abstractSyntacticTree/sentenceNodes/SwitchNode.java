@@ -35,12 +35,15 @@ public class SwitchNode extends SentenceNode {
         this.condition = condition;
     }
 
+    public Token getToken() {
+        return switchToken;
+    }
 
     @Override
     public void statementCheck(SymbolTable symbolTable) throws SemanticException {
         Type conditionType = condition.statementCheck(symbolTable);
-        if (!(conditionType.getType().equals("boolean") || conditionType.getType().equals("int") || conditionType.getType().equals("char"))) {
-            throw new InvalidSwitchConditionTypeException(conditionType.getToken());
+        if (!conditionType.getType().equals("boolean") && !conditionType.getType().equals("int") && !conditionType.getType().equals("char")) {
+            throw new InvalidSwitchConditionTypeException(switchToken);
         }
 
         for (SwitchSentenceNode switchSentenceNode : switchSentenceList) {

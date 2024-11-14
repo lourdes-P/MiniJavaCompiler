@@ -9,11 +9,10 @@ import semanticAnalyzer.exceptions.part1.DuplicateConstructorException;
 import semanticAnalyzer.exceptions.part1.DuplicateMethodException;
 import semanticAnalyzer.symbolTable.variables.Attribute;
 import semanticAnalyzer.symbolTable.variables.Parameter;
+import utils.LabelFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 
 public class Class {
     private HashMap<String,Constructor> constructorTable;
@@ -222,5 +221,50 @@ public class Class {
 
     public int getMethodVTOffset() {
         return methodVTOffset;
+    }
+
+    public List<Method> getOrderedMethodList (List<Method> methodList) {
+        Method[] orderedMethodArray = new Method[methodList.size()];
+        for (Method method : methodList) {
+            orderedMethodArray[method.getOffset()] = method;
+        }
+
+        return new ArrayList<>(Arrays.stream(orderedMethodArray).toList());
+    }
+
+    public void generateInterCode(SymbolTable symbolTable) throws IOException {
+        List<Method> nonStaticMethods = new ArrayList<>(), staticMethods = new ArrayList<>();
+        for (Method method : methodTable.values()) {
+            if (method.getIsStatic())
+                staticMethods.add(method);
+            else
+                nonStaticMethods.add(method);
+        }
+        staticMethods.addAll(constructorTable.values());
+
+        symbolTable.write(".DATA\n");
+        if (nonStaticMethods.isEmpty()) {
+            symbolTable.write(LabelFactory.createLabel("VT", getName()) + ": NOP");
+        } else {
+            symbolTable.write(LabelFactory.createLabel("VT", getName()) + ": DW " + generateVT(getOrderedMethodList(nonStaticMethods)));
+        }
+
+        // TODO generar código de métodos ...
+
+        for (Method method : getStrictlySelfDeclaredMethodCollection()) {
+            method.generateInterCode(symbolTable);
+        }
+    }
+
+    private String generateVT(List<Method> nonStaticMethods) {
+        String vtInit = "";
+        if (!nonStaticMethods.isEmpty())
+            vtInit += LabelFactory.createLabel("met", nonStaticMethods.get(0).getName(), this.getName());
+        for (int i = 1; i < nonStaticMethods.size() ; i++) {
+            vtInit += ", ";
+            vtInit += LabelFactory.createLabel("met", nonStaticMethods.get(i).getName(), this.getName());
+        }
+        vtInit += "\n";
+        return vtInit;
     }
 }

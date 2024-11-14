@@ -23,7 +23,7 @@ public class PlusNode extends UnaryExpressionNode {
         if(operandType.getType().equals("int")){
             return operandType;
         }else{
-            throw new InvalidOperandTypeForUnaryOperatorException(this.getOperatorToken());
+            throw new InvalidOperandTypeForUnaryOperatorException(this.getToken());
         }
     }
 

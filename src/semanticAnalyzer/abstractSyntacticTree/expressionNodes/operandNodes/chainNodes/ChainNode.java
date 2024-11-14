@@ -25,7 +25,6 @@ public abstract class ChainNode {
         this.furtherChainNode = null;
         this.finalType = null;
         this.containerMethod = null;
-
     }
 
     public ChainNode getFurtherChainNode() {
@@ -63,7 +62,6 @@ public abstract class ChainNode {
     public abstract Type statementCheck(Type primaryNodeType, SymbolTable symbolTable) throws SemanticException;
 
     public abstract boolean canBeAssignedAValue();
-
 
     public boolean canBeCalled() {
         return !canBeAssignedAValue();

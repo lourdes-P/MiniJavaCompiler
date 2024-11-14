@@ -1,5 +1,6 @@
 package semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.primary;
 
+import lexicalAnalyzer.Token;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ExpressionNode;
 import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.symbolTable.SymbolTable;
@@ -24,5 +25,9 @@ public class ParenthesizedExpressionNode extends PrimaryNode {
     @Override
     public boolean canBeCalled() {
         return false;
+    }
+
+    public Token getToken() {
+        return expression.getLeftSideComposedExpressionNode().getToken();
     }
 }

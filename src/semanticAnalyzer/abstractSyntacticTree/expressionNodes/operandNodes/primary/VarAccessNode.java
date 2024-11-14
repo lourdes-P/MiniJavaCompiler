@@ -1,8 +1,6 @@
 package semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.primary;
 
 import lexicalAnalyzer.Token;
-import org.w3c.dom.Attr;
-import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ExpressionNode;
 import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.exceptions.part2.expressionExceptions.VariableNotDeclaredException;
 import semanticAnalyzer.symbolTable.Block;
@@ -10,8 +8,6 @@ import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
 import semanticAnalyzer.symbolTable.variables.Attribute;
 import semanticAnalyzer.symbolTable.variables.Variable;
-
-import java.util.List;
 
 public class VarAccessNode extends PrimaryNode {
     private Token idMetVar;
@@ -39,7 +35,7 @@ public class VarAccessNode extends PrimaryNode {
 
         if (accessBlock != null && (var = accessBlock.getAccessedVariable(idMetVar)) != null) {
             variable = var;
-        } else if (variable instanceof Attribute && symbolTable.getClass(((Attribute) variable).getContainerClass().getName()).hasAttribute(idMetVar.getLexeme())){
+        } else if (accessBlock == null && symbolTable.getClass(((Attribute) variable).getContainerClass().getName()).hasAttribute(idMetVar.getLexeme())){
             return ((Attribute) variable).getContainerClass().getAttribute(idMetVar.getLexeme()).getType();
         } else {
             throw new VariableNotDeclaredException(idMetVar);
@@ -56,5 +52,10 @@ public class VarAccessNode extends PrimaryNode {
     @Override
     public boolean canBeCalled() {
         return false;
+    }
+
+    @Override
+    public Token getToken() {
+        return idMetVar;
     }
 }

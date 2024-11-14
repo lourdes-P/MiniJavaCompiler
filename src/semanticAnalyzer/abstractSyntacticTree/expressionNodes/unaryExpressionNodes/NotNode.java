@@ -27,7 +27,7 @@ public class NotNode extends UnaryExpressionNode{
                 return new PrimitiveType(new Token("pr_true", "true", operandType.getToken().getLineNumber()));
             }
         }else{
-            throw new InvalidOperandTypeForUnaryOperatorException(this.getOperatorToken());
+            throw new InvalidOperandTypeForUnaryOperatorException(this.getToken());
         }
     }
 

@@ -8,14 +8,19 @@ import semanticAnalyzer.exceptions.part2.InvalidTypeAttributeInitializationExcep
 import semanticAnalyzer.symbolTable.types.Type;
 import semanticAnalyzer.symbolTable.variables.Attribute;
 import semanticAnalyzer.symbolTable.variables.Parameter;
+import utils.LabelFactory;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
 public class SymbolTable {
     private HashMap<String, Class> classTable;
     private List<Map.Entry<Attribute, ComposedExpressionNode>> attributeInitializationsToCheck;
-    private Class currentClass;
+    private Class currentClass, mainClass;
     private Method currentMethod;
+    private FileWriter fileWriter;
 
     public SymbolTable() throws SemanticException {
         classTable = new HashMap<>();
@@ -92,9 +97,10 @@ public class SymbolTable {
 
     private int checkClassMethods(int thereIsMainMethod, Class class_, Collection<Method> methodList) throws SemanticException {
         for (Method method : methodList) {
-            if (method.getName().equals("main") && thereIsMainMethod == 0 && method.getType().getName().equals("void") && method.getIsStatic() && method.getParameterCollection().isEmpty())
+            if (method.getName().equals("main") && thereIsMainMethod == 0 && method.getType().getName().equals("void") && method.getIsStatic() && method.getParameterCollection().isEmpty()) {
                 thereIsMainMethod++;
-            else if (method.getName().equals("main") && thereIsMainMethod > 0)
+                mainClass = method.getContainerClass();
+            } else if (method.getName().equals("main") && thereIsMainMethod > 0)
                 throw new DuplicateMainException(method);
             else if (method.getName().equals("main"))
                 throw new InvalidMainDeclarationException(class_, method);
@@ -198,6 +204,8 @@ public class SymbolTable {
             Class classFromInheritanceList_ = classTable.get(classFromInheritanceList.getLexeme());
             if (!classFromInheritanceList_.getInheritsFrom().contains(PredefinedClassCreator.getObjectClass().getToken()))
                 inheritanceListFromFirstAncestor = formInheritanceList(startingClass, classFromInheritanceList_, classFromInheritanceList_.getInheritsFrom().getFirst());
+            else
+                inheritanceListFromFirstAncestor = classFromInheritanceList_.getInheritsFrom();
         } else if (!classTable.containsKey(classFromInheritanceList.getLexeme()))
             throw new ClassNotDeclaredException(classFromInheritanceList);
 
@@ -263,8 +271,14 @@ public class SymbolTable {
     }
 
     public boolean extendsClass(Token childClass, Token parentClass) throws SemanticException {
-        if (!classTable.containsKey(childClass.getLexeme()))
-            throw new ClassNotDeclaredException(childClass);
+        if (childClass.getLexeme().equals("void"))
+            return false;
+        if (!childClass.getLexeme().equals("null")) {
+            if (!classTable.containsKey(childClass.getLexeme()))
+                throw new ClassNotDeclaredException(childClass);
+        } else {
+            return true;
+        }
         if (!classTable.containsKey(parentClass.getLexeme()))
             throw new ClassNotDeclaredException(parentClass);
 
@@ -293,6 +307,47 @@ public class SymbolTable {
 
     public Constructor getClassConstructor(String className) {
         return classTable.get(className).getConstructor(className);
+    }
+
+    public void setFileWriter(FileWriter fileWriter) {
+        this.fileWriter = fileWriter;
+    }
+
+    public void write(String ln) throws IOException {
+        fileWriter.write(ln);
+    }
+
+    public void generateInterCode() throws IOException {
+        write(".CODE\n" +
+                "PUSH " + LabelFactory.createLabel("met","main",mainClass.getName()) + "\n" +
+                "CALL\n" +
+                "HALT\n");
+        writeSimpleHeapInitPrimitive();
+        writeSimpleMalloc();
+
+        for (Class class_ : classTable.values()) {
+            class_.generateInterCode(this);
+        }
+    }
+
+    public void writeSimpleHeapInitPrimitive() throws IOException {
+        write("simple_heap_init: RET 0   ; inicializacion simplificada del .heap\n");
+    }
+
+    public void writeSimpleMalloc() throws IOException {
+        write("simple_malloc: LOADFP    ; inicializaicón unidad\n +" +
+                "LOADSP\n"+
+                "STOREFP\n"+
+                "LOADHL\n"+
+                "DUP\n"+
+                "PUSH 1\n"+
+                "ADD\n"+
+                "STORE 4\n"+
+                "LOAD 3\n"+
+                "ADD\n"+
+                "STOREHL\n"+
+                "STOREFP\n"+
+                "RET 1\n");
     }
 
 

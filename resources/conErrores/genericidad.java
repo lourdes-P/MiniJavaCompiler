@@ -1,6 +1,6 @@
-///[Error:>|15]
+///[SinErrores]
 
-abstract class Genericidad<String,String,V> {
+abstract class Genericidad<X> {
 
     abstract Generico<String,String> metodo2();
 
@@ -11,4 +11,9 @@ abstract class Genericidad<String,String,V> {
     static void main() {
 
     }
+}
+
+
+class Generico<X> extends Genericidad<X> {
+
 }

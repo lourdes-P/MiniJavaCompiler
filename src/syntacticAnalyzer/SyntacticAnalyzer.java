@@ -25,7 +25,8 @@ import semanticAnalyzer.abstractSyntacticTree.sentenceNodes.switchSentenceNodes.
 import semanticAnalyzer.abstractSyntacticTree.sentenceNodes.switchSentenceNodes.SwitchDefaultSentenceNode;
 import semanticAnalyzer.abstractSyntacticTree.sentenceNodes.switchSentenceNodes.SwitchSentenceNode;
 import semanticAnalyzer.exceptions.SemanticException;
-import semanticAnalyzer.exceptions.part2.InvalidAttributeInitialization;
+import semanticAnalyzer.exceptions.part2.InvalidAttributeInitializationException;
+import semanticAnalyzer.exceptions.part2.statementExceptions.VoidDeclaredAttributeException;
 import semanticAnalyzer.symbolTable.*;
 import semanticAnalyzer.symbolTable.Class;
 import semanticAnalyzer.symbolTable.types.PrimitiveType;
@@ -41,8 +42,7 @@ import utils.FirstsManager;
 import utils.MapManager;
 import utils.NextsManager;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class SyntacticAnalyzer {
     private boolean sinErrores;
@@ -51,6 +51,7 @@ public class SyntacticAnalyzer {
     private MapManager firstsMap, nextsMap;
     private SymbolTable symbolTable;
     private Token staticMethodAccessClass;
+    private Stack<Map.Entry<Integer,SentenceNode>> switchsAndWhiles;
 
     public SyntacticAnalyzer(LexicalAnalyzer lexicalAnalyzer, SymbolTable symbolTable) {
         this.lexicalAnalyzer = lexicalAnalyzer;
@@ -58,6 +59,7 @@ public class SyntacticAnalyzer {
         nextsMap = new NextsManager();
         sinErrores = true;
         this.symbolTable = symbolTable;
+        switchsAndWhiles = new Stack<>();
     }
 
 
@@ -178,6 +180,7 @@ public class SyntacticAnalyzer {
             match("pr_extends");
             Token inheritFrom = currentToken;
             match("idClase");
+            optionalGenericClassDeclaration();
             return inheritFrom;
         } else if (nextsMap.containsEntry("OptionalInheritance", currentToken.getTokenName())) {
             // empty. Token is in the next list.
@@ -360,6 +363,8 @@ public class SyntacticAnalyzer {
     private void attributeMethod(boolean isStatic, Type type, Token attrOrMethodToken) throws AbstractSyntacticException, LexicalException, SemanticException {
         if (firstsMap.containsEntry("AttributeMethod", currentToken.getTokenName())) {
             if (firstsMap.containsEntry("Attribute", currentToken.getTokenName())) {
+                if (type.getName().equals("void"))
+                    throw new VoidDeclaredAttributeException(attrOrMethodToken);
                 Attribute attribute = new Attribute(attrOrMethodToken, type, symbolTable.getCurrentClass(), isStatic);
                 symbolTable.addAttributeToCurrentClass(attribute);
                 attribute(attribute);
@@ -386,13 +391,17 @@ public class SyntacticAnalyzer {
             ComposedExpressionNode composedExpressionNode = composedExpression();
             VarAccessNode varAccessNode = new VarAccessNode(attribute.getToken());
             varAccessNode.setVariable(attribute);
+
             if (composedExpressionNode instanceof AccessNode) {
                 if (((AccessNode) composedExpressionNode).getPrimaryNode() instanceof VarAccessNode) {
-                    ((VarAccessNode) (((AccessNode) composedExpressionNode).getPrimaryNode())).setVariable(attribute);
-                } else {
-                    throw new InvalidAttributeInitialization(attribute.getToken());
+                    VarAccessNode varAccess = ((VarAccessNode) (((AccessNode) composedExpressionNode).getPrimaryNode()));
+                    if (symbolTable.getCurrentClass().hasAttribute(varAccess.getName()))    // solo puede ser un atributo
+                        varAccess.setVariable(symbolTable.getCurrentClass().getAttribute(varAccess.getName()));
+                    else
+                        throw new InvalidAttributeInitializationException(attribute.getToken(), varAccess.getToken());
                 }
             }
+
 
             symbolTable.addInitializedAttributeToCheck(attribute, composedExpressionNode);
         } else if (nextsMap.containsEntry("OptionalAttributeInitialization", currentToken.getTokenName())) {
@@ -416,7 +425,7 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private BlockNode block() throws AbstractSyntacticException, LexicalException {
+    private BlockNode block() throws AbstractSyntacticException, LexicalException, SemanticException {
         match("LlaveAbre");
 
         Block block = new Block(symbolTable.getCurrentMethod());
@@ -439,7 +448,7 @@ public class SyntacticAnalyzer {
         return blockNode;
     }
 
-    private void sentenceList(Block block) throws AbstractSyntacticException, LexicalException {
+    private void sentenceList(Block block) throws AbstractSyntacticException, LexicalException, SemanticException {
         if (firstsMap.containsEntry("SentenceList", currentToken.getTokenName())) {
             List<SentenceNode> sentenceNodes = sentence();
             for (SentenceNode sentenceNode : sentenceNodes) {
@@ -453,7 +462,7 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private List<SentenceNode> sentence() throws AbstractSyntacticException, LexicalException {
+    private List<SentenceNode> sentence() throws AbstractSyntacticException, LexicalException, SemanticException {
         List<SentenceNode> statementReturned = new ArrayList<>();
         if (firstsMap.containsEntry("Sentence", currentToken.getTokenName())) {
             if (currentToken.getTokenName().equals("PuntoYComa")) {
@@ -489,13 +498,12 @@ public class SyntacticAnalyzer {
     }
 
     private SentenceNode assignmentOrCall() throws AbstractSyntacticException, LexicalException {
-        Token token = currentToken;
         ExpressionNode expressionNode = expression();
         SentenceNode sentenceNode;
         if (expressionNode.hasRightSide())
             sentenceNode = new AssignmentNode((AssignmentExpressionNode) expressionNode);
         else
-            sentenceNode = new CallNode(token, expressionNode);
+            sentenceNode = new CallNode(expressionNode.getLeftSideComposedExpressionNode().getToken(), expressionNode);
 
         return sentenceNode;
     }
@@ -919,7 +927,7 @@ public class SyntacticAnalyzer {
         return binaryExpressionNode;
     }
 
-    private List<SentenceNode> localVar() throws AbstractSyntacticException, LexicalException {
+    private List<SentenceNode> localVar() throws AbstractSyntacticException, LexicalException, SemanticException {
         List<SentenceNode> localVariableNodes = new ArrayList<>();
         if (firstsMap.containsEntry("LocalVar", currentToken.getTokenName())) {
             if (currentToken.getTokenName().equals("pr_var")) {
@@ -932,7 +940,7 @@ public class SyntacticAnalyzer {
         return localVariableNodes;
     }
 
-    private LocalVariableNode localVarVar() throws AbstractSyntacticException, LexicalException {
+    private LocalVariableNode localVarVar() throws AbstractSyntacticException, LexicalException, SemanticException {
         match("pr_var");
         LocalVariableNode localVariableNode = new LocalVariableNode(currentToken, symbolTable.getCurrentBlock());
         LocalVariable localVariable = new LocalVariable(currentToken);
@@ -946,7 +954,7 @@ public class SyntacticAnalyzer {
         return localVariableNode;
     }
 
-    private List<SentenceNode> staticMethodAccessOrLocalVarClassic() throws AbstractSyntacticException, LexicalException {
+    private List<SentenceNode> staticMethodAccessOrLocalVarClassic() throws AbstractSyntacticException, LexicalException, SemanticException {
         Type type = type();
         staticMethodAccessClass = type.getToken();
         if (firstsMap.containsEntry("LocalVarClassic", currentToken.getTokenName())) {
@@ -961,7 +969,7 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private List<SentenceNode> localVarClassic(List<SentenceNode> localVariables, Type type) throws AbstractSyntacticException, LexicalException {
+    private List<SentenceNode> localVarClassic(List<SentenceNode> localVariables, Type type) throws AbstractSyntacticException, LexicalException, SemanticException {
         Token currentTokenReference = currentToken;
         match("idMetVar");
 
@@ -987,7 +995,7 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private void continueLocalVarDeclaration(List<SentenceNode> localVariables, Type type) throws AbstractSyntacticException, LexicalException {
+    private void continueLocalVarDeclaration(List<SentenceNode> localVariables, Type type) throws AbstractSyntacticException, LexicalException, SemanticException {
         if (firstsMap.containsEntry("ContinueLocalVarDeclaration", currentToken.getTokenName())) {
             match("Coma");
             localVarClassic(localVariables, type);
@@ -1022,10 +1030,17 @@ public class SyntacticAnalyzer {
         BreakNode breakNode = new BreakNode(currentToken);
         match("pr_break");
         breakNode.setContainerBlock(symbolTable.getCurrentBlock());
+        if (!switchsAndWhiles.isEmpty()) {
+            if(switchsAndWhiles.peek().getKey() == 0) {
+                breakNode.setContainerWhileStatement((WhileNode) switchsAndWhiles.peek().getValue());
+            } else {
+                breakNode.setContainerSwitchStatement((SwitchNode) switchsAndWhiles.peek().getValue());
+            }
+        }
         return breakNode;
     }
 
-    private IfNode if_() throws AbstractSyntacticException, LexicalException {
+    private IfNode if_() throws AbstractSyntacticException, LexicalException, SemanticException {
         IfNode ifNode = new IfNode(currentToken);
         match("pr_if");
         match("ParentesisAbre");
@@ -1037,7 +1052,7 @@ public class SyntacticAnalyzer {
         return ifNode;
     }
 
-    private List<SentenceNode> else_() throws AbstractSyntacticException, LexicalException {
+    private List<SentenceNode> else_() throws AbstractSyntacticException, LexicalException, SemanticException {
         if (firstsMap.containsEntry("Else", currentToken.getTokenName())) {
             match("pr_else");
             return sentence();
@@ -1049,31 +1064,35 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private WhileNode while_() throws AbstractSyntacticException, LexicalException {
+    private WhileNode while_() throws AbstractSyntacticException, LexicalException, SemanticException {
         WhileNode whileNode = new WhileNode(currentToken);
         match("pr_while");
         match("ParentesisAbre");
         whileNode.setCondition(expression());
         match("ParentesisCierra");
+        switchsAndWhiles.push(new AbstractMap.SimpleEntry<>(0,whileNode));
         whileNode.setWhileSentence(sentence());
+        switchsAndWhiles.pop();
 
         return whileNode;
     }
 
-    private SwitchNode switch_() throws AbstractSyntacticException, LexicalException {
+    private SwitchNode switch_() throws AbstractSyntacticException, LexicalException, SemanticException {
         SwitchNode switchNode = new SwitchNode(currentToken);
         match("pr_switch");
         match("ParentesisAbre");
         switchNode.setCondition(expression());
         match("ParentesisCierra");
         match("LlaveAbre");
+        switchsAndWhiles.push(new AbstractMap.SimpleEntry<>(1,switchNode));
         switchSentenceList(switchNode);
         match("LlaveCierra");
+        switchsAndWhiles.pop();
 
         return switchNode;
     }
 
-    private void switchSentenceList(SwitchNode switchNode) throws AbstractSyntacticException, LexicalException {
+    private void switchSentenceList(SwitchNode switchNode) throws AbstractSyntacticException, LexicalException, SemanticException {
         if(firstsMap.containsEntry("SwitchSentenceList", currentToken.getTokenName())) {
             switchNode.addSwitchSentenceToList(switchSentence());
             switchSentenceList(switchNode);
@@ -1084,7 +1103,7 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private SwitchSentenceNode switchSentence() throws AbstractSyntacticException, LexicalException {
+    private SwitchSentenceNode switchSentence() throws AbstractSyntacticException, LexicalException, SemanticException {
         if (currentToken.getTokenName().equals("pr_case")) {
             SwitchCaseSentenceNode switchCaseSentenceNode = new SwitchCaseSentenceNode(currentToken);
             match("pr_case");
@@ -1103,7 +1122,7 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private List<SentenceNode> optionalSentence() throws AbstractSyntacticException, LexicalException {
+    private List<SentenceNode> optionalSentence() throws AbstractSyntacticException, LexicalException, SemanticException {
         if(firstsMap.containsEntry("OptionalSentence", currentToken.getTokenName())) {
             return sentence();
         } else if (nextsMap.containsEntry("OptionalSentence", currentToken.getTokenName())) {

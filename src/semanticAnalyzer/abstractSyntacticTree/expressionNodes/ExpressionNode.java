@@ -1,6 +1,7 @@
 package semanticAnalyzer.abstractSyntacticTree.expressionNodes;
 
 
+import lexicalAnalyzer.Token;
 import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
@@ -42,4 +43,5 @@ public class ExpressionNode {
     public boolean canBeCalled() {
         return leftSideComposedExpressionNode.canBeCalled();
     }
+
 }

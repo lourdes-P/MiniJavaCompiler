@@ -61,6 +61,10 @@ public class AssignmentExpressionNode extends ExpressionNode {
                     } else if (leftSideType.getIsPrimitive() && !leftSideType.getType().equals(rightSideType.getType())) {
                         throw new IncompatibleTypeAssignmentException(assignmentToken);
                     }
+                } else {
+                    if(leftSideType.getIsPrimitive()) {
+                        throw new IncompatibleTypeAssignmentException(assignmentToken);
+                    }
                 }
             }
         } else {
@@ -77,4 +81,5 @@ public class AssignmentExpressionNode extends ExpressionNode {
     public boolean canBeCalled() {
         return false;
     }
+
 }
