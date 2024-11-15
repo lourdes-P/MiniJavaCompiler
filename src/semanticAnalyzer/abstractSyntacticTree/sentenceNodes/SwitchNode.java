@@ -51,8 +51,4 @@ public class SwitchNode extends SentenceNode {
         }
     }
 
-    @Override
-    public boolean isWhileOrSwitchStatement() {
-        return true;
-    }
 }

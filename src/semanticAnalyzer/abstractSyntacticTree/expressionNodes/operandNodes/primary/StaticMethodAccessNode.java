@@ -11,13 +11,16 @@ import semanticAnalyzer.symbolTable.Method;
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
 import semanticAnalyzer.symbolTable.variables.Parameter;
+import utils.LabelFactory;
 
+import java.awt.*;
+import java.io.IOException;
 import java.util.List;
 
 public class StaticMethodAccessNode extends PrimaryNode {
     private Token idClase, idMetVar;
     private List<ExpressionNode> actualArguments;
-    private Method containerMethod;
+    private Method containerMethod, calledMethod;
     private Type type;
 
     public StaticMethodAccessNode(Token idClase) {
@@ -96,5 +99,26 @@ public class StaticMethodAccessNode extends PrimaryNode {
     @Override
     public Token getToken() {
         return idMetVar;
+    }
+
+    @Override
+    public void generateInterCode(SymbolTable symbolTable, boolean chainIsNull) throws IOException {
+        calledMethod = symbolTable.getClass(idClase.getLexeme()).getMethod(idMetVar.getLexeme());
+        String methodLabel = LabelFactory.createLabel("met", calledMethod.getName(), idClase.getLexeme());
+
+        symbolTable.write("LOAD 3 ; cargo this\n");
+        if (!calledMethod.getType().getName().equals("void")) {
+            symbolTable.write("RMEM 1 ; reservo memoria en la pila para el valor de retorno\n" +
+                    "SWAP ; para llevarme el this\n");
+        }
+
+        for (ExpressionNode expressionNode : actualArguments) {
+            expressionNode.generateInterCode(symbolTable);
+            symbolTable.write("SWAP ; para llevarme el this\n");
+        }
+
+        symbolTable.write("DUP\n" +
+                "PUSH " + methodLabel + "\n" +
+                "CALL\n");
     }
 }

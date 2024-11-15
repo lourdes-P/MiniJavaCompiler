@@ -15,12 +15,13 @@ public class AssignmentNode extends SentenceNode {
         this.assignmentExpressionNode = assignmentExpressionNode;
     }
 
+    @Override
     public void statementCheck(SymbolTable symbolTable) throws SemanticException {
         assignmentExpressionNode.statementCheck(symbolTable);
     }
 
     @Override
-    public boolean isWhileOrSwitchStatement() {
-        return false;
+    public void generateInterCode(SymbolTable symbolTable) {
+        assignmentExpressionNode.generateInterCode(symbolTable);
     }
 }

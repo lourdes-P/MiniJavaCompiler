@@ -35,8 +35,4 @@ public class CallNode extends SentenceNode {
         expressionNode.statementCheck(symbolTable);
     }
 
-    @Override
-    public boolean isWhileOrSwitchStatement() {
-        return false;
-    }
 }

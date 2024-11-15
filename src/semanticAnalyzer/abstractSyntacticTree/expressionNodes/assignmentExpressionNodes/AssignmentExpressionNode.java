@@ -8,7 +8,6 @@ import semanticAnalyzer.exceptions.part2.expressionExceptions.IncompatibleTypeAs
 import semanticAnalyzer.exceptions.part2.expressionExceptions.LeftSideCannotBeAssignedAValueException;
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
-import semanticAnalyzer.symbolTable.variables.Attribute;
 
 public class AssignmentExpressionNode extends ExpressionNode {
     private ComposedExpressionNode rightSideComposedExpressionNode;
@@ -73,6 +72,7 @@ public class AssignmentExpressionNode extends ExpressionNode {
         return leftSideType;
     }
 
+    @Override
     public boolean canBeAssignedAValue() {
         return rightSideComposedExpressionNode.canBeAssignedAValue();
     }
@@ -80,6 +80,20 @@ public class AssignmentExpressionNode extends ExpressionNode {
     @Override
     public boolean canBeCalled() {
         return false;
+    }
+
+    @Override
+    public void generateInterCode(SymbolTable symbolTable) {
+        getLeftSideComposedExpressionNode().setIsLeftSideOfAssignment(true);
+        rightSideComposedExpressionNode.generateInterCode(symbolTable);
+        getLeftSideComposedExpressionNode().generateInterCode(symbolTable);
+        // el lado izquierdo debe hacer el storeref, por lo que se hace primero el
+        // derecho. el izquierdo hara load, luego swap, y luego el storeref con el offset
+        // que corresponda.
+        // EL CODIGO GENERAR DE UN NODO VARIABLE DEPENDE DE SI ES UN NODO
+        // DEL LADO IZQUIERDO DE UNA ASIGNACIÓN O NO     ??? y como se lo digo
+        // el codigo a generar en un nodo variable cuando es el lado izquierdo
+        // también depende de si tiene encadenados.
     }
 
 }

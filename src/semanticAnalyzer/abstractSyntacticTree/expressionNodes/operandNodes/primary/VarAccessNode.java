@@ -9,6 +9,8 @@ import semanticAnalyzer.symbolTable.types.Type;
 import semanticAnalyzer.symbolTable.variables.Attribute;
 import semanticAnalyzer.symbolTable.variables.Variable;
 
+import java.io.IOException;
+
 public class VarAccessNode extends PrimaryNode {
     private Token idMetVar;
     private Block accessBlock;
@@ -57,5 +59,26 @@ public class VarAccessNode extends PrimaryNode {
     @Override
     public Token getToken() {
         return idMetVar;
+    }
+
+    @Override
+    public void generateInterCode(SymbolTable symbolTable, boolean chainIsNull) throws IOException {
+        if (variable instanceof Attribute) {
+            symbolTable.write("LOAD 3 ; cargo this\n");
+            if (!this.isLeftSideOfAssignment() || !chainIsNull) {
+                symbolTable.write("LOADREF " + variable.getOffset() + "\n");
+            } else {
+                symbolTable.write("SWAP\n" +
+                        "STOREREF " + variable.getOffset() + "\n");
+            }
+        } else {
+            if (!this.isLeftSideOfAssignment() || !chainIsNull) {
+                symbolTable.write("LOAD " + variable.getOffset() + "\n");
+            } else {
+                symbolTable.write("STORE " + variable.getOffset() + "\n");
+            }
+        }
+
+        // a la cadena se le dice que se genere en el AccessNode.
     }
 }

@@ -8,6 +8,8 @@ import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
 
+import java.io.IOException;
+
 public class AccessNode extends OperandNode {
     private PrimaryNode primaryNode;
     private ChainNode chainNode;
@@ -67,6 +69,14 @@ public class AccessNode extends OperandNode {
             return primaryNode.getToken();
         } else {
             return chainNode.getIdMetVar();
+        }
+    }
+
+    @Override
+    public void generateInterCode(SymbolTable symbolTable) throws IOException {
+        primaryNode.generateInterCode(symbolTable, chainNode == null);
+        if (chainNode != null) {
+            chainNode.generateInterCode(symbolTable);
         }
     }
 }

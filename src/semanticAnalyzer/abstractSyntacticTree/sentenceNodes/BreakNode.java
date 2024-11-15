@@ -35,8 +35,4 @@ public class BreakNode extends SentenceNode {
         this.containerSwitchStatement = containerSwitchStatement;
     }
 
-    @Override
-    public boolean isWhileOrSwitchStatement() {
-        return false;
-    }
 }

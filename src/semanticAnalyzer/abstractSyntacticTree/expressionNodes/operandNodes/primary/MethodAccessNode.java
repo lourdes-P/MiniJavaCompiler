@@ -13,6 +13,7 @@ import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
 import semanticAnalyzer.symbolTable.variables.Parameter;
 
+import java.io.IOException;
 import java.util.List;
 
 public class MethodAccessNode extends PrimaryNode {
@@ -20,7 +21,7 @@ public class MethodAccessNode extends PrimaryNode {
     private List<ExpressionNode> actualArguments;
     private Type type;
     private Class containerClass;
-    private Method containerMethod;
+    private Method containerMethod, calledMethod;
 
 
     public MethodAccessNode(Token idMetVar) {
@@ -103,5 +104,26 @@ public class MethodAccessNode extends PrimaryNode {
     @Override
     public Token getToken() {
         return idMetVar;
+    }
+
+    @Override
+    public void generateInterCode(SymbolTable symbolTable, boolean chainIsNull) throws IOException {
+        calledMethod = symbolTable.getClass(containerClass.getName()).getMethod(idMetVar.getLexeme());
+
+        symbolTable.write("LOAD 3 ; cargo this\n");
+        if (!calledMethod.getType().getName().equals("void")) {
+                symbolTable.write("RMEM 1 ; reservo memoria en la pila para el valor de retorno\n" +
+                "SWAP ; para llevarme el this\n");
+        }
+
+        for (ExpressionNode expressionNode : actualArguments) {
+            expressionNode.generateInterCode(symbolTable);
+            symbolTable.write("SWAP ; para llevarme el this\n");
+        }
+
+        symbolTable.write("DUP\n" +
+                "LOADREF 0 ; cargo una referencia a la VT\n" +
+                "LOADREF " + calledMethod.getOffset()  + " ; cargo la direccion del metodo en la VT\n" +
+                "CALL\n");
     }
 }

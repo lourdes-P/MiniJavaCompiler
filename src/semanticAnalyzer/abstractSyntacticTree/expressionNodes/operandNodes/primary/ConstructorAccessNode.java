@@ -13,6 +13,7 @@ import semanticAnalyzer.symbolTable.types.ReferenceType;
 import semanticAnalyzer.symbolTable.types.Type;
 import semanticAnalyzer.symbolTable.variables.Parameter;
 
+import java.io.IOException;
 import java.util.List;
 
 public class ConstructorAccessNode extends PrimaryNode {
@@ -80,5 +81,11 @@ public class ConstructorAccessNode extends PrimaryNode {
     @Override
     public Token getToken() {
         return idClase;
+    }
+
+    @Override
+    public void generateInterCode(SymbolTable symbolTable, boolean chainIsNull) throws IOException {
+        // deja en el tope de la pila una referencia al CIR del objeto creado
+
     }
 }

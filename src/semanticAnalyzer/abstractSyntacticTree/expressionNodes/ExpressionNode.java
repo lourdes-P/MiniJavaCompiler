@@ -36,6 +36,11 @@ public class ExpressionNode {
         return leftSideComposedExpressionNode.statementCheck(symbolTable);
     }
 
+    public void generateInterCode(SymbolTable symbolTable) {
+        leftSideComposedExpressionNode.generateInterCode(symbolTable);
+    }
+
+
     public boolean canBeAssignedAValue() {
         return leftSideComposedExpressionNode.canBeAssignedAValue();
     }

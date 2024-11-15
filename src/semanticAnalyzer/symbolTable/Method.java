@@ -5,7 +5,9 @@ import semanticAnalyzer.exceptions.part1.DuplicateParameterException;
 import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.symbolTable.types.Type;
 import semanticAnalyzer.symbolTable.variables.Parameter;
+import utils.LabelFactory;
 
+import java.io.IOException;
 import java.util.*;
 
 public class Method {
@@ -146,6 +148,10 @@ public class Method {
         this.currentBlock = currentBlock;
     }
 
+    public Block getMainBlock() {
+        return blockList.getFirst();
+    }
+
     public boolean containsParameter(String parameterName) {
         return parameterTable.containsKey(parameterName);
     }
@@ -173,7 +179,30 @@ public class Method {
         }
     }
 
-    public void generateInterCode(SymbolTable symbolTable) {
-        // TODO
+    public void generateInterCode(SymbolTable symbolTable) throws IOException {
+        // el llamador es quien guarda memoria para el retorno (RMEM)
+        // el desplazamiento del ret_val será m+3. (m celdas de memoria correspondiente a los m parametros).
+        // el this lo agrega la unidad llamadora
+        symbolTable.write(LabelFactory.createLabel("met", this.getName(), containerClass.getName()) + ": LOADFP ; apila el valor del registro fp\n" +
+                "LOADSP ; apila el valor del registro sp\n" +
+                "STOREFP ; almacena el tope de la pila en el registro fp\n" +
+                generateParameters());
+
+        blockList.getFirst().generateInterCode(symbolTable);
+
+        // TODO si es void?
     }
+
+    protected String generateParameters() {
+        String parameters = "";
+        List<Parameter> parameterList = getOrderedParameterList();
+
+        for (Parameter parameter : parameterList) {
+            parameter.setOffset(parameterList.size() + 3 - parameter.getOffset()); // lo hago aca ya que tengo la lista terminada de parametros
+            parameters += "LOAD " + (parameter.getOffset()) + "; apilo el valor en memoria del offset " + parameter.getName() + "\n";
+        }
+
+        return parameters;
+    }
+
 }

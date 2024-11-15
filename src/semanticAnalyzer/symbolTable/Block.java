@@ -139,18 +139,6 @@ public class Block {
         return variable;
     }
 
-    public boolean hasNestedWhileOrSwitchStatement() {
-        for(SentenceNode sentenceNode : sentenceNodeList) {
-            if (sentenceNode.isWhileOrSwitchStatement())
-                return true;
-        }
-
-        if (parentBlock != null)
-            return parentBlock.hasNestedWhileOrSwitchStatement();
-        else
-            return false;
-    }
-
     public void statementCheck(SymbolTable symbolTable) throws SemanticException {
         correspondingBlockNode.statementCheck(symbolTable);
     }
@@ -166,6 +154,12 @@ public class Block {
     public void checkOffsets() {
         for (LocalVariable variable : declaredVariablesInBlock.values()) {
             System.out.println("Local variable" + variable.getName() + " offset: " + variable.getOffset());
+        }
+    }
+
+    public void generateInterCode(SymbolTable symbolTable) {
+        for (SentenceNode sentenceNode : sentenceNodeList) {
+            sentenceNode.generateInterCode(symbolTable);
         }
     }
 }

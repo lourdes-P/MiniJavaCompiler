@@ -6,6 +6,8 @@ import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
 import semanticAnalyzer.symbolTable.variables.Attribute;
 
+import java.io.IOException;
+
 public class VarChainNode extends ChainNode {
     private Attribute attribute;
 
@@ -33,6 +35,16 @@ public class VarChainNode extends ChainNode {
             return true;
         else
             return getFurtherChainNode().canBeAssignedAValue();
+    }
+
+    @Override
+    public void generateInterCode(SymbolTable symbolTable) throws IOException {
+        if (!this.isLeftSideOfAssignment() || !(getFurtherChainNode() == null)) {
+            symbolTable.write("LOADREF " + attribute.getOffset() + "\n");
+        } else {
+            symbolTable.write("SWAP\n" +
+                    "STOREREF " + attribute.getOffset() + "\n");
+        }
     }
 
 }

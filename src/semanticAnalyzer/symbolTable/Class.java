@@ -240,7 +240,7 @@ public class Class {
             else
                 nonStaticMethods.add(method);
         }
-        staticMethods.addAll(constructorTable.values());
+        staticMethods.addAll(constructorTable.values());        // TODO ver que hacer con esto
 
         symbolTable.write(".DATA\n");
         if (nonStaticMethods.isEmpty()) {
@@ -249,7 +249,8 @@ public class Class {
             symbolTable.write(LabelFactory.createLabel("VT", getName()) + ": DW " + generateVT(getOrderedMethodList(nonStaticMethods)));
         }
 
-        // TODO generar código de métodos ...
+        symbolTable.write(".CODE\n");
+        this.getConstructor(this.getName()).generateInterCode(symbolTable);
 
         for (Method method : getStrictlySelfDeclaredMethodCollection()) {
             method.generateInterCode(symbolTable);

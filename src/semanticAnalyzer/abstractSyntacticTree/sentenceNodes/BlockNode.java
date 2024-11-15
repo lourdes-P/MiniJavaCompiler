@@ -18,8 +18,4 @@ public class BlockNode extends SentenceNode {
         }
     }
 
-    @Override
-    public boolean isWhileOrSwitchStatement() {
-        return false;
-    }
 }

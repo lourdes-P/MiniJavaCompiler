@@ -6,11 +6,15 @@ import semanticAnalyzer.symbolTable.Method;
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
 
+import java.io.IOException;
+
 public abstract class ChainNode {
     private Token idMetVar;
     private ChainNode furtherChainNode;
     private Type finalType;
     private Method containerMethod;
+    private boolean isLeftSideOfAssignment = false;
+
 
 
     public ChainNode() {
@@ -59,6 +63,14 @@ public abstract class ChainNode {
         this.finalType = finalType;
     }
 
+    public void setIsLeftSideOfAssignment(boolean b) {
+        this.isLeftSideOfAssignment = b;
+    }
+
+    public boolean isLeftSideOfAssignment() {
+        return isLeftSideOfAssignment;
+    }
+
     public abstract Type statementCheck(Type primaryNodeType, SymbolTable symbolTable) throws SemanticException;
 
     public abstract boolean canBeAssignedAValue();
@@ -66,5 +78,7 @@ public abstract class ChainNode {
     public boolean canBeCalled() {
         return !canBeAssignedAValue();
     }
+
+    public abstract void generateInterCode(SymbolTable symbolTable) throws IOException;
 
 }

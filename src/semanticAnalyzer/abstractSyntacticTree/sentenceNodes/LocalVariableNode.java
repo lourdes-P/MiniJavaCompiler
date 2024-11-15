@@ -86,8 +86,4 @@ public class LocalVariableNode extends SentenceNode {
         }
     }
 
-    @Override
-    public boolean isWhileOrSwitchStatement() {
-        return false;
-    }
 }
