@@ -8,6 +8,8 @@ import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.PrimitiveType;
 import semanticAnalyzer.symbolTable.types.Type;
 
+import java.io.IOException;
+
 public class AndNode extends BinaryExpressionNode {
 
     public AndNode(ComposedExpressionNode leftSide, ComposedExpressionNode rightSide, Token operator) {
@@ -27,5 +29,10 @@ public class AndNode extends BinaryExpressionNode {
         } else {
             throw new IncompatibleBinaryExpressionException(this.getOperator());
         }
+    }
+
+    @Override
+    public void generateInterCode(SymbolTable symbolTable) throws IOException {
+        //  TODO andNode
     }
 }

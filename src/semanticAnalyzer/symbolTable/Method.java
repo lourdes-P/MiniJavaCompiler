@@ -190,7 +190,8 @@ public class Method {
 
         blockList.getFirst().generateInterCode(symbolTable);
 
-        // TODO si es void?
+        symbolTable.write("STOREFP ; almacena el tope de la pila en el registro\n" +
+                "RET " + parameterTable.size());
     }
 
     protected String generateParameters() {

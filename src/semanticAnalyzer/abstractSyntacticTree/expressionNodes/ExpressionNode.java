@@ -6,6 +6,8 @@ import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
 
+import java.io.IOException;
+
 public class ExpressionNode {
     private ComposedExpressionNode leftSideComposedExpressionNode;
 
@@ -36,7 +38,7 @@ public class ExpressionNode {
         return leftSideComposedExpressionNode.statementCheck(symbolTable);
     }
 
-    public void generateInterCode(SymbolTable symbolTable) {
+    public void generateInterCode(SymbolTable symbolTable) throws IOException {
         leftSideComposedExpressionNode.generateInterCode(symbolTable);
     }
 

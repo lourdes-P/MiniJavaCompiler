@@ -11,6 +11,7 @@ import semanticAnalyzer.symbolTable.variables.Attribute;
 import semanticAnalyzer.symbolTable.variables.LocalVariable;
 import semanticAnalyzer.symbolTable.variables.Variable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -157,9 +158,13 @@ public class Block {
         }
     }
 
-    public void generateInterCode(SymbolTable symbolTable) {
+    public void generateInterCode(SymbolTable symbolTable) throws IOException {
+        symbolTable.write("RMEM "+ declaredVariablesInBlock.size() + "\n");
+
         for (SentenceNode sentenceNode : sentenceNodeList) {
             sentenceNode.generateInterCode(symbolTable);
         }
+
+        symbolTable.write("FMEM "+ declaredVariablesInBlock.size() + "\n");
     }
 }

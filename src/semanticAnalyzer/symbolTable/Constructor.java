@@ -27,6 +27,8 @@ public class Constructor extends Method {
 
         this.getMainBlock().generateInterCode(symbolTable);
 
+        symbolTable.write("STOREFP ; almacena el tope de la pila en el registro\n" +
+                "RET " + (1 + getParameterCollection().size()) + "\n");
     }
 
 }

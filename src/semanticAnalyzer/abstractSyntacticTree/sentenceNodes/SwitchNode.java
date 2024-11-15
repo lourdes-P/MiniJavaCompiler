@@ -8,6 +8,7 @@ import semanticAnalyzer.exceptions.part2.statementExceptions.InvalidSwitchCondit
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,4 +52,8 @@ public class SwitchNode extends SentenceNode {
         }
     }
 
+    @Override
+    public void generateInterCode(SymbolTable symbolTable) throws IOException {
+        // TODO switchNode
+    }
 }

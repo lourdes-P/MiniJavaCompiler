@@ -9,6 +9,8 @@ import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.PrimitiveType;
 import semanticAnalyzer.symbolTable.types.Type;
 
+import java.io.IOException;
+
 public class GreaterOrEqualNode extends BinaryExpressionNode {
 
     public GreaterOrEqualNode(ComposedExpressionNode leftSide, ComposedExpressionNode rightSide, Token operator) {
@@ -30,6 +32,11 @@ public class GreaterOrEqualNode extends BinaryExpressionNode {
         } else {
             throw new IncompatibleBinaryExpressionException(this.getOperator());
         }
+    }
+
+    @Override
+    public void generateInterCode(SymbolTable symbolTable) throws IOException {
+        //  TODO greaterOrEqualNode
     }
 }
 

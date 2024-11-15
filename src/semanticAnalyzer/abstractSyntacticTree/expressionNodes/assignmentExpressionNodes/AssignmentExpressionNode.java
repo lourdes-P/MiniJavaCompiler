@@ -9,6 +9,8 @@ import semanticAnalyzer.exceptions.part2.expressionExceptions.LeftSideCannotBeAs
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
 
+import java.io.IOException;
+
 public class AssignmentExpressionNode extends ExpressionNode {
     private ComposedExpressionNode rightSideComposedExpressionNode;
     private Token assignmentToken;
@@ -83,7 +85,7 @@ public class AssignmentExpressionNode extends ExpressionNode {
     }
 
     @Override
-    public void generateInterCode(SymbolTable symbolTable) {
+    public void generateInterCode(SymbolTable symbolTable) throws IOException {
         getLeftSideComposedExpressionNode().setIsLeftSideOfAssignment(true);
         rightSideComposedExpressionNode.generateInterCode(symbolTable);
         getLeftSideComposedExpressionNode().generateInterCode(symbolTable);

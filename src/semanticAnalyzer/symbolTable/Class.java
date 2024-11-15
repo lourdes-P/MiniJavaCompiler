@@ -244,17 +244,20 @@ public class Class {
 
         symbolTable.write(".DATA\n");
         if (nonStaticMethods.isEmpty()) {
-            symbolTable.write(LabelFactory.createLabel("VT", getName()) + ": NOP");
+            symbolTable.write(LabelFactory.createLabel("VT", getName()) + ": NOP\n");
         } else {
-            symbolTable.write(LabelFactory.createLabel("VT", getName()) + ": DW " + generateVT(getOrderedMethodList(nonStaticMethods)));
+            symbolTable.write(LabelFactory.createLabel("VT", getName()) + ": DW " + generateVT(getOrderedMethodList(nonStaticMethods)) + "\n");
         }
 
         symbolTable.write(".CODE\n");
         this.getConstructor(this.getName()).generateInterCode(symbolTable);
+        symbolTable.write("\n");
 
         for (Method method : getStrictlySelfDeclaredMethodCollection()) {
             method.generateInterCode(symbolTable);
+            symbolTable.write("\n");
         }
+        symbolTable.write("\n");
     }
 
     private String generateVT(List<Method> nonStaticMethods) {

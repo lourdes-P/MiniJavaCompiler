@@ -3,6 +3,9 @@ package semanticAnalyzer.abstractSyntacticTree.expressionNodes.unaryExpressionNo
 import lexicalAnalyzer.Token;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ComposedExpressionNode;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.OperandNode;
+import semanticAnalyzer.symbolTable.SymbolTable;
+
+import java.io.IOException;
 
 public abstract class UnaryExpressionNode extends ComposedExpressionNode {
     private OperandNode operand;
@@ -39,5 +42,8 @@ public abstract class UnaryExpressionNode extends ComposedExpressionNode {
         return false;
     }
 
-
+    @Override
+    public void generateInterCode(SymbolTable symbolTable) throws IOException {
+        // TODO unary expressions
+    }
 }

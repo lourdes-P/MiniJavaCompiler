@@ -9,6 +9,8 @@ import semanticAnalyzer.symbolTable.Method;
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
 
+import java.io.IOException;
+
 public class ReturnNode extends SentenceNode {
     private ExpressionNode returnExpression;
     private Token returnToken;
@@ -52,6 +54,11 @@ public class ReturnNode extends SentenceNode {
                 }
             }
         }
+    }
+
+    @Override
+    public void generateInterCode(SymbolTable symbolTable) throws IOException {
+        // TODO returnNode
     }
 
 }

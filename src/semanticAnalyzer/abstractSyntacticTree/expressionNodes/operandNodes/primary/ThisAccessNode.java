@@ -9,6 +9,8 @@ import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.ReferenceType;
 import semanticAnalyzer.symbolTable.types.Type;
 
+import java.io.IOException;
+
 public class ThisAccessNode extends PrimaryNode {
     private Token thisToken;
     private Class thisClass;
@@ -54,5 +56,10 @@ public class ThisAccessNode extends PrimaryNode {
     @Override
     public Token getToken() {
         return thisToken;
+    }
+
+    @Override
+    public void generateInterCode(SymbolTable symbolTable, boolean chainIsNull) throws IOException {
+        // TODO thisNode
     }
 }

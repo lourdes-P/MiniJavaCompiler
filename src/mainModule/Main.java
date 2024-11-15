@@ -15,35 +15,47 @@ import utils.Formatter;
 import utils.MapManager;
 import utils.NextsManager;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) {
-
-        String sourceFile = "";
-        if (args.length == 0) {
-            sourceFile = "dummySourceFile.txt";
-            System.out.println("No hay archivo fuente como argumento.");
+        String sourceFile = "", outFileString = "";
+        FileWriter fileWriter = null;
+        File outFile;
+        if (args.length == 0 || args.length == 1) {
+            System.out.println("Error en los argumentos.");
         } else {
             sourceFile = args[0];
+            outFileString = args[1];
         }
         ReservedWordMap reservedWordMap = new ReservedWordMap();
         SourceManager sourceManager = new SourceManagerImpl();
         try {
             sourceManager.open(sourceFile);
-        } catch (FileNotFoundException e) {
-            System.out.println("Error al intentar abrir el archivo fuente.");
+            outFile = new File(outFileString);
+            if (!outFile.createNewFile()) {
+                outFile.delete();
+                outFile.createNewFile();
+            }
+            fileWriter = new FileWriter(outFileString);
+        } catch (IOException e) {
+            System.out.println("Error al intentar abrir el archivo fuente o el archivo out.");
         }
 
         LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(sourceManager, reservedWordMap);
         SymbolTable symbolTable = null;
         try {
             symbolTable = new SymbolTable();
-        } catch (SemanticException semanticException) {
-            System.out.println(semanticException.getMessage());
+            symbolTable.setFileWriter(fileWriter);
+        } catch (SemanticException exception) {
+            System.out.println(exception.getMessage());
         }
+
         SyntacticAnalyzer syntacticAnalyzer = new SyntacticAnalyzer(lexicalAnalyzer, symbolTable);
 
         try {
@@ -51,8 +63,11 @@ public class Main {
             symbolTable.checkDeclarations();
             symbolTable.consolidate();
             symbolTable.statementCheck();
+            symbolTable.generateInterCode();
 
-            checkOffsets(symbolTable);
+            assert fileWriter != null;
+            fileWriter.close();
+            //checkOffsets(symbolTable);
         } catch (LexicalException lexicalException) {
             System.out.println(lexicalException.getMessage());
             lexicalAnalyzer.registerLexicalError();
@@ -62,6 +77,8 @@ public class Main {
         } catch (SemanticException semanticException) {
             System.out.println(semanticException.getMessage());
             syntacticAnalyzer.registerSyntacticError();
+        } catch (IOException e) {
+            System.out.println("Error al intentar cerrar el escritor.");
         }
 
         if (lexicalAnalyzer.getSinErrores() && syntacticAnalyzer.getSinErrores()) {

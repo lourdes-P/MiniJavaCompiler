@@ -321,7 +321,7 @@ public class SymbolTable {
         write(".CODE\n" +
                 "PUSH " + LabelFactory.createLabel("met","main",mainClass.getName()) + "\n" +
                 "CALL\n" +
-                "HALT\n");
+                "HALT\n\n");
         writeSimpleHeapInitPrimitive();
         writeSimpleMalloc();
 
@@ -330,24 +330,24 @@ public class SymbolTable {
         }
     }
 
-    public void writeSimpleHeapInitPrimitive() throws IOException {
-        write("simple_heap_init: RET 0   ; inicializacion simplificada del .heap\n");
+    private void writeSimpleHeapInitPrimitive() throws IOException {
+        write("simple_heap_init: RET 0   ; inicializacion simplificada del .heap\n\n");
     }
 
-    public void writeSimpleMalloc() throws IOException {
-        write("simple_malloc: LOADFP    ; inicializaicón unidad\n +" +
+    private void writeSimpleMalloc() throws IOException {
+        write("simple_malloc: LOADFP    ; inicializacion unidad\n" +
                 "LOADSP\n"+
-                "STOREFP\n"+
-                "LOADHL\n"+
-                "DUP\n"+
+                "STOREFP    ; finaliza inicializacion del RA\n"+
+                "LOADHL     ; hl\n"+
+                "DUP        ; hl\n"+
                 "PUSH 1\n"+
                 "ADD\n"+
-                "STORE 4\n"+
-                "LOAD 3\n"+
+                "STORE 4    ; guarda resultado (puntero a base de bloque)\n"+
+                "LOAD 3     ; carga cantidad de celdas a alojar (parametro)\n"+
                 "ADD\n"+
-                "STOREHL\n"+
+                "STOREHL    ; mueve el heap limit (hl)\n"+
                 "STOREFP\n"+
-                "RET 1\n");
+                "RET 1      ; retorna eliminando el parametro\n\n");
     }
 
 

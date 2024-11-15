@@ -6,6 +6,8 @@ import semanticAnalyzer.exceptions.part2.statementExceptions.InvalidBreakAppeara
 import semanticAnalyzer.symbolTable.Block;
 import semanticAnalyzer.symbolTable.SymbolTable;
 
+import java.io.IOException;
+
 public class BreakNode extends SentenceNode {
     private Token breakToken;
     private Block containerBlock;
@@ -25,6 +27,11 @@ public class BreakNode extends SentenceNode {
     public void statementCheck(SymbolTable symbolTable) throws SemanticException {
         if (containerWhileStatement == null && containerSwitchStatement == null)
             throw new InvalidBreakAppearanceException(breakToken);
+    }
+
+    @Override
+    public void generateInterCode(SymbolTable symbolTable) throws IOException {
+        // TODO breakNode
     }
 
     public void setContainerWhileStatement(WhileNode containerWhileStatement) {

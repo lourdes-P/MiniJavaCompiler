@@ -9,6 +9,7 @@ import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
 import semanticAnalyzer.symbolTable.variables.Parameter;
 
+import java.io.IOException;
 import java.util.List;
 
 public class MethodCallChainNode extends ChainNode {
@@ -73,6 +74,11 @@ public class MethodCallChainNode extends ChainNode {
             return false;
         else
             return getFurtherChainNode().canBeAssignedAValue();
+    }
+
+    @Override
+    public void generateInterCode(SymbolTable symbolTable) throws IOException {
+        // TODO methodCallChainNode
     }
 
 

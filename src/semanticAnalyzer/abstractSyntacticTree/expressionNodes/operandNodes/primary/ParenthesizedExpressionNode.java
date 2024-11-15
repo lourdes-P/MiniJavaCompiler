@@ -6,6 +6,8 @@ import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
 
+import java.io.IOException;
+
 public class ParenthesizedExpressionNode extends PrimaryNode {
     private ExpressionNode expression;
 
@@ -29,5 +31,10 @@ public class ParenthesizedExpressionNode extends PrimaryNode {
 
     public Token getToken() {
         return expression.getLeftSideComposedExpressionNode().getToken();
+    }
+
+    @Override
+    public void generateInterCode(SymbolTable symbolTable, boolean chainIsNull) throws IOException {
+        expression.generateInterCode(symbolTable);
     }
 }

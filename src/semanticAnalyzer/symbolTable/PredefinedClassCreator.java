@@ -4,6 +4,11 @@ import lexicalAnalyzer.Token;
 import semanticAnalyzer.abstractSyntacticTree.sentenceNodes.BlockNode;
 import semanticAnalyzer.exceptions.part1.CircularInheritanceException;
 import semanticAnalyzer.exceptions.SemanticException;
+import semanticAnalyzer.symbolTable.predefinedClassBlocks.*;
+import semanticAnalyzer.symbolTable.predefinedClassBlocks.ln.PrintBlnBlock;
+import semanticAnalyzer.symbolTable.predefinedClassBlocks.ln.PrintClnBlock;
+import semanticAnalyzer.symbolTable.predefinedClassBlocks.ln.PrintIlnBlock;
+import semanticAnalyzer.symbolTable.predefinedClassBlocks.ln.PrintSlnBlock;
 import semanticAnalyzer.symbolTable.types.PrimitiveType;
 import semanticAnalyzer.symbolTable.types.ReferenceType;
 import semanticAnalyzer.symbolTable.types.Type;
@@ -55,7 +60,7 @@ public class PredefinedClassCreator {
 
         Parameter i = new Parameter(new Token("idMetVar", "i", 0), new PrimitiveType(new Token("pr_int", "int", 0)), debugPrint, 0);
         debugPrint.addParameter(i);
-        Block block = new Block(debugPrint);
+        Block block = new DebugPrintBlock(debugPrint);
         block.setCorrespondingBlockNode(new BlockNode(block));
         debugPrint.addBlock(block);
 
@@ -147,6 +152,17 @@ public class PredefinedClassCreator {
 
     private static void setBlock(Method method) {
         Block block = new Block(method);
+        switch (method.getName()) {
+            case "read" -> block = new ReadBlock(method);
+            case "printB" -> block = new PrintBBlock(method);
+            case "printC" -> block = new PrintCBlock(method);
+            case "printI" -> block = new PrintIBlock(method);
+            case "printS" -> block = new PrintSBlock(method);
+            case "printBln" -> block = new PrintBlnBlock(method);
+            case "printCln" -> block = new PrintClnBlock(method);
+            case "printIln" -> block = new PrintIlnBlock(method);
+            case "printSln" -> block = new PrintSlnBlock(method);
+        }
         block.setCorrespondingBlockNode(new BlockNode(block));
         method.addBlock(block);
     }

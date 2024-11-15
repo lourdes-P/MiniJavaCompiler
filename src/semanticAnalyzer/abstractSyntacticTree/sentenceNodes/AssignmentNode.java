@@ -4,6 +4,8 @@ import semanticAnalyzer.abstractSyntacticTree.expressionNodes.assignmentExpressi
 import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.symbolTable.SymbolTable;
 
+import java.io.IOException;
+
 public class AssignmentNode extends SentenceNode {
     private AssignmentExpressionNode assignmentExpressionNode;
 
@@ -21,7 +23,7 @@ public class AssignmentNode extends SentenceNode {
     }
 
     @Override
-    public void generateInterCode(SymbolTable symbolTable) {
+    public void generateInterCode(SymbolTable symbolTable) throws IOException {
         assignmentExpressionNode.generateInterCode(symbolTable);
     }
 }

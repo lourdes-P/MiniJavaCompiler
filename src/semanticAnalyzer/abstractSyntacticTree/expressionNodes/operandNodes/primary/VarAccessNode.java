@@ -8,6 +8,7 @@ import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
 import semanticAnalyzer.symbolTable.variables.Attribute;
 import semanticAnalyzer.symbolTable.variables.Variable;
+import utils.LabelFactory;
 
 import java.io.IOException;
 
@@ -64,12 +65,23 @@ public class VarAccessNode extends PrimaryNode {
     @Override
     public void generateInterCode(SymbolTable symbolTable, boolean chainIsNull) throws IOException {
         if (variable instanceof Attribute) {
-            symbolTable.write("LOAD 3 ; cargo this\n");
-            if (!this.isLeftSideOfAssignment() || !chainIsNull) {
-                symbolTable.write("LOADREF " + variable.getOffset() + "\n");
+            if (((Attribute) variable).isStatic()) {
+                Attribute attribute = (Attribute) variable;
+                if (!this.isLeftSideOfAssignment() || !chainIsNull) {
+                    symbolTable.write("PUSH " + LabelFactory.createLabel("attr", attribute.getName(), attribute.getContainerClass().getName()) + "\n");
+                } else {
+                    symbolTable.write(".DATA\n" +
+                            staticAttributeDW(attribute) + "\n");
+                    symbolTable.write(".CODE\n");
+                }
             } else {
-                symbolTable.write("SWAP\n" +
-                        "STOREREF " + variable.getOffset() + "\n");
+                symbolTable.write("LOAD 3 ; cargo this\n");
+                if (!this.isLeftSideOfAssignment() || !chainIsNull) {
+                    symbolTable.write("LOADREF " + variable.getOffset() + "\n");
+                } else {
+                    symbolTable.write("SWAP\n" +
+                            "STOREREF " + variable.getOffset() + "\n");
+                }
             }
         } else {
             if (!this.isLeftSideOfAssignment() || !chainIsNull) {
@@ -78,7 +90,23 @@ public class VarAccessNode extends PrimaryNode {
                 symbolTable.write("STORE " + variable.getOffset() + "\n");
             }
         }
-
+        // TODO que pasa si el atributo es estatico
         // a la cadena se le dice que se genere en el AccessNode.
     }
+
+    private String staticAttributeDW(Attribute attribute) {
+        String dataDW = LabelFactory.createLabel("attr", attribute.getName(), attribute.getContainerClass().getName()) + ": DW ";
+
+        switch (attribute.getType().getType()) {
+            case "int" -> dataDW += attribute.getToken().getLexeme();
+            case "char" -> dataDW += "" + ((int) attribute.getToken().getLexeme().charAt(0));
+            case "boolean" -> dataDW += attribute.getToken().getLexeme().equals("false") ? 0 : 1;
+            case "String" -> dataDW += attribute.getToken().getLexeme() + ",0";
+            case "null" -> dataDW += 0;
+        }
+
+        return dataDW;
+    }
 }
+
+

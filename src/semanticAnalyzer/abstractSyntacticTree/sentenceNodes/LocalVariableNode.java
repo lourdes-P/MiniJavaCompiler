@@ -12,6 +12,8 @@ import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
 import semanticAnalyzer.symbolTable.variables.LocalVariable;
 
+import java.io.IOException;
+
 public class LocalVariableNode extends SentenceNode {
     private Token idMetVar;
     private LocalVariable variable;
@@ -84,6 +86,11 @@ public class LocalVariableNode extends SentenceNode {
                 }
             }
         }
+    }
+
+    @Override
+    public void generateInterCode(SymbolTable symbolTable) throws IOException {
+        // TODO localVariableNode
     }
 
 }

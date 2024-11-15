@@ -6,6 +6,8 @@ import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.exceptions.part2.statementExceptions.UncallableCallStatementException;
 import semanticAnalyzer.symbolTable.SymbolTable;
 
+import java.io.IOException;
+
 public class CallNode extends SentenceNode {
     private ExpressionNode expressionNode;
     private Token callToken;
@@ -33,6 +35,11 @@ public class CallNode extends SentenceNode {
             throw new UncallableCallStatementException(callToken);
 
         expressionNode.statementCheck(symbolTable);
+    }
+
+    @Override
+    public void generateInterCode(SymbolTable symbolTable) throws IOException {
+        expressionNode.generateInterCode(symbolTable);
     }
 
 }

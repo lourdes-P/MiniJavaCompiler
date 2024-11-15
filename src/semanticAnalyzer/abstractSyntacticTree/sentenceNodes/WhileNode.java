@@ -7,6 +7,7 @@ import semanticAnalyzer.exceptions.part2.statementExceptions.InvalidWhileConditi
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
 
+import java.io.IOException;
 import java.util.List;
 
 public class WhileNode extends SentenceNode {
@@ -42,5 +43,8 @@ public class WhileNode extends SentenceNode {
             sentenceNode.statementCheck(symbolTable);
         }
     }
-
+    @Override
+    public void generateInterCode(SymbolTable symbolTable) throws IOException {
+        // TODO whileNode
+    }
 }
