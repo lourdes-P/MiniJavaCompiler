@@ -21,7 +21,7 @@ public class PrimitiveLiteralNode extends LiteralNode {
 
     @Override
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
-        symbolTable.write("PUSH " + literal.getLexeme() + "\n");
+        symbolTable.write("PUSH " + literal.getLexeme() + " ; literal\n");
     }
 
 }

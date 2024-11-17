@@ -33,6 +33,8 @@ public class AdditionNode extends BinaryExpressionNode {
 
     @Override
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
-        //  TODO additionNode
+        getLeftSide().generateInterCode(symbolTable);
+        getRightSide().generateInterCode(symbolTable);
+        symbolTable.write("ADD\n");
     }
 }

@@ -33,6 +33,8 @@ public class MultiplicationNode extends BinaryExpressionNode {
 
     @Override
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
-        //  TODO MultiplicationNode
+        getLeftSide().generateInterCode(symbolTable);
+        getRightSide().generateInterCode(symbolTable);
+        symbolTable.write("MUL\n");
     }
 }

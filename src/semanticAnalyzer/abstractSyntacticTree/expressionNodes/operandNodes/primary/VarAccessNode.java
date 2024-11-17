@@ -33,6 +33,10 @@ public class VarAccessNode extends PrimaryNode {
         this.variable = variable;
     }
 
+    public Variable getVariable() {
+        return variable;
+    }
+
     public Type statementCheck(SymbolTable symbolTable) throws SemanticException {
         Variable var;
 
@@ -67,12 +71,14 @@ public class VarAccessNode extends PrimaryNode {
         if (variable instanceof Attribute) {
             if (((Attribute) variable).isStatic()) {
                 Attribute attribute = (Attribute) variable;
+                symbolTable.write("PUSH " + LabelFactory.createLabel("attr", attribute.getName(), attribute.getContainerClass().getName()) + "\n");
                 if (!this.isLeftSideOfAssignment() || !chainIsNull) {
-                    symbolTable.write("PUSH " + LabelFactory.createLabel("attr", attribute.getName(), attribute.getContainerClass().getName()) + "\n");
+                    symbolTable.write("LOADREF 0 ; cargo valor atributo estatico\n");
                 } else {
-                    symbolTable.write(".DATA\n" +
-                            staticAttributeDW(attribute) + "\n");
-                    symbolTable.write(".CODE\n");
+                    symbolTable.write("""
+                            SWAP
+                            STOREREF 0 ; guardo en atributo estatico
+                            """);
                 }
             } else {
                 symbolTable.write("LOAD 3 ; cargo this\n");
@@ -90,7 +96,6 @@ public class VarAccessNode extends PrimaryNode {
                 symbolTable.write("STORE " + variable.getOffset() + "\n");
             }
         }
-        // TODO que pasa si el atributo es estatico
         // a la cadena se le dice que se genere en el AccessNode.
     }
 

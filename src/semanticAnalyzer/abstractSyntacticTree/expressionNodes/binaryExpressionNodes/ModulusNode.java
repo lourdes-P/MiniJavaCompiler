@@ -33,7 +33,9 @@ public class ModulusNode extends BinaryExpressionNode {
 
     @Override
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
-        //  TODO ModulusNode
+        getLeftSide().generateInterCode(symbolTable);
+        getRightSide().generateInterCode(symbolTable);
+        symbolTable.write("MOD\n");
     }
 }
 

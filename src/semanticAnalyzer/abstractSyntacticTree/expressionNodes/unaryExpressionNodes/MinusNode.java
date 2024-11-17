@@ -7,6 +7,8 @@ import semanticAnalyzer.exceptions.part2.expressionExceptions.InvalidOperandType
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
 
+import java.io.IOException;
+
 public class MinusNode extends UnaryExpressionNode {
 
     public MinusNode(OperandNode operand, Token operator) {
@@ -27,4 +29,9 @@ public class MinusNode extends UnaryExpressionNode {
         }
     }
 
+    @Override
+    public void generateInterCode(SymbolTable symbolTable) throws IOException {
+        getOperandNode().generateInterCode(symbolTable);
+        symbolTable.write("NEG ; unary\n");
+    }
 }

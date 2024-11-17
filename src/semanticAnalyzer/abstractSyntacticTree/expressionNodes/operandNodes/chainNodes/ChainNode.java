@@ -13,9 +13,7 @@ public abstract class ChainNode {
     private ChainNode furtherChainNode;
     private Type finalType;
     private Method containerMethod;
-    private boolean isLeftSideOfAssignment = false;
-
-
+    private boolean isLeftSideOfAssignment = false, isCallStatement = false;
 
     public ChainNode() {
         this.furtherChainNode = null;
@@ -69,6 +67,14 @@ public abstract class ChainNode {
 
     public boolean isLeftSideOfAssignment() {
         return isLeftSideOfAssignment;
+    }
+
+    public boolean isCallStatement() {
+        return isCallStatement;
+    }
+
+    public void setIsCallStatement(boolean callStatement) {
+        isCallStatement = callStatement;
     }
 
     public abstract Type statementCheck(Type primaryNodeType, SymbolTable symbolTable) throws SemanticException;

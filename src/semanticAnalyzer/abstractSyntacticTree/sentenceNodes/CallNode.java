@@ -2,6 +2,7 @@ package semanticAnalyzer.abstractSyntacticTree.sentenceNodes;
 
 import lexicalAnalyzer.Token;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ExpressionNode;
+import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.AccessNode;
 import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.exceptions.part2.statementExceptions.UncallableCallStatementException;
 import semanticAnalyzer.symbolTable.SymbolTable;
@@ -39,6 +40,7 @@ public class CallNode extends SentenceNode {
 
     @Override
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
+        ((AccessNode) expressionNode.getLeftSideComposedExpressionNode()).setIsCallStatement(true);
         expressionNode.generateInterCode(symbolTable);
     }
 

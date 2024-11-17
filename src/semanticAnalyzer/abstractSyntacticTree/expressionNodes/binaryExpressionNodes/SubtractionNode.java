@@ -33,6 +33,8 @@ public class SubtractionNode extends BinaryExpressionNode {
 
     @Override
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
-        //  TODO subtractionNode
+        getLeftSide().generateInterCode(symbolTable);
+        getRightSide().generateInterCode(symbolTable);
+        symbolTable.write("SUB\n");
     }
 }

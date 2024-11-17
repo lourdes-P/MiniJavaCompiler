@@ -36,6 +36,8 @@ public class GreaterNode extends BinaryExpressionNode {
 
     @Override
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
-        //  TODO greaterNode
+        getLeftSide().generateInterCode(symbolTable);
+        getRightSide().generateInterCode(symbolTable);
+        symbolTable.write("GT\n");
     }
 }

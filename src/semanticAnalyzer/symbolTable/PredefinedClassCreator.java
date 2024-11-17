@@ -24,10 +24,12 @@ public class PredefinedClassCreator {
         if (object == null) {
             try {
                 object = createObjectClass();
+
             } catch (SemanticException e) {
                 System.out.println("Error while creating Object class.");
             }
         }
+
         return object;
     }
 
@@ -69,12 +71,16 @@ public class PredefinedClassCreator {
         object.setConsolidatedAttributes(true);
         object.setConsolidatedMethods(true);
 
+        object.refactorMethodParameters();
+
         return object;
     }
 
     private static Class createStringClass() throws CircularInheritanceException {
         Class string = new Class(new Token("idClase", "String", 0));
         string.addInheritance(PredefinedClassCreator.getObjectClass().getToken());
+
+        string.refactorMethodParameters();
 
         return string;
     }
@@ -139,6 +145,8 @@ public class PredefinedClassCreator {
         system.addMethod(printSln);
 
         system.addInheritance(PredefinedClassCreator.getObjectClass().getToken());
+
+        system.refactorMethodParameters();
 
         return system;
     }

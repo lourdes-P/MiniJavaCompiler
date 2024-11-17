@@ -12,6 +12,7 @@ import semanticAnalyzer.symbolTable.Method;
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
 import semanticAnalyzer.symbolTable.variables.Parameter;
+import utils.LabelFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -110,20 +111,35 @@ public class MethodAccessNode extends PrimaryNode {
     public void generateInterCode(SymbolTable symbolTable, boolean chainIsNull) throws IOException {
         calledMethod = symbolTable.getClass(containerClass.getName()).getMethod(idMetVar.getLexeme());
 
-        symbolTable.write("LOAD 3 ; cargo this\n");
+        if (!calledMethod.getIsStatic()) {
+            symbolTable.write("LOAD 3 ; cargo this\n");
+        }
         if (!calledMethod.getType().getName().equals("void")) {
-                symbolTable.write("RMEM 1 ; reservo memoria en la pila para el valor de retorno\n" +
-                "SWAP ; para llevarme el this\n");
+            symbolTable.write("RMEM 1 ; reservo memoria en la pila para el valor de retorno\n");
+            if (!calledMethod.getIsStatic()) {
+                symbolTable.write("SWAP ; para llevarme el this\n");
+            }
         }
 
         for (ExpressionNode expressionNode : actualArguments) {
             expressionNode.generateInterCode(symbolTable);
-            symbolTable.write("SWAP ; para llevarme el this\n");
+            if (!calledMethod.getIsStatic()) {
+                symbolTable.write("SWAP ; para llevarme el this\n");
+            }
+        }
+        if (!calledMethod.getIsStatic()) {
+            symbolTable.write("DUP ; methodAccessNode\n" +
+                    "LOADREF 0 ; cargo una referencia a la VT\n" +
+                    "LOADREF " + calledMethod.getOffset() + " ; cargo la direccion del metodo en la VT\n" +
+                    "CALL\n");
+        } else {
+            symbolTable.write("PUSH " + LabelFactory.createLabel("met", calledMethod.getName(), calledMethod.getContainerClass().getName()) + "\n"+
+                    "CALL\n");
         }
 
-        symbolTable.write("DUP\n" +
-                "LOADREF 0 ; cargo una referencia a la VT\n" +
-                "LOADREF " + calledMethod.getOffset()  + " ; cargo la direccion del metodo en la VT\n" +
-                "CALL\n");
+        if (isCallStatement()){
+            if (!calledMethod.getType().getName().equals("void"))
+                symbolTable.write("POP ; la llamada devolvio algo distinto de void -> se descarta\n");
+        }
     }
 }

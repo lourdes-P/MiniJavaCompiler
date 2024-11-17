@@ -5,9 +5,11 @@ import semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.Opera
 
 public abstract class LiteralNode extends OperandNode {
     protected Token literal;
+    protected boolean staticAccess;
 
     public LiteralNode(Token literal) {
         this.literal = literal;
+        staticAccess = false;
     }
 
     @Override
@@ -23,5 +25,13 @@ public abstract class LiteralNode extends OperandNode {
     @Override
     public Token getToken() {
          return literal;
+    }
+
+    public boolean isStaticAccess() {
+        return staticAccess;
+    }
+
+    public void setStaticAccess(boolean staticAccess) {
+        this.staticAccess = staticAccess;
     }
 }

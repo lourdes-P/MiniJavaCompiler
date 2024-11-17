@@ -8,6 +8,8 @@ import semanticAnalyzer.exceptions.part2.expressionExceptions.LeftSideCannotBeAs
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
 
+import java.io.IOException;
+
 public class SubtractionAssignmentExpressionNode extends AssignmentExpressionNode {
 
     public SubtractionAssignmentExpressionNode(ComposedExpressionNode leftSideComposedExpressionNode) {
@@ -39,5 +41,21 @@ public class SubtractionAssignmentExpressionNode extends AssignmentExpressionNod
             throw new LeftSideCannotBeAssignedAValueException(getAssignmentToken());
         }
         return leftSideType;
+    }
+
+    @Override
+    public void generateInterCode(SymbolTable symbolTable) throws IOException {
+        getLeftSideComposedExpressionNode().generateInterCode(symbolTable);
+        getRightSideComposedExpressionNode().generateInterCode(symbolTable);
+        symbolTable.write("SUB\n");
+//        if (!setStaticAttributeCode()) {
+            getLeftSideComposedExpressionNode().setIsLeftSideOfAssignment(true);
+            getLeftSideComposedExpressionNode().generateInterCode(symbolTable);
+//        } else {
+//            // TODO pero no puedo hacerlo estaticamente? no puedo usar
+//            getLeftSideComposedExpressionNode().setIsLeftSideOfAssignment(true);
+//            getLeftSideComposedExpressionNode().generateInterCode(symbolTable);
+//            getRightSideComposedExpressionNode().generateInterCode(symbolTable);
+//        }
     }
 }

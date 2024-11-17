@@ -159,12 +159,14 @@ public class Block {
     }
 
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
-        symbolTable.write("RMEM "+ declaredVariablesInBlock.size() + "\n");
+        symbolTable.write("RMEM "+ declaredVariablesInBlock.size() + " ; reservo celdas de memoria para las vars locales\n");
 
         for (SentenceNode sentenceNode : sentenceNodeList) {
             sentenceNode.generateInterCode(symbolTable);
         }
 
-        symbolTable.write("FMEM "+ declaredVariablesInBlock.size() + "\n");
+        if (containerMethod.getType().getName().equals("void")) {
+            symbolTable.write("FMEM "+ declaredVariablesInBlock.size() + " ; libero las celdas de memoria de las vars locales\n");
+        }
     }
 }

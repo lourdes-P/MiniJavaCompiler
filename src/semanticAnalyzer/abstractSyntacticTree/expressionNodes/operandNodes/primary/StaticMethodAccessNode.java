@@ -106,19 +106,21 @@ public class StaticMethodAccessNode extends PrimaryNode {
         calledMethod = symbolTable.getClass(idClase.getLexeme()).getMethod(idMetVar.getLexeme());
         String methodLabel = LabelFactory.createLabel("met", calledMethod.getName(), idClase.getLexeme());
 
-        symbolTable.write("LOAD 3 ; cargo this\n");
+
         if (!calledMethod.getType().getName().equals("void")) {
-            symbolTable.write("RMEM 1 ; reservo memoria en la pila para el valor de retorno\n" +
-                    "SWAP ; para llevarme el this\n");
+            symbolTable.write("RMEM 1 ; reservo memoria en la pila para el valor de retorno\n");
         }
 
         for (ExpressionNode expressionNode : actualArguments) {
             expressionNode.generateInterCode(symbolTable);
-            symbolTable.write("SWAP ; para llevarme el this\n");
         }
 
-        symbolTable.write("DUP\n" +
-                "PUSH " + methodLabel + "\n" +
+        symbolTable.write("PUSH " + methodLabel + "\n" +
                 "CALL\n");
+
+        if (isCallStatement()){
+            if (!calledMethod.getType().getName().equals("void"))
+                symbolTable.write("POP ; la llamada devolvio algo distinto de void -> se descarta\n");
+        }
     }
 }

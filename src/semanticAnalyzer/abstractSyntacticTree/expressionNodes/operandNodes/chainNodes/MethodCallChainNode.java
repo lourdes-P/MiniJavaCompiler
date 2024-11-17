@@ -8,12 +8,14 @@ import semanticAnalyzer.symbolTable.Method;
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
 import semanticAnalyzer.symbolTable.variables.Parameter;
+import utils.LabelFactory;
 
 import java.io.IOException;
 import java.util.List;
 
 public class MethodCallChainNode extends ChainNode {
     private List<ExpressionNode> actualArguments;
+    private String className;
 
 
     public MethodCallChainNode() {
@@ -31,7 +33,7 @@ public class MethodCallChainNode extends ChainNode {
     @Override
     public Type statementCheck(Type primaryNodeType, SymbolTable symbolTable) throws SemanticException {
         String methodName = getIdMetVar().getLexeme();
-        String className = primaryNodeType.getName();
+        className = primaryNodeType.getName();
         if (!primaryNodeType.getIsPrimitive() && symbolTable.containsClass(className)) {
             if (!symbolTable.getClass(className).hasMethod(methodName))
                 throw new MethodNotDeclaredException(getIdMetVar());
@@ -78,7 +80,42 @@ public class MethodCallChainNode extends ChainNode {
 
     @Override
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
-        // TODO methodCallChainNode
+        Method calledMethod = symbolTable.getClass(className).getMethod(this.getIdMetVar().getLexeme());
+
+        if (!calledMethod.getType().getName().equals("void")) {
+            symbolTable.write("RMEM 1 ; reservo memoria en la pila para el valor de retorno\n");
+            if (!calledMethod.getIsStatic()) {
+                symbolTable.write("SWAP ; para llevarme el this\n");
+            }
+        }
+
+        for (ExpressionNode expressionNode : actualArguments) {
+            expressionNode.generateInterCode(symbolTable);
+            if (!calledMethod.getIsStatic()) {
+                symbolTable.write("SWAP ; para llevarme el this\n");
+            }
+        }
+        if (!calledMethod.getIsStatic()) {
+            symbolTable.write("DUP ; methocallChainNode\n" +
+                    "LOADREF 0 ; cargo una referencia a la VT\n" +
+                    "LOADREF " + calledMethod.getOffset() + " ; cargo la direccion del metodo en la VT\n" +
+                    "CALL\n");
+        } else {
+            symbolTable.write("PUSH " + LabelFactory.createLabel("met", calledMethod.getName(), calledMethod.getContainerClass().getName()) + "\n"+
+                    "CALL\n");
+        }
+
+        if (getFurtherChainNode() != null) {
+            getFurtherChainNode().setIsLeftSideOfAssignment(isLeftSideOfAssignment());
+            getFurtherChainNode().setIsLeftSideOfAssignment(this.isLeftSideOfAssignment());
+            getFurtherChainNode().setIsCallStatement(isCallStatement());
+            getFurtherChainNode().generateInterCode(symbolTable);
+        }
+
+        if (isCallStatement() && getFurtherChainNode()==null){
+            if (!calledMethod.getType().getName().equals("void"))
+                symbolTable.write("POP ; la llamada devolvio algo distinto de void -> se descarta\n");
+        }
     }
 
 

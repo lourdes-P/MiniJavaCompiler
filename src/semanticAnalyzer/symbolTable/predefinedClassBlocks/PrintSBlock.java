@@ -16,10 +16,10 @@ public class PrintSBlock extends Block {
     @Override
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
         symbolTable.write("""
-                LOAD 3 ; apilo el parametro
+                LOAD 3  ; Apila el parámetro
+                PUSH 1
+                ADD
                 SPRINT
-                STOREFP ; almaceno el tope de la pila en el registro fp
-                RET 1
                 """);
     }
 }

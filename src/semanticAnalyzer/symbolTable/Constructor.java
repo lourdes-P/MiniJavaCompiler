@@ -22,8 +22,7 @@ public class Constructor extends Method {
         // el this lo agrega la unidad llamadora
         symbolTable.write(LabelFactory.createLabel("ctor", this.getName(), this.getContainerClass().getName()) + ": LOADFP ; apila el valor del registro fp\n" +
                 "LOADSP ; apila el valor del registro sp\n" +
-                "STOREFP ; almacena el tope de la pila en el registro fp\n" +
-                generateParameters());
+                "STOREFP ; almacena el tope de la pila en el registro fp\n");
 
         this.getMainBlock().generateInterCode(symbolTable);
 

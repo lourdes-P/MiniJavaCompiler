@@ -20,6 +20,43 @@ STOREFP
 RET 1      ; retorna eliminando el parametro
 
 .DATA
+VTA: DW metm1@A
+
+.CODE
+ctorA@A: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+RMEM 0 ; reservo celdas de memoria para las vars locales
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+metm1@A: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+RMEM 0 ; reservo celdas de memoria para las vars locales
+LOAD 3 ; cargo this
+LOADREF 1
+LOAD 3 ; cargo this
+SWAP
+STOREREF 1
+FMEM 0 ; libero las celdas de memoria de las vars locales
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+
+.DATA
+VTB: DW metm1@A
+
+.CODE
+ctorB@B: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+RMEM 0 ; reservo celdas de memoria para las vars locales
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+
+.DATA
 VTInit: NOP
 .CODE
 ctorInit@Init: LOADFP ; apila el valor del registro fp
@@ -33,9 +70,6 @@ metmain@Init: LOADFP ; apila el valor del registro fp
 LOADSP ; apila el valor del registro sp
 STOREFP ; almacena el tope de la pila en el registro fp
 RMEM 0 ; reservo celdas de memoria para las vars locales
-PUSH 1234 ; literal
-PUSH metdebugPrint@Object
-CALL
 FMEM 0 ; libero las celdas de memoria de las vars locales
 STOREFP ; almacena el tope de la pila en el registro
 RET 0

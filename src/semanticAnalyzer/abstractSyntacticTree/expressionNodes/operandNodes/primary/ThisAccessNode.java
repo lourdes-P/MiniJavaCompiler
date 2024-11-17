@@ -60,6 +60,6 @@ public class ThisAccessNode extends PrimaryNode {
 
     @Override
     public void generateInterCode(SymbolTable symbolTable, boolean chainIsNull) throws IOException {
-        // TODO thisNode
+        symbolTable.write("LOAD 3 ; this access\n");
     }
 }

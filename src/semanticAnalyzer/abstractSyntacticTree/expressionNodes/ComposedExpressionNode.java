@@ -4,11 +4,16 @@ import lexicalAnalyzer.Token;
 import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
+import utils.prueba.C;
 
 import java.io.IOException;
 
 public abstract class ComposedExpressionNode {
-    private boolean isLeftSideOfAssignment = false;
+    private boolean isLeftSideOfAssignment;
+
+    public ComposedExpressionNode() {
+        isLeftSideOfAssignment = false;
+    }
 
     public abstract Type statementCheck(SymbolTable symbolTable) throws SemanticException;
 

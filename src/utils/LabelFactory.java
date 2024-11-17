@@ -11,7 +11,7 @@ public class LabelFactory {
     }
 
     // type = VT
-    public static String createLabel(String type, String containerClass) {
+    public static String createVTLabel(String type, String containerClass) {
         return type + containerClass;
     }
 

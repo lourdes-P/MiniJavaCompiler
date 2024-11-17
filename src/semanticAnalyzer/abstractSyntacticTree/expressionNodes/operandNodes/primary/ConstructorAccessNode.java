@@ -12,6 +12,7 @@ import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.ReferenceType;
 import semanticAnalyzer.symbolTable.types.Type;
 import semanticAnalyzer.symbolTable.variables.Parameter;
+import utils.LabelFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -86,6 +87,23 @@ public class ConstructorAccessNode extends PrimaryNode {
     @Override
     public void generateInterCode(SymbolTable symbolTable, boolean chainIsNull) throws IOException {
         // deja en el tope de la pila una referencia al CIR del objeto creado
+        symbolTable.write("RMEM 1 ; reservo memoria para el resultado del malloc\n" +
+                "PUSH " + (symbolTable.getClass(idClase.getLexeme()).getAttributeCollection().size() +1) +
+                " ; apilo la cantidad de vars de instancia del CIR +1 (ref a VT)\n"+
+                "PUSH simple_malloc\n"+
+                "CALL\n"+
+                "DUP ; para no perder la referencia al nuevo CIR al hacer storeref\n"+
+                "PUSH " + LabelFactory.createVTLabel("VT",idClase.getLexeme()) + " ; referencia a VT\n"+
+                "STOREREF 0 ; guardamos la referencia a la VT al principio del CIR creado\n");
 
+        if (!symbolTable.getClass(idClase.getLexeme()).hasDefaultConstructor()) {
+            symbolTable.write("DUP ; ref CIR constructor\n"+
+                "PUSH " + LabelFactory.createLabel("ctor", idClase.getLexeme(),idClase.getLexeme()) + "\n"+
+                "CALL ; llamo al constructor\n");
+        }
+
+        if (isCallStatement()){
+            symbolTable.write("POP ; la llamada devolvio algo distinto de void -> se descarta\n");
+        }
     }
 }

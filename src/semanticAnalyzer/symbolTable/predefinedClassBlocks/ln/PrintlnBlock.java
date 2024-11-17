@@ -17,8 +17,6 @@ public class PrintlnBlock extends Block {
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
         symbolTable.write("""
                 PRNLN
-                STOREFP ; almaceno el tope de la pila en el registro fp
-                RET 0
                 """);
     }
 }

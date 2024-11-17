@@ -91,6 +91,10 @@ public class LocalVariableNode extends SentenceNode {
     @Override
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
         // TODO localVariableNode
+        if (rightSide != null) {
+            rightSide.generateInterCode(symbolTable);
+            symbolTable.write("STORE " + variable.getOffset() + "\n");
+        }
     }
 
 }

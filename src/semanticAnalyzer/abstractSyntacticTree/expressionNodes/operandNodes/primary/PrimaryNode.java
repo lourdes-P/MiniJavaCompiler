@@ -9,7 +9,7 @@ import semanticAnalyzer.symbolTable.types.Type;
 import java.io.IOException;
 
 public abstract class PrimaryNode {
-    private boolean isLeftSideOfAssignment = false;
+    private boolean isLeftSideOfAssignment = false, isCallStatement = false;
 
     public abstract Type statementCheck(SymbolTable symbolTable) throws SemanticException;
 
@@ -28,5 +28,13 @@ public abstract class PrimaryNode {
 
     public boolean isLeftSideOfAssignment() {
         return isLeftSideOfAssignment;
+    }
+
+    public boolean isCallStatement() {
+        return isCallStatement;
+    }
+
+    public void setIsCallStatement(boolean callStatement) {
+        isCallStatement = callStatement;
     }
 }

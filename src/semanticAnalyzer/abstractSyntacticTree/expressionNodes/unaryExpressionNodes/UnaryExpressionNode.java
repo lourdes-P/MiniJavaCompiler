@@ -42,8 +42,5 @@ public abstract class UnaryExpressionNode extends ComposedExpressionNode {
         return false;
     }
 
-    @Override
-    public void generateInterCode(SymbolTable symbolTable) throws IOException {
-        // TODO unary expressions
-    }
+
 }

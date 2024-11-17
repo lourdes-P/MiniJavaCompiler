@@ -17,11 +17,11 @@ import java.util.*;
 public class Class {
     private HashMap<String,Constructor> constructorTable;
     private HashMap<String,Method> methodTable, strictlySelfDeclaredMethodTable;
-    private HashMap<String, Attribute> attributeTable, strictlySelfDeclaredAttributeTable;
+    private HashMap<String, Attribute> attributeTable, strictlySelfDeclaredAttributeTable, invisibleAttributes;
     private Method currentMethod;
     private Token token;
     private ArrayList<Token> inheritsFrom;
-    private boolean consolidatedAttributes, consolidatedMethods;
+    private boolean consolidatedAttributes, consolidatedMethods, defaultConstructor, attributeOffsetsReady;
     private int attributeCIROffset, methodVTOffset;
 
     public Class(Token token) {
@@ -29,6 +29,7 @@ public class Class {
         inheritsFrom = new ArrayList<>();
         attributeTable = new HashMap<>();
         strictlySelfDeclaredAttributeTable = new HashMap<>();
+        invisibleAttributes = new HashMap<>();
         methodTable = new HashMap<>();
         strictlySelfDeclaredMethodTable = new HashMap<>();
         constructorTable = new HashMap<>();
@@ -36,6 +37,8 @@ public class Class {
         consolidatedMethods = false;
         attributeCIROffset = 1;         // dejo el primero para la referencia a la VT
         methodVTOffset = 0;
+        defaultConstructor = false;
+        attributeOffsetsReady = false;
     }
 
     public void addMethod(Method method) throws SemanticException {
@@ -57,15 +60,20 @@ public class Class {
 
     public void addAttribute(Attribute attribute) throws SemanticException  {
         if (!attributeTable.containsKey(attribute.getName())) {
-            attribute.setOffset(attributeCIROffset++);
+            if (!attribute.isStatic())
+                attribute.setOffset(attributeCIROffset++);
             attributeTable.put(attribute.getName(), attribute);
             strictlySelfDeclaredAttributeTable.put(attribute.getName(), attribute);
         } else
             throw new DuplicateAttributeException(this, attribute);
     }
 
+    public void addInheritedAttribute(Attribute inheritedAttribute) {
+        attributeTable.put(inheritedAttribute.getName(), inheritedAttribute);
+    }
+
     public void addInvisibleAttribute(Attribute attribute) {
-        attributeTable.put(attribute.getName(), attribute);
+        invisibleAttributes.put(attribute.getName(), attribute);
     }
 
     public void addParameterToCurrentMethod(Parameter parameter) throws SemanticException {
@@ -92,6 +100,7 @@ public class Class {
         block.setCorrespondingBlockNode(blockNode);
 
         addConstructor(constructor);
+        defaultConstructor = true;
     }
 
     public void addInheritance(Token class_) throws CircularInheritanceException {
@@ -224,16 +233,25 @@ public class Class {
     }
 
     public List<Method> getOrderedMethodList (List<Method> methodList) {
-        Method[] orderedMethodArray = new Method[methodList.size()];
+        Method[] orderedMethodArray = new Method[methodTable.size()];
+        int count = 0;
         for (Method method : methodList) {
             orderedMethodArray[method.getOffset()] = method;
         }
+        methodList = new ArrayList<>();
+        for (int i = 0 ; i < orderedMethodArray.length ; i++) {
+            if (orderedMethodArray[i] != null) {
+                orderedMethodArray[i].setOffset(count++);
+                methodList.add(orderedMethodArray[i]);
+            }
+        }
 
-        return new ArrayList<>(Arrays.stream(orderedMethodArray).toList());
+        return methodList;
     }
 
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
         List<Method> nonStaticMethods = new ArrayList<>(), staticMethods = new ArrayList<>();
+        List<Attribute> staticAttributes = getStaticAttributes();
         for (Method method : methodTable.values()) {
             if (method.getIsStatic())
                 staticMethods.add(method);
@@ -244,9 +262,12 @@ public class Class {
 
         symbolTable.write(".DATA\n");
         if (nonStaticMethods.isEmpty()) {
-            symbolTable.write(LabelFactory.createLabel("VT", getName()) + ": NOP\n");
+            symbolTable.write(LabelFactory.createVTLabel("VT", getName()) + ": NOP\n");
         } else {
-            symbolTable.write(LabelFactory.createLabel("VT", getName()) + ": DW " + generateVT(getOrderedMethodList(nonStaticMethods)) + "\n");
+            symbolTable.write(LabelFactory.createVTLabel("VT", getName()) + ": DW " + generateVT(getOrderedMethodList(nonStaticMethods)) + "\n");
+        }
+        if (!staticAttributes.isEmpty()) {
+            symbolTable.write(generateStaticAttributeCode(staticAttributes));
         }
 
         symbolTable.write(".CODE\n");
@@ -263,12 +284,70 @@ public class Class {
     private String generateVT(List<Method> nonStaticMethods) {
         String vtInit = "";
         if (!nonStaticMethods.isEmpty())
-            vtInit += LabelFactory.createLabel("met", nonStaticMethods.get(0).getName(), this.getName());
+            vtInit += LabelFactory.createLabel("met", nonStaticMethods.get(0).getName(), nonStaticMethods.get(0).getContainerClass().getName());
         for (int i = 1; i < nonStaticMethods.size() ; i++) {
             vtInit += ", ";
-            vtInit += LabelFactory.createLabel("met", nonStaticMethods.get(i).getName(), this.getName());
+            vtInit += LabelFactory.createLabel("met", nonStaticMethods.get(i).getName(), nonStaticMethods.get(i).getContainerClass().getName());
         }
         vtInit += "\n";
         return vtInit;
+    }
+
+    private String generateStaticAttributeCode(List<Attribute> staticAttributeList) {
+        String staticAttributeCode = "";
+        for (Attribute attribute : staticAttributeList) {
+//            if (!attribute.getType().getType().equals("String"))
+            staticAttributeCode += LabelFactory.createLabel("attr", attribute.getName(), attribute.getContainerClass().getName()) + ": DW 1\n";
+        }
+
+        return staticAttributeCode;
+    }
+
+    public void refactorMethodParameters() {
+        for (Method method : getStrictlySelfDeclaredMethodCollection()) {
+            method.refactorParameterOffsets();
+        }
+    }
+
+    private List<Attribute> getStaticAttributes() {
+        // not object, string, system
+        List<Attribute> staticAttributeList = new ArrayList<>();
+
+        for (Attribute attribute : attributeTable.values()) {
+            if (attribute.isStatic()) {
+                staticAttributeList.add(attribute);
+            }
+        }
+
+        return staticAttributeList;
+    }
+
+    public List<Attribute> getOrderedDynamicAttributes(Collection<Attribute> attributeCollection) {
+        List<Attribute> attributeList = new ArrayList<>();
+        for (Attribute attribute : attributeCollection) {
+            if (!attribute.isStatic()) {
+                attributeList.add(attribute);
+            }
+        }
+        return getOrderedAttributeList(attributeList);
+    }
+    private List<Attribute> getOrderedAttributeList(List<Attribute> attributeList) {
+        Attribute[] orderedAttributeArray = new Attribute[attributeTable.size()];
+        for (Attribute attribute : attributeList) {
+            orderedAttributeArray[attribute.getOffset()-1] = attribute;
+        }
+        attributeList = new ArrayList<>();
+        for (int i = 0 ; i < orderedAttributeArray.length ; i++) {
+            if (orderedAttributeArray[i] != null)
+                attributeList.add(orderedAttributeArray[i]);
+        }
+
+        attributeOffsetsReady = true;
+
+        return attributeList;
+    }
+
+    public boolean hasDefaultConstructor() {
+        return defaultConstructor;
     }
 }

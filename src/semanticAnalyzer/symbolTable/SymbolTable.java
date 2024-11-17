@@ -177,7 +177,7 @@ public class SymbolTable {
                         class_.addInvisibleAttribute(clonedAttribute);
                     } else {
                         Attribute clonedAttribute = Attribute.clone(attribute);
-                        class_.addAttribute(clonedAttribute);
+                        class_.addInheritedAttribute(clonedAttribute);
                     }
                 }
                 class_.setConsolidatedAttributes(true);
@@ -190,7 +190,7 @@ public class SymbolTable {
     private void recalculateAttributeOffsets(Class class_, int attributeCIROffset) {
         for(Attribute attribute : class_.getStrictlySelfDeclaredAttributeCollection()) {
             attribute.setOffset((attribute.getOffset() + attributeCIROffset) - 1);
-        }   // TODO empiezan siempre desde 1 los atributos (por la ref a VT), por lo que debo restarle 1 (chequear)
+        }   // empiezan siempre desde 1 los atributos (por la ref a VT), por lo que debo restarle 1 (chequear)
     }
 
     public List<Token> formInheritanceList(Class startingClass, Class currentClass, Token classFromInheritanceList) throws CircularInheritanceException, ClassNotDeclaredException {

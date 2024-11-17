@@ -13,16 +13,18 @@ import java.io.IOException;
 public class AccessNode extends OperandNode {
     private PrimaryNode primaryNode;
     private ChainNode chainNode;
-    private boolean staticallyExecutable;
+    private boolean isCallStatement;
 
     public AccessNode() {
         primaryNode = null;
         chainNode = null;
+        isCallStatement = false;
     }
 
     public AccessNode(PrimaryNode primaryNode) {
         this.primaryNode = primaryNode;
         chainNode = null;
+        isCallStatement = false;
     }
 
     public void setPrimaryNode(PrimaryNode primaryNode) {
@@ -35,6 +37,10 @@ public class AccessNode extends OperandNode {
 
     public void setChainNode(ChainNode chainNode) {
         this.chainNode = chainNode;
+    }
+
+    public void setIsCallStatement(boolean callStatement) {
+        isCallStatement = callStatement;
     }
 
     public Type statementCheck(SymbolTable symbolTable) throws SemanticException {
@@ -74,8 +80,12 @@ public class AccessNode extends OperandNode {
 
     @Override
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
+        primaryNode.setIsLeftSideOfAssignment(this.isLeftSideOfAssignment());
+        primaryNode.setIsCallStatement(isCallStatement);
         primaryNode.generateInterCode(symbolTable, chainNode == null);
         if (chainNode != null) {
+            chainNode.setIsLeftSideOfAssignment(this.isLeftSideOfAssignment());
+            chainNode.setIsCallStatement(isCallStatement);
             chainNode.generateInterCode(symbolTable);
         }
     }

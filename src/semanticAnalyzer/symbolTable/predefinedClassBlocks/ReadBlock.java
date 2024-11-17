@@ -20,8 +20,6 @@ public class ReadBlock extends Block {
                 PUSH 48 ; subtraction por ascii
                 SUB
                 STORE 3 ; almaceno el tope en una locacion reservada para retornar
-                STOREFP ; almaceno el tope de la pila en el registro fp
-                ; ignoro el RET 0 porque es redundante (chequear)
                 """);
     }
 }

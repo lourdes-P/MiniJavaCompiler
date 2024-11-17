@@ -785,7 +785,6 @@ public class SyntacticAnalyzer {
         StaticMethodAccessNode staticMethodAccessNode;
         if(currentToken.getTokenName().equals("Punto")) {
             staticMethodAccessNode = new StaticMethodAccessNode(staticMethodAccessClass);
-
         } else {
             staticMethodAccessNode = new StaticMethodAccessNode(currentToken);
             match("idClase");
@@ -1010,6 +1009,7 @@ public class SyntacticAnalyzer {
         ReturnNode returnNode = new ReturnNode(currentToken);
         match("pr_return");
         returnNode.setContainerMethod(symbolTable.getCurrentMethod());
+        returnNode.setContainerBlock(symbolTable.getCurrentBlock());
         returnNode.setReturnExpression(optionalExpression());
         return returnNode;
     }

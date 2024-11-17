@@ -20,6 +20,65 @@ STOREFP
 RET 1      ; retorna eliminando el parametro
 
 .DATA
+VTA: DW metmc@A
+
+.CODE
+ctorA@A: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+RMEM 0 ; reservo celdas de memoria para las vars locales
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+metmc@A: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+RMEM 0 ; reservo celdas de memoria para las vars locales
+PUSH 1234 ; literal
+PUSH metdebugPrint@Object
+CALL
+PUSH 33 ; literal
+LOAD 3 ; cargo this
+SWAP
+STOREREF 1
+LOAD 3 ; cargo this
+LOADREF 1
+PUSH metdebugPrint@Object
+CALL
+FMEM 0 ; libero las celdas de memoria de las vars locales
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+
+.DATA
+VTB: DW metm@B
+
+.CODE
+ctorB@B: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+RMEM 0 ; reservo celdas de memoria para las vars locales
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+metm@B: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+RMEM 1 ; reservo celdas de memoria para las vars locales
+RMEM 1 ; reservo memoria para el resultado del malloc
+PUSH 2 ; apilo la cantidad de vars de instancia del CIR +1 (ref a VT)
+PUSH simple_malloc
+CALL
+DUP ; para no perder la referencia al nuevo CIR al hacer storeref
+PUSH VTA ; referencia a VT
+STOREREF 0 ; guardamos la referencia a la VT al principio del CIR creado
+STORE 0
+FMEM 1 ; libero las celdas de memoria de las vars locales
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+
+.DATA
 VTInit: NOP
 .CODE
 ctorInit@Init: LOADFP ; apila el valor del registro fp
@@ -32,11 +91,21 @@ RET 1
 metmain@Init: LOADFP ; apila el valor del registro fp
 LOADSP ; apila el valor del registro sp
 STOREFP ; almacena el tope de la pila en el registro fp
-RMEM 0 ; reservo celdas de memoria para las vars locales
-PUSH 1234 ; literal
-PUSH metdebugPrint@Object
+RMEM 1 ; reservo celdas de memoria para las vars locales
+RMEM 1 ; reservo memoria para el resultado del malloc
+PUSH 2 ; apilo la cantidad de vars de instancia del CIR +1 (ref a VT)
+PUSH simple_malloc
 CALL
-FMEM 0 ; libero las celdas de memoria de las vars locales
+DUP ; para no perder la referencia al nuevo CIR al hacer storeref
+PUSH VTA ; referencia a VT
+STOREREF 0 ; guardamos la referencia a la VT al principio del CIR creado
+STORE 0
+LOAD 0
+DUP ; methocallChainNode
+LOADREF 0 ; cargo una referencia a la VT
+LOADREF 0 ; cargo la direccion del metodo en la VT
+CALL
+FMEM 1 ; libero las celdas de memoria de las vars locales
 STOREFP ; almacena el tope de la pila en el registro
 RET 0
 

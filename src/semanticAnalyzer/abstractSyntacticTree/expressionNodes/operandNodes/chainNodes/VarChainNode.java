@@ -39,11 +39,29 @@ public class VarChainNode extends ChainNode {
 
     @Override
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
-        if (!this.isLeftSideOfAssignment() || !(getFurtherChainNode() == null)) {
-            symbolTable.write("LOADREF " + attribute.getOffset() + "\n");
+        if (!attribute.isStatic()) {
+            if (!this.isLeftSideOfAssignment() || !(getFurtherChainNode() == null)) {
+                symbolTable.write("LOADREF " + attribute.getOffset() + "\n");
+            } else {
+                symbolTable.write("SWAP\n" +
+                        "STOREREF " + attribute.getOffset() + "\n");
+            }
         } else {
-            symbolTable.write("SWAP\n" +
-                    "STOREREF " + attribute.getOffset() + "\n");
+            if (!this.isLeftSideOfAssignment() || !(getFurtherChainNode() == null)) {
+                symbolTable.write("LOADREF 0 ; cargo valor atributo estatico\n");
+            } else {
+                symbolTable.write("""
+                            SWAP
+                            STOREREF 0 ; guardo en atributo estatico
+                            """);
+            }
+        }
+
+        if (getFurtherChainNode() != null) {
+            getFurtherChainNode().setIsLeftSideOfAssignment(isLeftSideOfAssignment());
+            getFurtherChainNode().setIsLeftSideOfAssignment(this.isLeftSideOfAssignment());
+            getFurtherChainNode().setIsCallStatement(isCallStatement());
+            getFurtherChainNode().generateInterCode(symbolTable);
         }
     }
 

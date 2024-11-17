@@ -162,6 +162,8 @@ public class Method {
 
     public void statementCheck(SymbolTable symbolTable) throws SemanticException {
         blockList.getFirst().statementCheck(symbolTable);
+        if (!containerClass.getName().equals("Object") && !containerClass.getName().equals("String") && !containerClass.getName().equals("System"))
+            refactorParameterOffsets();
     }
 
     public void setOffset(int offset) {
@@ -179,19 +181,35 @@ public class Method {
         }
     }
 
+    public void refactorParameterOffsets() {
+        List<Parameter> parameterList = getOrderedParameterList();
+        for (Parameter parameter : parameterList) {
+            if (isStatic) {
+                parameter.setOffset((parameterList.size() + 3 - parameter.getOffset()) - 1);
+            }
+            else {
+                parameter.setOffset(parameterList.size() + 3 - parameter.getOffset());
+            }
+        }
+    }
+
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
         // el llamador es quien guarda memoria para el retorno (RMEM)
         // el desplazamiento del ret_val será m+3. (m celdas de memoria correspondiente a los m parametros).
         // el this lo agrega la unidad llamadora
         symbolTable.write(LabelFactory.createLabel("met", this.getName(), containerClass.getName()) + ": LOADFP ; apila el valor del registro fp\n" +
                 "LOADSP ; apila el valor del registro sp\n" +
-                "STOREFP ; almacena el tope de la pila en el registro fp\n" +
-                generateParameters());
+                "STOREFP ; almacena el tope de la pila en el registro fp\n");
 
         blockList.getFirst().generateInterCode(symbolTable);
 
-        symbolTable.write("STOREFP ; almacena el tope de la pila en el registro\n" +
-                "RET " + parameterTable.size());
+        symbolTable.write("STOREFP ; almacena el tope de la pila en el registro\n");
+
+        if (!isStatic) {
+            symbolTable.write("RET " + (parameterTable.size() + 1) + "\n");
+        } else {
+            symbolTable.write("RET " + parameterTable.size() + "\n");
+        }
     }
 
     protected String generateParameters() {
@@ -199,8 +217,7 @@ public class Method {
         List<Parameter> parameterList = getOrderedParameterList();
 
         for (Parameter parameter : parameterList) {
-            parameter.setOffset(parameterList.size() + 3 - parameter.getOffset()); // lo hago aca ya que tengo la lista terminada de parametros
-            parameters += "LOAD " + (parameter.getOffset()) + "; apilo el valor en memoria del offset " + parameter.getName() + "\n";
+            parameters += "LOAD " + (parameter.getOffset()) + " ; apilo el valor en memoria del offset " + parameter.getName() + "\n";
         }
 
         return parameters;

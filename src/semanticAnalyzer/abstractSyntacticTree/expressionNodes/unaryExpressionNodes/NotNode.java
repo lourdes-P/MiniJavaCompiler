@@ -35,6 +35,7 @@ public class NotNode extends UnaryExpressionNode{
 
     @Override
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
-        // TODO unary NotNode
+        getOperandNode().generateInterCode(symbolTable);
+        symbolTable.write("NOT ; unary\n");
     }
 }

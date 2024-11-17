@@ -13,6 +13,8 @@ public class Attribute extends Variable {
         super(token, type);
         containerClass = class_;
         this.isStatic = isStatic;
+        if (isStatic)
+            this.setOffset(1);
     }
 
     public Class getContainerClass() {
@@ -28,7 +30,9 @@ public class Attribute extends Variable {
     }
 
     public static Attribute clone(Attribute attribute){
-        return new Attribute(attribute.getToken(), attribute.getType(), attribute.getContainerClass(), attribute.isStatic());
+        Attribute newAttribute = new Attribute(attribute.getToken(), attribute.getType(), attribute.getContainerClass(), attribute.isStatic());
+        newAttribute.setOffset(attribute.getOffset());
+        return newAttribute;
     }
 
     public boolean equals(Attribute attribute){
