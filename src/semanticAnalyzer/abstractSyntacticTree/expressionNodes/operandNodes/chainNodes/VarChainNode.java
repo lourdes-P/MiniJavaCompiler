@@ -5,6 +5,7 @@ import semanticAnalyzer.exceptions.part2.expressionExceptions.InvalidChainedVari
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
 import semanticAnalyzer.symbolTable.variables.Attribute;
+import utils.LabelFactory;
 
 import java.io.IOException;
 
@@ -47,6 +48,9 @@ public class VarChainNode extends ChainNode {
                         "STOREREF " + attribute.getOffset() + "\n");
             }
         } else {
+            symbolTable.write("POP ; descarto\n");
+            symbolTable.write("PUSH " + LabelFactory.createLabel("attr", attribute.getName(), attribute.getContainerClass().getName()) + "\n");
+
             if (!this.isLeftSideOfAssignment() || !(getFurtherChainNode() == null)) {
                 symbolTable.write("LOADREF 0 ; cargo valor atributo estatico\n");
             } else {

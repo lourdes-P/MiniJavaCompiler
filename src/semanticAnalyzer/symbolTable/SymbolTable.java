@@ -304,7 +304,7 @@ public class SymbolTable {
         return classTable.get(childClass.getLexeme()).containsInheritance(parentClass);
     }
 
-    public void checkInitializedAttribute(Attribute attribute, ComposedExpressionNode composedExpressionNode) throws SemanticException {
+    private void checkInitializedAttribute(Attribute attribute, ComposedExpressionNode composedExpressionNode) throws SemanticException {
         Type type = composedExpressionNode.statementCheck(this);
 
         if (attribute.getType().getType().equals(type.getType())) {
@@ -318,6 +318,11 @@ public class SymbolTable {
 
     public void addInitializedAttributeToCheck(Attribute attribute, ComposedExpressionNode composedExpressionNode) {
         attributeInitializationsToCheck.add(new AbstractMap.SimpleEntry<>(attribute, composedExpressionNode));
+    }
+
+    public List<Map.Entry<Attribute,ComposedExpressionNode>> getAttributeInitializationsToGenerate() {
+        // uso al crear un nuevo CIR (constructor access)
+        return attributeInitializationsToCheck;
     }
 
     public Method getClassSelfDeclaredMethod(String className, String methodName) {

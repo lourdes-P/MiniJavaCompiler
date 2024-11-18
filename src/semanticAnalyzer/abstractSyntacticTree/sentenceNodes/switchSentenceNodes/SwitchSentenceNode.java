@@ -40,5 +40,5 @@ public abstract class SwitchSentenceNode {
 
     public abstract boolean isWhileOrSwitchStatement();
 
-    public abstract String generateInterCode(SymbolTable symbolTable, String afterSwitchLabel) throws IOException;
+    public abstract void generateInterCode(SymbolTable symbolTable, String afterSwitchLabel) throws IOException;
 }

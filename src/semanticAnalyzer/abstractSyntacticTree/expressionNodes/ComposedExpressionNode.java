@@ -4,7 +4,6 @@ import lexicalAnalyzer.Token;
 import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
-import utils.prueba.C;
 
 import java.io.IOException;
 

@@ -1,6 +1,7 @@
 package semanticAnalyzer.symbolTable;
 
 import lexicalAnalyzer.Token;
+import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ComposedExpressionNode;
 import semanticAnalyzer.abstractSyntacticTree.sentenceNodes.BlockNode;
 import semanticAnalyzer.exceptions.*;
 import semanticAnalyzer.exceptions.part1.CircularInheritanceException;
@@ -268,9 +269,12 @@ public class Class {
         }
         if (!staticAttributes.isEmpty()) {
             symbolTable.write(generateStaticAttributeCode(staticAttributes));
+            symbolTable.write("\n.CODE\n");
+//            initializeStaticAttributes(symbolTable);
+        } else {
+            symbolTable.write(".CODE\n");
         }
 
-        symbolTable.write(".CODE\n");
         this.getConstructor(this.getName()).generateInterCode(symbolTable);
         symbolTable.write("\n");
 
@@ -296,11 +300,37 @@ public class Class {
     private String generateStaticAttributeCode(List<Attribute> staticAttributeList) {
         String staticAttributeCode = "";
         for (Attribute attribute : staticAttributeList) {
-//            if (!attribute.getType().getType().equals("String"))
-            staticAttributeCode += LabelFactory.createLabel("attr", attribute.getName(), attribute.getContainerClass().getName()) + ": DW 1\n";
+            staticAttributeCode += LabelFactory.createLabel("attr", attribute.getName(), attribute.getContainerClass().getName()) + ": DW 0\n";
         }
 
         return staticAttributeCode;
+    }
+
+    private void initializeStaticAttributes(SymbolTable symbolTable) throws IOException {
+        List<Map.Entry<Attribute, ComposedExpressionNode>> attributesToInit = symbolTable.getAttributeInitializationsToGenerate();
+        Attribute attribute;
+        ComposedExpressionNode composedExpressionNode;
+        int count = 0;
+
+        symbolTable.write("LOADFP ; apila el valor del registro fp\n" +
+                "LOADSP ; apila el valor del registro sp\n" +
+                "STOREFP ; almacena el tope de la pila en el registro fp\n");
+        for (Map.Entry<Attribute, ComposedExpressionNode> attributeEntryInitToGenerate : attributesToInit) {
+            attribute = attributeEntryInitToGenerate.getKey();
+            composedExpressionNode = attributeEntryInitToGenerate.getValue();
+            if (attribute.isStatic() && attribute.getContainerClass().getName().equals(this.getName())) {
+                composedExpressionNode.generateInterCode(symbolTable);
+                symbolTable.write("PUSH " + LabelFactory.createLabel("attr", attribute.getName(), attribute.getContainerClass().getName()) + "\n");
+                symbolTable.write("""
+                            SWAP
+                            STOREREF 0 ; guardo en atributo estatico
+                            """);
+                count++;
+            }
+        }
+
+        symbolTable.write("STOREFP ; almacena el tope de la pila en el registro\n");
+        symbolTable.write("RET " + count + "\n");
     }
 
     public void refactorMethodParameters() {
@@ -331,6 +361,7 @@ public class Class {
         }
         return getOrderedAttributeList(attributeList);
     }
+
     private List<Attribute> getOrderedAttributeList(List<Attribute> attributeList) {
         Attribute[] orderedAttributeArray = new Attribute[attributeTable.size()];
         for (Attribute attribute : attributeList) {

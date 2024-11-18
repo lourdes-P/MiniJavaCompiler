@@ -39,7 +39,6 @@ public class BreakNode extends SentenceNode {
 
     @Override
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
-        // TODO breakNode
         if (containerWhileStatement != null)
             symbolTable.write("JUMP " + containerWhileStatement.getAfterWhileLabel() + "\n");
 

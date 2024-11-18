@@ -35,16 +35,10 @@ public class SwitchDefaultSentenceNode extends SwitchSentenceNode {
     }
 
     @Override
-    public String generateInterCode(SymbolTable symbolTable, String afterSwitchLabel) throws IOException {
-        this.setAfterCaseLabel(LabelFactory.createNewLabel());
-        symbolTable.write(getSwitchStatementLabel() + ": NOP ; default\n");
+    public void generateInterCode(SymbolTable symbolTable, String afterSwitchLabel) throws IOException {
         symbolTable.write("POP ; saco la condicion\n");
         for (SentenceNode sentenceNode1 : sentenceNode) {
             sentenceNode1.generateInterCode(symbolTable);
         }
-        symbolTable.write("JUMP " + afterSwitchLabel + "\n");
-        // TODO se necesita break ? porque en java termina nomas, no necesita break
-
-        return this.getAfterCaseLabel();
     }
 }

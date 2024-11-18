@@ -65,12 +65,13 @@ public class ReturnNode extends SentenceNode {
     @Override
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
         int numberOfParameters = containerMethod.getParameterCollection().size();
-
-        returnExpression.generateInterCode(symbolTable);
-        symbolTable.write("STORE " + (containerMethod.getIsStatic() ? numberOfParameters + 3 : numberOfParameters + 4) + "\n" +
-                "FMEM "+ (- containerBlock.getOffset()) + " ; libero las celdas de memoria de las vars locales\n"+
+        if (returnExpression != null) {
+            returnExpression.generateInterCode(symbolTable);
+            symbolTable.write("STORE " + (containerMethod.getIsStatic() ? numberOfParameters + 3 : numberOfParameters + 4) + "\n");
+        }
+        symbolTable.write( "FMEM "+ (- containerBlock.getOffset()) + " ; libero las celdas de memoria de las vars locales\n"+
                 "STOREFP ; actualizar fp para que apunte al RA del llamador\n" +
-                "RET 1 ; libero memoria de la celda de valor de retorno\n");
+                "RET " +  (containerMethod.getIsStatic() ? numberOfParameters + 0 : numberOfParameters + 1) + " ; libero memoria de la celda de valor de retorno\n");
     }
 
 }

@@ -2,6 +2,7 @@ package semanticAnalyzer.abstractSyntacticTree.sentenceNodes;
 
 import lexicalAnalyzer.Token;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ExpressionNode;
+import semanticAnalyzer.abstractSyntacticTree.sentenceNodes.switchSentenceNodes.SwitchDefaultSentenceNode;
 import semanticAnalyzer.abstractSyntacticTree.sentenceNodes.switchSentenceNodes.SwitchSentenceNode;
 import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.exceptions.part2.statementExceptions.InvalidSwitchConditionTypeException;
@@ -60,14 +61,25 @@ public class SwitchNode extends SentenceNode {
 
     @Override
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
-        if (!switchSentenceList.isEmpty())
-            switchSentenceList.getFirst().setSwitchStatementLabel(LabelFactory.createNewLabel());
+        afterSwitchLabel = LabelFactory.createNewLabel();
+        String switchCaseLabel = LabelFactory.createNewLabel();
 
-        for (SwitchSentenceNode switchSentenceNode : switchSentenceList) {
+        for (int i = 0 ; i <switchSentenceList.size()-1 ; i++) {
+            switchSentenceList.get(i).setSwitchStatementLabel(switchCaseLabel);
+            symbolTable.write(switchCaseLabel + ": NOP\n");
             condition.generateInterCode(symbolTable);
-            switchSentenceNode.setSwitchStatementLabel(switchSentenceNode.generateInterCode(symbolTable, afterSwitchLabel));
+            switchSentenceList.get(i).setAfterCaseLabel(switchCaseLabel = LabelFactory.createNewLabel());
+            switchSentenceList.get(i).generateInterCode(symbolTable, afterSwitchLabel);
         }
-        afterSwitchLabel = switchSentenceList.getLast().getAfterCaseLabel();
+
+        if (!switchSentenceList.isEmpty()) {
+            switchSentenceList.getLast().setSwitchStatementLabel(switchCaseLabel);
+            symbolTable.write(switchCaseLabel + ": NOP\n");
+            condition.generateInterCode(symbolTable);
+            switchSentenceList.getLast().setAfterCaseLabel(afterSwitchLabel);
+            switchSentenceList.getLast().generateInterCode(symbolTable, afterSwitchLabel);
+        }
+
         symbolTable.write(afterSwitchLabel + ": NOP\n");
     }
 }

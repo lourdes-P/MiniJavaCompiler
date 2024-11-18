@@ -79,7 +79,7 @@ STORE 0
 LOAD 0
 RMEM 1 ; reservo memoria en la pila para el valor de retorno
 SWAP ; para llevarme el this
-DUP ; methocallChainNode
+DUP
 LOADREF 0 ; cargo una referencia a la VT
 LOADREF 1 ; cargo la direccion del metodo en la VT
 CALL
@@ -87,7 +87,7 @@ POP ; la llamada devolvio algo distinto de void -> se descarta
 LOAD 0
 RMEM 1 ; reservo memoria en la pila para el valor de retorno
 SWAP ; para llevarme el this
-DUP ; methocallChainNode
+DUP
 LOADREF 0 ; cargo una referencia a la VT
 LOADREF 1 ; cargo la direccion del metodo en la VT
 CALL

@@ -1,5 +1,5 @@
 .CODE
-PUSH metmain@Init
+PUSH metmain@A
 CALL
 HALT
 
@@ -20,7 +20,7 @@ STOREFP
 RET 1      ; retorna eliminando el parametro
 
 .DATA
-VTA: DW metsetall@A, metm1@A
+VTA: DW metm1@A
 
 .CODE
 ctorA@A: LOADFP ; apila el valor del registro fp
@@ -34,66 +34,140 @@ metm1@A: LOADFP ; apila el valor del registro fp
 LOADSP ; apila el valor del registro sp
 STOREFP ; almacena el tope de la pila en el registro fp
 RMEM 0 ; reservo celdas de memoria para las vars locales
+PUSH 7 ; literal
+PUSH 3 ; literal
+MUL
 LOAD 3 ; cargo this
 LOADREF 1
-PUSH metdebugPrint@Object
-CALL
+DIV
 LOAD 3 ; cargo this
-LOADREF 2
-PUSH metdebugPrint@Object
-CALL
+SWAP
+STOREREF 1
 LOAD 3 ; cargo this
+RMEM 1 ; reservo memoria en la pila para el valor de retorno
+SWAP ; para llevarme el this
+DUP
+LOADREF 0 ; cargo una referencia a la VT
+LOADREF 0 ; cargo la direccion del metodo en la VT
+CALL
+RMEM 1 ; reservo memoria en la pila para el valor de retorno
+SWAP ; para llevarme el this
+DUP
+LOADREF 0 ; cargo una referencia a la VT
+LOADREF 0 ; cargo la direccion del metodo en la VT
+CALL
+LOADREF 1
+LOAD 3 ; cargo this
+LOADREF 1
+ADD
+LOAD 3 ; cargo this
+RMEM 1 ; reservo memoria en la pila para el valor de retorno
+SWAP ; para llevarme el this
+DUP
+LOADREF 0 ; cargo una referencia a la VT
+LOADREF 0 ; cargo la direccion del metodo en la VT
+CALL
+RMEM 1 ; reservo memoria en la pila para el valor de retorno
+SWAP ; para llevarme el this
+DUP
+LOADREF 0 ; cargo una referencia a la VT
+LOADREF 0 ; cargo la direccion del metodo en la VT
+CALL
+SWAP
+STOREREF 1
+LOAD 3 ; cargo this
+LOADREF 1
+PUSH 4 ; literal
+PUSH 3 ; literal
+MOD
+LOAD 3 ; cargo this
+LOADREF 1
+ADD
+SUB
+LOAD 3 ; cargo this
+SWAP
+STOREREF 1
+LOAD 3 ; cargo this
+RMEM 1 ; reservo memoria en la pila para el valor de retorno
+SWAP ; para llevarme el this
+DUP
+LOADREF 0 ; cargo una referencia a la VT
+LOADREF 0 ; cargo la direccion del metodo en la VT
+CALL
+RMEM 1 ; reservo memoria en la pila para el valor de retorno
+SWAP ; para llevarme el this
+DUP
+LOADREF 0 ; cargo una referencia a la VT
+LOADREF 0 ; cargo la direccion del metodo en la VT
+CALL
 LOADREF 3
-PUSH metprintSln@System
+LOAD 3 ; this access
+RMEM 1 ; reservo memoria en la pila para el valor de retorno
+SWAP ; para llevarme el this
+DUP
+LOADREF 0 ; cargo una referencia a la VT
+LOADREF 0 ; cargo la direccion del metodo en la VT
 CALL
+SWAP
+STOREREF 2
+LOAD 3 ; cargo this
+RMEM 1 ; reservo memoria en la pila para el valor de retorno
+SWAP ; para llevarme el this
+DUP
+LOADREF 0 ; cargo una referencia a la VT
+LOADREF 0 ; cargo la direccion del metodo en la VT
+CALL
+RMEM 1 ; reservo memoria en la pila para el valor de retorno
+SWAP ; para llevarme el this
+DUP
+LOADREF 0 ; cargo una referencia a la VT
+LOADREF 0 ; cargo la direccion del metodo en la VT
+CALL
+LOADREF 3
+LOAD 3 ; cargo this
+RMEM 1 ; reservo memoria en la pila para el valor de retorno
+SWAP ; para llevarme el this
+DUP
+LOADREF 0 ; cargo una referencia a la VT
+LOADREF 0 ; cargo la direccion del metodo en la VT
+CALL
+SWAP
+STOREREF 3
+PUSH 3 ; literal
+RMEM 1 ; reservo memoria para el resultado del malloc
+PUSH 4 ; apilo la cantidad de vars de instancia del CIR +1 (ref a VT)
+PUSH simple_malloc
+CALL
+DUP ; para no perder la referencia al nuevo CIR al hacer storeref
+PUSH VTA ; referencia a VT
+STOREREF 0 ; guardamos la referencia a la VT al principio del CIR creado
+SWAP
+STOREREF 1
+RMEM 1 ; reservo memoria para el resultado del malloc
+PUSH 4 ; apilo la cantidad de vars de instancia del CIR +1 (ref a VT)
+PUSH simple_malloc
+CALL
+DUP ; para no perder la referencia al nuevo CIR al hacer storeref
+PUSH VTA ; referencia a VT
+STOREREF 0 ; guardamos la referencia a la VT al principio del CIR creado
+STORE 4
 FMEM 0 ; libero las celdas de memoria de las vars locales
+STOREFP ; actualizar fp para que apunte al RA del llamador
+RET 1 ; libero memoria de la celda de valor de retorno
 STOREFP ; almacena el tope de la pila en el registro
 RET 1
 
-metsetall@A: LOADFP ; apila el valor del registro fp
+metmain@A: LOADFP ; apila el valor del registro fp
 LOADSP ; apila el valor del registro sp
 STOREFP ; almacena el tope de la pila en el registro fp
 RMEM 0 ; reservo celdas de memoria para las vars locales
-LOAD 4
-LOAD 3 ; cargo this
-SWAP
-STOREREF 1
-LOAD 3 ; cargo this
-LOADREF 1
-PUSH 2 ; literal
-MUL
-LOAD 3 ; cargo this
-SWAP
-STOREREF 2
-RMEM 1 ; retorno
-PUSH 5 ; celdas para el string
-PUSH simple_malloc
-CALL
-DUP ; referencia a string
-PUSH 'h'
-STOREREF 1
-DUP ; referencia a string
-PUSH 'o'
-STOREREF 2
-DUP ; referencia a string
-PUSH 'l'
-STOREREF 3
-DUP ; referencia a string
-PUSH 'a'
-STOREREF 4
-DUP ; ref a string
-PUSH 0 ; terminador de string
-STOREREF 5
-LOAD 3 ; cargo this
-SWAP
-STOREREF 3
 FMEM 0 ; libero las celdas de memoria de las vars locales
 STOREFP ; almacena el tope de la pila en el registro
-RET 2
+RET 0
 
 
 .DATA
-VTB: DW metsetall@A, metm1@A, metseta4@B, metm2@B
+VTB: DW metm1@A
 
 .CODE
 ctorB@B: LOADFP ; apila el valor del registro fp
@@ -102,87 +176,6 @@ STOREFP ; almacena el tope de la pila en el registro fp
 RMEM 0 ; reservo celdas de memoria para las vars locales
 STOREFP ; almacena el tope de la pila en el registro
 RET 1
-
-metseta4@B: LOADFP ; apila el valor del registro fp
-LOADSP ; apila el valor del registro sp
-STOREFP ; almacena el tope de la pila en el registro fp
-RMEM 0 ; reservo celdas de memoria para las vars locales
-PUSH 4000 ; literal
-LOAD 3 ; cargo this
-SWAP
-STOREREF 4
-PUSH 55 ; literal
-LOAD 3 ; cargo this
-SWAP
-STOREREF 5
-FMEM 0 ; libero las celdas de memoria de las vars locales
-STOREFP ; almacena el tope de la pila en el registro
-RET 1
-
-metm2@B: LOADFP ; apila el valor del registro fp
-LOADSP ; apila el valor del registro sp
-STOREFP ; almacena el tope de la pila en el registro fp
-RMEM 0 ; reservo celdas de memoria para las vars locales
-LOAD 3 ; cargo this
-LOADREF 4
-PUSH metdebugPrint@Object
-CALL
-LOAD 3 ; cargo this
-LOADREF 5
-PUSH metdebugPrint@Object
-CALL
-FMEM 0 ; libero las celdas de memoria de las vars locales
-STOREFP ; almacena el tope de la pila en el registro
-RET 1
-
-
-.DATA
-VTInit: NOP
-.CODE
-ctorInit@Init: LOADFP ; apila el valor del registro fp
-LOADSP ; apila el valor del registro sp
-STOREFP ; almacena el tope de la pila en el registro fp
-RMEM 0 ; reservo celdas de memoria para las vars locales
-STOREFP ; almacena el tope de la pila en el registro
-RET 1
-
-metmain@Init: LOADFP ; apila el valor del registro fp
-LOADSP ; apila el valor del registro sp
-STOREFP ; almacena el tope de la pila en el registro fp
-RMEM 1 ; reservo celdas de memoria para las vars locales
-RMEM 1 ; reservo memoria para el resultado del malloc
-PUSH 6 ; apilo la cantidad de vars de instancia del CIR +1 (ref a VT)
-PUSH simple_malloc
-CALL
-DUP ; para no perder la referencia al nuevo CIR al hacer storeref
-PUSH VTB ; referencia a VT
-STOREREF 0 ; guardamos la referencia a la VT al principio del CIR creado
-STORE 0
-LOAD 0
-DUP
-LOADREF 0 ; cargo una referencia a la VT
-LOADREF 2 ; cargo la direccion del metodo en la VT
-CALL
-LOAD 0
-PUSH 1234 ; literal
-SWAP ; para llevarme el this
-DUP
-LOADREF 0 ; cargo una referencia a la VT
-LOADREF 0 ; cargo la direccion del metodo en la VT
-CALL
-LOAD 0
-DUP
-LOADREF 0 ; cargo una referencia a la VT
-LOADREF 1 ; cargo la direccion del metodo en la VT
-CALL
-LOAD 0
-DUP
-LOADREF 0 ; cargo una referencia a la VT
-LOADREF 3 ; cargo la direccion del metodo en la VT
-CALL
-FMEM 1 ; libero las celdas de memoria de las vars locales
-STOREFP ; almacena el tope de la pila en el registro
-RET 0
 
 
 .DATA

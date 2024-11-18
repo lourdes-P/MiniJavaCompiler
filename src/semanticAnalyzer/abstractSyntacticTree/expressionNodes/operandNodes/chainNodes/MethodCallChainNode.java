@@ -82,6 +82,9 @@ public class MethodCallChainNode extends ChainNode {
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
         Method calledMethod = symbolTable.getClass(className).getMethod(this.getIdMetVar().getLexeme());
 
+        if (calledMethod.getIsStatic())
+            symbolTable.write("POP ; descarto\n");
+
         if (!calledMethod.getType().getName().equals("void")) {
             symbolTable.write("RMEM 1 ; reservo memoria en la pila para el valor de retorno\n");
             if (!calledMethod.getIsStatic()) {
@@ -113,7 +116,6 @@ public class MethodCallChainNode extends ChainNode {
         }
 
         if (isCallStatement() && getFurtherChainNode()==null){
-            // TODO  chequear si llamada a constructor es callstatement
             if (!calledMethod.getType().getName().equals("void"))
                 symbolTable.write("POP ; la llamada devolvio algo distinto de void -> se descarta\n");
         }

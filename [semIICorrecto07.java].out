@@ -148,7 +148,7 @@ CALL ; llamo al constructor
 STORE 3
 FMEM 0 ; libero las celdas de memoria de las vars locales
 STOREFP ; actualizar fp para que apunte al RA del llamador
-RET 1 ; libero memoria de la celda de valor de retorno
+RET 0 ; libero memoria de la celda de valor de retorno
 STOREFP ; almacena el tope de la pila en el registro
 RET 0
 

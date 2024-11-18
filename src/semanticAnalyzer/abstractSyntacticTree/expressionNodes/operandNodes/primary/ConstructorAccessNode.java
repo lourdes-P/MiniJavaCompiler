@@ -2,6 +2,7 @@ package semanticAnalyzer.abstractSyntacticTree.expressionNodes.operandNodes.prim
 
 
 import lexicalAnalyzer.Token;
+import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ComposedExpressionNode;
 import semanticAnalyzer.abstractSyntacticTree.expressionNodes.ExpressionNode;
 import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.exceptions.part1.ClassNotDeclaredException;
@@ -11,11 +12,13 @@ import semanticAnalyzer.symbolTable.Constructor;
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.ReferenceType;
 import semanticAnalyzer.symbolTable.types.Type;
+import semanticAnalyzer.symbolTable.variables.Attribute;
 import semanticAnalyzer.symbolTable.variables.Parameter;
 import utils.LabelFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public class ConstructorAccessNode extends PrimaryNode {
     private Token idClase;
@@ -96,6 +99,8 @@ public class ConstructorAccessNode extends PrimaryNode {
                 "PUSH " + LabelFactory.createVTLabel("VT",idClase.getLexeme()) + " ; referencia a VT\n"+
                 "STOREREF 0 ; guardamos la referencia a la VT al principio del CIR creado\n");
 
+//        generateInitializedAttributesCode(symbolTable);
+
         if (!symbolTable.getClass(idClase.getLexeme()).hasDefaultConstructor()) {
             symbolTable.write("DUP ; ref CIR constructor\n"+
                 "PUSH " + LabelFactory.createLabel("ctor", idClase.getLexeme(),idClase.getLexeme()) + "\n"+
@@ -104,6 +109,24 @@ public class ConstructorAccessNode extends PrimaryNode {
 
         if (isCallStatement()){
             symbolTable.write("POP ; la llamada devolvio algo distinto de void -> se descarta\n");
+        }
+    }
+
+    private void generateInitializedAttributesCode(SymbolTable symbolTable) throws IOException {
+        List<Map.Entry<Attribute, ComposedExpressionNode>> initializedAttributesToGenerate = symbolTable.getAttributeInitializationsToGenerate();
+        Attribute attribute;
+        ComposedExpressionNode composedExpressionNode;
+
+        for (Map.Entry<Attribute, ComposedExpressionNode> attributeEntryInitToGenerate : initializedAttributesToGenerate) {
+            attribute = attributeEntryInitToGenerate.getKey();
+            composedExpressionNode = attributeEntryInitToGenerate.getValue();
+            if (!attribute.isStatic() && attribute.getContainerClass().getName().equals(idClase.getLexeme())) {
+                symbolTable.write("DUP\n" );
+                composedExpressionNode.generateInterCode(symbolTable);
+                symbolTable.write(
+                        "SWAP\n" +
+                        "STOREREF " + attribute.getOffset() + "\n");
+            }
         }
     }
 }

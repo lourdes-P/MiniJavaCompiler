@@ -1,0 +1,235 @@
+.CODE
+PUSH metmain@A
+CALL
+HALT
+
+simple_heap_init: RET 0   ; inicializacion simplificada del .heap
+
+simple_malloc: LOADFP    ; inicializacion unidad
+LOADSP
+STOREFP    ; finaliza inicializacion del RA
+LOADHL     ; hl
+DUP        ; hl
+PUSH 1
+ADD
+STORE 4    ; guarda resultado (puntero a base de bloque)
+LOAD 3     ; carga cantidad de celdas a alojar (parametro)
+ADD
+STOREHL    ; mueve el heap limit (hl)
+STOREFP
+RET 1      ; retorna eliminando el parametro
+
+.DATA
+VTC3: NOP
+.CODE
+ctorC3@C3: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+RMEM 0 ; reservo celdas de memoria para las vars locales
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+
+.DATA
+VTA: DW metm4@A
+
+.CODE
+ctorA@A: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+RMEM 0 ; reservo celdas de memoria para las vars locales
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+metm4@A: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+RMEM 0 ; reservo celdas de memoria para las vars locales
+LOAD 3 ; cargo this
+RMEM 1 ; reservo memoria en la pila para el valor de retorno
+SWAP ; para llevarme el this
+LOAD 3 ; cargo this
+LOADREF 1
+SWAP ; para llevarme el this
+LOAD 3 ; cargo this
+LOADREF 2
+SWAP ; para llevarme el this
+LOAD 3 ; cargo this
+LOADREF 3
+SWAP ; para llevarme el this
+PUSH 0 ; null 
+SWAP ; para llevarme el this
+DUP
+LOADREF 0 ; cargo una referencia a la VT
+LOADREF 0 ; cargo la direccion del metodo en la VT
+CALL
+STORE 8
+FMEM 0 ; libero las celdas de memoria de las vars locales
+STOREFP ; actualizar fp para que apunte al RA del llamador
+RET 5 ; libero memoria de la celda de valor de retorno
+STOREFP ; almacena el tope de la pila en el registro
+RET 5
+
+metmain@A: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+RMEM 0 ; reservo celdas de memoria para las vars locales
+FMEM 0 ; libero las celdas de memoria de las vars locales
+STOREFP ; almacena el tope de la pila en el registro
+RET 0
+
+
+.DATA
+VTObject: NOP
+.CODE
+ctorObject@Object: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+RMEM 0 ; reservo celdas de memoria para las vars locales
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+metdebugPrint@Object: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+LOAD 3  ; Apila el parámetro
+IPRINT
+PRNLN
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+
+.DATA
+VTString: NOP
+.CODE
+ctorString@String: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+RMEM 0 ; reservo celdas de memoria para las vars locales
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+
+.DATA
+VTSystem: NOP
+.CODE
+ctorSystem@System: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+RMEM 0 ; reservo celdas de memoria para las vars locales
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+metprintC@System: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+LOAD 3  ; Apila el parámetro
+CPRINT
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+metprintS@System: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+LOAD 3  ; Apila el parámetro
+PUSH 1
+ADD
+SPRINT
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+metprintln@System: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+RMEM 0 ; reservo celdas de memoria para las vars locales
+FMEM 0 ; libero las celdas de memoria de las vars locales
+STOREFP ; almacena el tope de la pila en el registro
+RET 0
+
+metprintCln@System: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+LOAD 3  ; Apila el parámetro
+CPRINT
+PRNLN
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+metprintSln@System: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+LOAD 3  ; Apila el parámetro
+PUSH 1
+ADD
+SPRINT
+PRNLN
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+metread@System: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+READ ; lee un valor entero
+PUSH 48 ; subtraction por ascii
+SUB
+STORE 3 ; almaceno el tope en una locacion reservada para retornar
+STOREFP ; almacena el tope de la pila en el registro
+RET 0
+
+metprintB@System: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+LOAD 3  ; Apila el parámetro
+BPRINT
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+metprintIln@System: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+LOAD 3  ; Apila el parámetro
+IPRINT
+PRNLN
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+metprintI@System: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+LOAD 3  ; Apila el parámetro
+IPRINT
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+metprintBln@System: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+LOAD 3  ; Apila el parámetro
+BPRINT
+PRNLN
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+
+.DATA
+VTC1: NOP
+.CODE
+ctorC1@C1: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+RMEM 0 ; reservo celdas de memoria para las vars locales
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+
+.DATA
+VTC2: NOP
+.CODE
+ctorC2@C2: LOADFP ; apila el valor del registro fp
+LOADSP ; apila el valor del registro sp
+STOREFP ; almacena el tope de la pila en el registro fp
+RMEM 0 ; reservo celdas de memoria para las vars locales
+STOREFP ; almacena el tope de la pila en el registro
+RET 1
+
+

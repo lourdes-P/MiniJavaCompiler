@@ -40,8 +40,10 @@ public class SwitchCaseSentenceNode extends SwitchSentenceNode {
         if (!primitiveLiteralType.getType().equals(conditionType.getType()))
             throw new InvalidSwitchConditionTypeException(getSwitchSentenceToken(), conditionType.getType());
 
-        for (SentenceNode sentenceNode : optionalSentence) {
-            sentenceNode.statementCheck(symbolTable);
+        if (optionalSentence != null) {
+            for (SentenceNode sentenceNode : optionalSentence) {
+                sentenceNode.statementCheck(symbolTable);
+            }
         }
     }
 
@@ -51,18 +53,16 @@ public class SwitchCaseSentenceNode extends SwitchSentenceNode {
     }
 
     @Override
-    public String generateInterCode(SymbolTable symbolTable, String afterSwitchLabel) throws IOException {
-        this.setAfterCaseLabel(LabelFactory.createNewLabel());
-        symbolTable.write(getSwitchStatementLabel() + ": NOP\n");
+    public void generateInterCode(SymbolTable symbolTable, String afterSwitchLabel) throws IOException {
         primitiveLiteralNode.generateInterCode(symbolTable);
 
         symbolTable.write("EQ ; comparo condicion y literal\n"+
                 "BF " + this.getAfterCaseLabel() + "\n");
 
-        for (SentenceNode sentenceNode : optionalSentence) {
-            sentenceNode.generateInterCode(symbolTable);
+        if (optionalSentence != null) {
+            for (SentenceNode sentenceNode : optionalSentence) {
+                sentenceNode.generateInterCode(symbolTable);
+            }
         }
-
-        return this.getAfterCaseLabel();
     }
 }
