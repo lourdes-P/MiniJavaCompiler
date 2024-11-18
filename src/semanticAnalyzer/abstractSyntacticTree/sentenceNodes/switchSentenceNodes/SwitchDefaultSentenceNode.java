@@ -5,7 +5,9 @@ import semanticAnalyzer.abstractSyntacticTree.sentenceNodes.SentenceNode;
 import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
+import utils.LabelFactory;
 
+import java.io.IOException;
 import java.util.List;
 
 public class SwitchDefaultSentenceNode extends SwitchSentenceNode {
@@ -30,5 +32,19 @@ public class SwitchDefaultSentenceNode extends SwitchSentenceNode {
     @Override
     public boolean isWhileOrSwitchStatement() {
         return true;
+    }
+
+    @Override
+    public String generateInterCode(SymbolTable symbolTable, String afterSwitchLabel) throws IOException {
+        this.setAfterCaseLabel(LabelFactory.createNewLabel());
+        symbolTable.write(getSwitchStatementLabel() + ": NOP ; default\n");
+        symbolTable.write("POP ; saco la condicion\n");
+        for (SentenceNode sentenceNode1 : sentenceNode) {
+            sentenceNode1.generateInterCode(symbolTable);
+        }
+        symbolTable.write("JUMP " + afterSwitchLabel + "\n");
+        // TODO se necesita break ? porque en java termina nomas, no necesita break
+
+        return this.getAfterCaseLabel();
     }
 }

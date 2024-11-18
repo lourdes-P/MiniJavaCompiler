@@ -6,6 +6,7 @@ import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.exceptions.part2.statementExceptions.InvalidWhileConditionTypeException;
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
+import utils.LabelFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,6 +15,7 @@ public class WhileNode extends SentenceNode {
     private ExpressionNode condition;
     private List<SentenceNode> whileSentence;
     private Token whileToken;
+    private String whileLabel, afterWhileLabel;
 
     public WhileNode(Token whileToken) {
         this.whileToken = whileToken;
@@ -33,6 +35,10 @@ public class WhileNode extends SentenceNode {
         return whileToken;
     }
 
+    public String getAfterWhileLabel() {
+        return afterWhileLabel;
+    }
+
     @Override
     public void statementCheck(SymbolTable symbolTable) throws SemanticException {
         Type whileType = condition.statementCheck(symbolTable);
@@ -45,6 +51,17 @@ public class WhileNode extends SentenceNode {
     }
     @Override
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
-        // TODO whileNode
+        whileLabel = LabelFactory.createNewLabel();
+        afterWhileLabel = LabelFactory.createNewLabel();
+        symbolTable.write(whileLabel + ": NOP\n");
+        condition.generateInterCode(symbolTable);
+        symbolTable.write("BF " + afterWhileLabel + " ; while\n");
+
+        for (SentenceNode sentenceNode : whileSentence) {
+            sentenceNode.generateInterCode(symbolTable);
+        }
+
+        symbolTable.write("JUMP " + whileLabel + "\n" +
+                afterWhileLabel + ": NOP\n");
     }
 }

@@ -24,6 +24,14 @@ public class BreakNode extends SentenceNode {
         this.containerBlock = containerBlock;
     }
 
+    public void setContainerWhileStatement(WhileNode containerWhileStatement) {
+        this.containerWhileStatement = containerWhileStatement;
+    }
+
+    public void setContainerSwitchStatement(SwitchNode containerSwitchStatement) {
+        this.containerSwitchStatement = containerSwitchStatement;
+    }
+
     public void statementCheck(SymbolTable symbolTable) throws SemanticException {
         if (containerWhileStatement == null && containerSwitchStatement == null)
             throw new InvalidBreakAppearanceException(breakToken);
@@ -32,14 +40,13 @@ public class BreakNode extends SentenceNode {
     @Override
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
         // TODO breakNode
+        if (containerWhileStatement != null)
+            symbolTable.write("JUMP " + containerWhileStatement.getAfterWhileLabel() + "\n");
+
+        if (containerSwitchStatement != null)
+            symbolTable.write("JUMP " + containerSwitchStatement.getAfterSwitchLabel() + "\n");
     }
 
-    public void setContainerWhileStatement(WhileNode containerWhileStatement) {
-        this.containerWhileStatement = containerWhileStatement;
-    }
 
-    public void setContainerSwitchStatement(SwitchNode containerSwitchStatement) {
-        this.containerSwitchStatement = containerSwitchStatement;
-    }
 
 }

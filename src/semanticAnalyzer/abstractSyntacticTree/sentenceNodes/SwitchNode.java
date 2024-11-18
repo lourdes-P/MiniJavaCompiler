@@ -7,6 +7,7 @@ import semanticAnalyzer.exceptions.SemanticException;
 import semanticAnalyzer.exceptions.part2.statementExceptions.InvalidSwitchConditionTypeException;
 import semanticAnalyzer.symbolTable.SymbolTable;
 import semanticAnalyzer.symbolTable.types.Type;
+import utils.LabelFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ public class SwitchNode extends SentenceNode {
     private ExpressionNode condition;
     private List<SwitchSentenceNode> switchSentenceList;
     private Token switchToken;
+    private String afterSwitchLabel;
 
     public SwitchNode(Token switchToken) {
         this.switchToken = switchToken;
@@ -40,6 +42,10 @@ public class SwitchNode extends SentenceNode {
         return switchToken;
     }
 
+    public String getAfterSwitchLabel() {
+        return afterSwitchLabel;
+    }
+
     @Override
     public void statementCheck(SymbolTable symbolTable) throws SemanticException {
         Type conditionType = condition.statementCheck(symbolTable);
@@ -54,6 +60,14 @@ public class SwitchNode extends SentenceNode {
 
     @Override
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
-        // TODO switchNode
+        if (!switchSentenceList.isEmpty())
+            switchSentenceList.getFirst().setSwitchStatementLabel(LabelFactory.createNewLabel());
+
+        for (SwitchSentenceNode switchSentenceNode : switchSentenceList) {
+            condition.generateInterCode(symbolTable);
+            switchSentenceNode.setSwitchStatementLabel(switchSentenceNode.generateInterCode(symbolTable, afterSwitchLabel));
+        }
+        afterSwitchLabel = switchSentenceList.getLast().getAfterCaseLabel();
+        symbolTable.write(afterSwitchLabel + ": NOP\n");
     }
 }
