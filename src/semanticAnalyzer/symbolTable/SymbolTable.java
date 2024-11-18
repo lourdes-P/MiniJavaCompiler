@@ -153,14 +153,25 @@ public class SymbolTable {
                 }
                 class_.setConsolidatedMethods(true);
 
-                recalculateMethodOffsets(class_, ancestor.getMethodVTOffset());
+                if (!ancestor.getName().equals("Object") && !ancestor.getName().equals("String") && !ancestor.getName().equals("System"))
+                    recalculateMethodOffsets(class_, ancestor.getMethodVTOffset(), ancestor);
             }
         }
     }
 
-    private void recalculateMethodOffsets(Class class_, int methodVTOffset) {
-        for (Method method : class_.getStrictlySelfDeclaredMethodCollection()) {
-            method.setOffset(method.getOffset() + methodVTOffset);
+    private void recalculateMethodOffsets(Class class_, int methodVTOffset, Class ancestor) {
+        Method ancestorMethod;
+        List<Method> strictlySelfDeclaredMethods = class_.getOrderedMethodList(class_.getStrictlySelfDeclaredMethodCollection().stream().toList());
+        for (Method method : strictlySelfDeclaredMethods) {
+            ancestorMethod = ancestor.getMethod(method.getName());
+            if (ancestorMethod != null && class_.overrides(ancestorMethod)) {
+                // TODO si le hace override pero tiene otro offset (check)
+//                strictlySelfDeclaredMethods.get(ancestorMethod.getOffset()).setOffset(method.getOffset());
+//                method.setOffset(ancestorMethod.getOffset());
+            }
+            else
+                method.setOffset(method.getOffset() + methodVTOffset);
+
         }   // TODO si empieza desde cero está bien (chequear)
     }
 
@@ -188,9 +199,17 @@ public class SymbolTable {
     }
 
     private void recalculateAttributeOffsets(Class class_, int attributeCIROffset) {
+        int offsetConcealedAttributes = 0;
         for(Attribute attribute : class_.getStrictlySelfDeclaredAttributeCollection()) {
-            attribute.setOffset((attribute.getOffset() + attributeCIROffset) - 1);
+            attribute.setOffset(offsetConcealedAttributes = ((attribute.getOffset() + attributeCIROffset) - 1));
         }   // empiezan siempre desde 1 los atributos (por la ref a VT), por lo que debo restarle 1 (chequear)
+
+        if (offsetConcealedAttributes != 0) {
+            for (Attribute attribute : class_.getInvisibleAttributeCollection()) {
+                attribute.setOffset(offsetConcealedAttributes++);
+                class_.addInheritedAttribute(attribute);
+            }
+        }
     }
 
     public List<Token> formInheritanceList(Class startingClass, Class currentClass, Token classFromInheritanceList) throws CircularInheritanceException, ClassNotDeclaredException {

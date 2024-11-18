@@ -51,10 +51,16 @@ PUSH 97 ; literal
 PUSH 12 ; literal
 LE
 AND
+PUSH 1 ; literal boolean
+NOT ; unary
+OR
+PUSH 4 ; literal
+PUSH 2 ; literal
+DIV
+PUSH 2 ; literal
+NE
+AND
 STORE 4
-LOAD 4
-PUSH metprintBln@System
-CALL
 FMEM 0 ; libero las celdas de memoria de las vars locales
 STOREFP ; almacena el tope de la pila en el registro
 RET 2
@@ -81,23 +87,8 @@ RET 1
 metmain@Init: LOADFP ; apila el valor del registro fp
 LOADSP ; apila el valor del registro sp
 STOREFP ; almacena el tope de la pila en el registro fp
-RMEM 1 ; reservo celdas de memoria para las vars locales
-RMEM 1 ; reservo memoria para el resultado del malloc
-PUSH 2 ; apilo la cantidad de vars de instancia del CIR +1 (ref a VT)
-PUSH simple_malloc
-CALL
-DUP ; para no perder la referencia al nuevo CIR al hacer storeref
-PUSH VTA ; referencia a VT
-STOREREF 0 ; guardamos la referencia a la VT al principio del CIR creado
-STORE 0
-LOAD 0
-PUSH 0 ; literal boolean
-SWAP ; para llevarme el this
-DUP ; methocallChainNode
-LOADREF 0 ; cargo una referencia a la VT
-LOADREF 0 ; cargo la direccion del metodo en la VT
-CALL
-FMEM 1 ; libero las celdas de memoria de las vars locales
+RMEM 0 ; reservo celdas de memoria para las vars locales
+FMEM 0 ; libero las celdas de memoria de las vars locales
 STOREFP ; almacena el tope de la pila en el registro
 RET 0
 

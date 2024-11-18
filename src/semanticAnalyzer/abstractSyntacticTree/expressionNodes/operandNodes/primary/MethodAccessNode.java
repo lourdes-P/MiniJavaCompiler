@@ -128,7 +128,7 @@ public class MethodAccessNode extends PrimaryNode {
             }
         }
         if (!calledMethod.getIsStatic()) {
-            symbolTable.write("DUP ; methodAccessNode\n" +
+            symbolTable.write("DUP\n" +
                     "LOADREF 0 ; cargo una referencia a la VT\n" +
                     "LOADREF " + calledMethod.getOffset() + " ; cargo la direccion del metodo en la VT\n" +
                     "CALL\n");

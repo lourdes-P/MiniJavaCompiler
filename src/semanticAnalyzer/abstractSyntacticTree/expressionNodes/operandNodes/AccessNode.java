@@ -81,7 +81,7 @@ public class AccessNode extends OperandNode {
     @Override
     public void generateInterCode(SymbolTable symbolTable) throws IOException {
         primaryNode.setIsLeftSideOfAssignment(this.isLeftSideOfAssignment());
-        primaryNode.setIsCallStatement(isCallStatement);
+        primaryNode.setIsCallStatement(isCallStatement && chainNode== null);
         primaryNode.generateInterCode(symbolTable, chainNode == null);
         if (chainNode != null) {
             chainNode.setIsLeftSideOfAssignment(this.isLeftSideOfAssignment());

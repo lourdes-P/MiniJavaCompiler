@@ -200,10 +200,6 @@ public class Class {
         return methodTable.get(methodName);
     }
 
-    public boolean hasStrictlySelfDeclaredMethod(String methodName) {
-        return strictlySelfDeclaredMethodTable.containsKey(methodName);
-    }
-
     public Method getStrictlySelfDeclaredMethod(String methodName) {
         return strictlySelfDeclaredMethodTable.get(methodName);
     }
@@ -214,6 +210,10 @@ public class Class {
 
     public Collection<Attribute> getStrictlySelfDeclaredAttributeCollection() {
         return strictlySelfDeclaredAttributeTable.values();
+    }
+
+    public Collection<Attribute> getInvisibleAttributeCollection() {
+        return invisibleAttributes.values();
     }
 
     public Constructor getConstructor(String constructorName) {
@@ -258,7 +258,7 @@ public class Class {
             else
                 nonStaticMethods.add(method);
         }
-        staticMethods.addAll(constructorTable.values());        // TODO ver que hacer con esto
+        staticMethods.addAll(constructorTable.values());
 
         symbolTable.write(".DATA\n");
         if (nonStaticMethods.isEmpty()) {

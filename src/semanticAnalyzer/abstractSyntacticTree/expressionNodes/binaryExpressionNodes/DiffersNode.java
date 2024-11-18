@@ -34,11 +34,13 @@ public class DiffersNode extends BinaryExpressionNode {
             if ((leftSideType.getIsPrimitive() && !rightSideType.getIsPrimitive()) || (!leftSideType.getIsPrimitive() && rightSideType.getIsPrimitive()))
                 throw new IncompatibleBinaryExpressionException(this.getOperator());
 
-            if (symbolTable.extendsClass(rightSideType.getToken(), leftSideType.getToken())) {
-                return new PrimitiveType(new Token("pr_true", "true", rightSideType.getToken().getLineNumber()));
+            if (rightSideType.getName().equals(leftSideType.getName()))
+                return new PrimitiveType(new Token("pr_false", "false", rightSideType.getToken().getLineNumber()));
+            else if (symbolTable.extendsClass(rightSideType.getToken(), leftSideType.getToken())) {
+                return new PrimitiveType(new Token("pr_false", "false", rightSideType.getToken().getLineNumber()));
             } else {
                 if (symbolTable.extendsClass(leftSideType.getToken(), rightSideType.getToken())) {
-                    return new PrimitiveType(new Token ("pr_true", "true", rightSideType.getToken().getLineNumber()));
+                    return new PrimitiveType(new Token ("pr_false", "false", rightSideType.getToken().getLineNumber()));
                 } else {
                     throw new IncompatibleBinaryExpressionException(this.getOperator());
                 }

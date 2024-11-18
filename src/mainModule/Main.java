@@ -67,7 +67,7 @@ public class Main {
 
             assert fileWriter != null;
             fileWriter.close();
-            checkOffsets(symbolTable);
+//            checkOffsets(symbolTable);
         } catch (LexicalException lexicalException) {
             System.out.println(lexicalException.getMessage());
             lexicalAnalyzer.registerLexicalError();

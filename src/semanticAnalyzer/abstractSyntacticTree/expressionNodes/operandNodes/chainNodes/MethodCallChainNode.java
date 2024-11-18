@@ -96,7 +96,7 @@ public class MethodCallChainNode extends ChainNode {
             }
         }
         if (!calledMethod.getIsStatic()) {
-            symbolTable.write("DUP ; methocallChainNode\n" +
+            symbolTable.write("DUP\n" +
                     "LOADREF 0 ; cargo una referencia a la VT\n" +
                     "LOADREF " + calledMethod.getOffset() + " ; cargo la direccion del metodo en la VT\n" +
                     "CALL\n");
@@ -113,6 +113,7 @@ public class MethodCallChainNode extends ChainNode {
         }
 
         if (isCallStatement() && getFurtherChainNode()==null){
+            // TODO  chequear si llamada a constructor es callstatement
             if (!calledMethod.getType().getName().equals("void"))
                 symbolTable.write("POP ; la llamada devolvio algo distinto de void -> se descarta\n");
         }
